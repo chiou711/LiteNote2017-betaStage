@@ -7,6 +7,11 @@ import com.cw.litenote.util.Util;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.os.Handler;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 // A class that will show progress bar in the main GUI context
 //
@@ -172,7 +177,23 @@ public class AsyncTaskAudioUrlVerify extends AsyncTask<String,Integer,String>
 			if(AudioPlayer.getPlayMode() == AudioPlayer.ONE_TIME_MODE)
 			 	AudioPlayer.mAudioHandler.postDelayed(AudioPlayer.mRunOneTimeMode,Util.oneSecond/4); 
 			else if(AudioPlayer.getPlayMode() == AudioPlayer.CONTINUE_MODE)
-			 	AudioPlayer.mAudioHandler.postDelayed(AudioPlayer.mRunContinueMode,Util.oneSecond/4);
-	 	}	 	
+				AudioPlayer.mAudioHandler.postDelayed(AudioPlayer.mRunContinueMode, Util.oneSecond / 4);
+			///
+//			{
+//                ScheduledExecutorService scheduledExecutorService =
+//                        Executors.newSingleThreadScheduledExecutor();
+//                final Handler mHandler = new Handler();
+//                scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+//                                                                  @Override
+//                                                                  public void run() {
+//                                                                      mHandler.post(AudioPlayer.mRunContinueMode);
+//                                                                  }}
+//                                                                ,
+//                                                              100,
+//                                                              1000,
+//                                                              TimeUnit.MILLISECONDS);
+//			}
+			///
+	 	}
 	 }
 }

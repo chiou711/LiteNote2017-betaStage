@@ -107,8 +107,9 @@ public class AudioPlayer
 				setPlayState(PLAYER_AT_PLAY);
 			}
 		}
-	}   	
-	
+	}
+
+    public static int mAudioCurrPos;
 	//
 	// One time mode
 	//
@@ -126,7 +127,8 @@ public class AudioPlayer
 				    //create a MediaPlayer
 				    mMediaPlayer = new MediaPlayer();
 	   				mMediaPlayer.reset();
-	   				
+                    mAudioCurrPos = 0;
+
 	   				//set audio player listeners
 	   				setAudioPlayerListeners();
 	   				
@@ -155,7 +157,8 @@ public class AudioPlayer
 	   		}
 	   		else if(mMediaPlayer != null)
 	   		{
-				if(getPlayMode() == ONE_TIME_MODE)
+				mAudioCurrPos++;
+//				if(getPlayMode() == ONE_TIME_MODE)
 	   				Note.updateAudioProgress(mAct);
 				mAudioHandler.postDelayed(mRunOneTimeMode,DURATION_1S);
 	   		}		    		
@@ -186,13 +189,15 @@ public class AudioPlayer
    					{
    						System.out.println("* Runnable updateMediaPlay / play mode: continue");
 	   					
-   						//create a MediaPlayer 
+   						//create a MediaPlayer
    						mMediaPlayer = new MediaPlayer(); 
 	   					mMediaPlayer.reset();
 	   					willPlayNext = true; // default: play next
 	   					Page.mProgress = 0;
-	   					
-	   					// for network stream buffer change
+						mAudioCurrPos = 0;
+
+
+						// for network stream buffer change
 	   					mMediaPlayer.setOnBufferingUpdateListener(new OnBufferingUpdateListener()
 	   					{
 	   						@Override
@@ -214,7 +219,7 @@ public class AudioPlayer
    						}
    						catch(Exception e)
    						{
-   							System.out.println("on Exception");
+   							System.out.println("AudioPlayer on Exception");
    							Log.e(TAG, e.toString());
 							mAudio_tryTimes++;
    							playNextAudio();
@@ -226,9 +231,11 @@ public class AudioPlayer
 	   				// keep looping, do not set post() here, it will affect slide show timing
 	   				if(mAudio_tryTimes < AudioInfo.getAudioFilesSize())
 	   				{
+						mAudioCurrPos++;
+
 						// update seek bar
 	   					Page.update_audioPanel_progress();
-
+						System.out.println("--- mRunContinueMode");
 						if(mAudio_tryTimes == 0)
 							mAudioHandler.postDelayed(mRunContinueMode,DURATION_1S);
 						else
@@ -273,6 +280,7 @@ public class AudioPlayer
 	
 					mMediaPlayer = null;
 					mPlaybackTime = 0;
+					mAudioCurrPos = 0;
 
 					// get next index
 					if(getPlayMode() == CONTINUE_MODE)
@@ -469,6 +477,7 @@ public class AudioPlayer
 		{
 			mAudioHandler.removeCallbacks(mRunOneTimeMode); 
 			mAudioHandler.removeCallbacks(mRunContinueMode);
+			mAudioHandler = null;
 		}
 
 		// start a new handler

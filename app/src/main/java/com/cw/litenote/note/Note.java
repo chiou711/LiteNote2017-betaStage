@@ -1,5 +1,7 @@
 package com.cw.litenote.note;
 
+import java.security.Timestamp;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +33,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
+import android.media.MediaTimestamp;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -832,6 +835,7 @@ public class Note extends FragmentActivity
 				if( AudioPlayer.mMediaPlayer != null  )
 				{
 					int mPlayAudioPosition = (int) (((float)(mediaFileLength / 100)) * seekBar.getProgress());
+					AudioPlayer.mAudioCurrPos = mPlayAudioPosition/1000;
 					AudioPlayer.mMediaPlayer.seekTo(mPlayAudioPosition);
 				}
 				else
@@ -857,6 +861,7 @@ public class Note extends FragmentActivity
 				{	
 					// show progress change
 			    	int currentPos = mediaFileLength *progress/(seekBar.getMax()+1);
+					AudioPlayer.mAudioCurrPos = currentPos * 1000;
 			    	int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
 			    	int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
 			     	int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
@@ -874,7 +879,9 @@ public class Note extends FragmentActivity
     public static void updateAudioProgress(FragmentActivity act)
     {
         SeekBar seekBar = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
-        int currentPos = AudioPlayer.mMediaPlayer.getCurrentPosition();
+//		int currentPos = AudioPlayer.mMediaPlayer.getCurrentPosition();
+		int currentPos = AudioPlayer.mAudioCurrPos*1000;
+		System.out.println("Note / updateAudioProgress / currentPos = " + currentPos);
     	int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
     	int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
      	int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
@@ -892,6 +899,10 @@ public class Note extends FragmentActivity
      	
      	if(seekBar != null)
      		seekBar.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
+
+		System.out.println("Note / updateAudioProgress / mProgress = " + mProgress);
+		if((currentPos - mediaFileLength) > 5000)
+			AudioPlayer.stopAudio();
     }
     
     public static void initAudioProgress(FragmentActivity act,String audioUriInDB)

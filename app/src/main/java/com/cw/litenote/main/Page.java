@@ -820,6 +820,7 @@ public class Page extends UilListViewBaseFragment
                 if( AudioPlayer.mMediaPlayer != null  )
                 {
                     int mPlayAudioPosition = (int) (((float)(media_file_length / 100)) * seekBar.getProgress());
+					AudioPlayer.mAudioCurrPos = mPlayAudioPosition/1000;
                     AudioPlayer.mMediaPlayer.seekTo(mPlayAudioPosition);
                 }
             }
@@ -834,6 +835,7 @@ public class Page extends UilListViewBaseFragment
                 {
                     // show progress change
                     int currentPos = media_file_length *progress/(seekBar.getMax()+1);
+					AudioPlayer.mAudioCurrPos = currentPos * 1000;
                     int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
                     int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
                     int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
@@ -1369,6 +1371,7 @@ public class Page extends UilListViewBaseFragment
 	
 	// update audio panel progress
 	public static int mProgress;
+
     public static void update_audioPanel_progress()
     {
 		if(!mDndListView.isShown())
@@ -1377,11 +1380,22 @@ public class Page extends UilListViewBaseFragment
 //		System.out.println("Page / _update_audioPanel_progress");
 
 		// get current playing position
-    	int currentPos = AudioPlayer.mMediaPlayer.getCurrentPosition();
+//		if(AudioPlayer.mMediaPlayer == null)
+//			System.out.println("Page / _update_audioPanel_progress / media player is null");
+//		else
+//			System.out.println("Page / _update_audioPanel_progress / media player is not null");
+
+//    	int currentPos = AudioPlayer.mMediaPlayer.getCurrentPosition();//???
+        int currentPos = AudioPlayer.mAudioCurrPos*1000;
+		System.out.println("Page / _update_audioPanel_progress / currentPos = "+currentPos);
+
     	int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
     	int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
      	int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
 
+		System.out.println("progress is:　"+String.format(Locale.US,"%2d", curHour)+":" +
+				String.format(Locale.US,"%02d", curMin)+":" +
+				String.format(Locale.US,"%02d", curSec));
 		// set current playing time
     	audioPanel_curr_pos.setText(String.format(Locale.US,"%2d", curHour)+":" +
     										   String.format(Locale.US,"%02d", curMin)+":" +
@@ -1390,6 +1404,10 @@ public class Page extends UilListViewBaseFragment
 		// set current progress
 		mProgress = (int)(((float)currentPos/ media_file_length)*100);
     	seekBarProgress.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
+
+		System.out.println("Page / update_audioPanel_progress / mProgress = " + mProgress);
+		if((currentPos - media_file_length) > 5000)
+			AudioPlayer.playNextAudio();
     }
     
     
