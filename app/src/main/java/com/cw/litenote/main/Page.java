@@ -1369,7 +1369,6 @@ public class Page extends UilListViewBaseFragment
 	
 	// update audio panel progress
 	public static int mProgress;
-
     public static void update_audioPanel_progress()
     {
 		if(!mDndListView.isShown())

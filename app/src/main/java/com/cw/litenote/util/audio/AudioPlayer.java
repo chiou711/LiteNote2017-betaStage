@@ -109,7 +109,6 @@ public class AudioPlayer
 		}
 	}
 
-    public static int mAudioCurrPos;
 	//
 	// One time mode
 	//
@@ -127,7 +126,6 @@ public class AudioPlayer
 				    //create a MediaPlayer
 				    mMediaPlayer = new MediaPlayer();
 	   				mMediaPlayer.reset();
-                    mAudioCurrPos = 0;
 
 	   				//set audio player listeners
 	   				setAudioPlayerListeners();
@@ -157,7 +155,6 @@ public class AudioPlayer
 	   		}
 	   		else if(mMediaPlayer != null)
 	   		{
-				mAudioCurrPos++;
 //				if(getPlayMode() == ONE_TIME_MODE)
 	   				Note.updateAudioProgress(mAct);
 				mAudioHandler.postDelayed(mRunOneTimeMode,DURATION_1S);
@@ -194,7 +191,6 @@ public class AudioPlayer
 	   					mMediaPlayer.reset();
 	   					willPlayNext = true; // default: play next
 	   					Page.mProgress = 0;
-						mAudioCurrPos = 0;
 
 
 						// for network stream buffer change
@@ -231,11 +227,10 @@ public class AudioPlayer
 	   				// keep looping, do not set post() here, it will affect slide show timing
 	   				if(mAudio_tryTimes < AudioInfo.getAudioFilesSize())
 	   				{
-						mAudioCurrPos++;
 
 						// update seek bar
 	   					Page.update_audioPanel_progress();
-						System.out.println("--- mRunContinueMode");
+
 						if(mAudio_tryTimes == 0)
 							mAudioHandler.postDelayed(mRunContinueMode,DURATION_1S);
 						else
@@ -280,7 +275,6 @@ public class AudioPlayer
 	
 					mMediaPlayer = null;
 					mPlaybackTime = 0;
-					mAudioCurrPos = 0;
 
 					// get next index
 					if(getPlayMode() == CONTINUE_MODE)
@@ -477,7 +471,6 @@ public class AudioPlayer
 		{
 			mAudioHandler.removeCallbacks(mRunOneTimeMode); 
 			mAudioHandler.removeCallbacks(mRunContinueMode);
-			mAudioHandler = null;
 		}
 
 		// start a new handler
