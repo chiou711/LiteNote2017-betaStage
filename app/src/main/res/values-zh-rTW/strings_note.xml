@@ -17,9 +17,9 @@
     <string name="view_note_button_back">返回</string>
     <string name="view_note_button_edit">編輯</string>
     <string name="view_note_mode">瀏覽模式</string>
-    <string name="view_note_mode_all">圖與文</string>
-    <string name="view_note_mode_picture">圖影</string>
-    <string name="view_note_mode_text">文字</string>
+    <string name="view_note_mode_all">圖 + 文</string>
+    <string name="view_note_mode_picture">圖</string>
+    <string name="view_note_mode_text">文</string>
     <string name="view_note_slide_action_previous">上一個</string>
     <string name="view_note_slide_action_next">下一個</string>
     <string name="view_note_slide_action_finish">最後</string>       

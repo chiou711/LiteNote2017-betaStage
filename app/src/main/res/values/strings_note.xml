@@ -17,7 +17,7 @@
     <string name="view_note_button_back">Back</string>
     <string name="view_note_button_edit">Edit</string>
     <string name="view_note_mode">View mode</string>
-    <string name="view_note_mode_all">Picture and text</string>
+    <string name="view_note_mode_all">Picture + Text</string>
     <string name="view_note_mode_picture">Picture</string>
     <string name="view_note_mode_text">Text</string>
     <string name="view_note_slide_action_previous">Previous</string>

@@ -446,9 +446,9 @@ public class Page extends UilListViewBaseFragment
 
         mDndListView.setDividerHeight(3);
         */
-    	int count = mDb_page.getNotesCount(true);
-    	
+
     	mDb_page.open();
+        int count = mDb_page.getNotesCount(true);
     	mCursor_note = DB_page.mCursor_note;
         mDb_page.close();
         
@@ -491,14 +491,14 @@ public class Page extends UilListViewBaseFragment
 		
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
-			System.out.println("_onScrollStateChanged");
 	        mFirstVisibleIndex = mDndListView.getFirstVisiblePosition();
 	        View v = mDndListView.getChildAt(0);
 	        mFirstVisibleIndexTop = (v == null) ? 0 : v.getTop();
 
 			if( (TabsHost.mNow_pageId == MainAct.mPlaying_pageId)&&
 				(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos) &&
-					(Page.mDndListView.getChildAt(0) != null)                                      )
+				(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY) &&
+				(Page.mDndListView.getChildAt(0) != null)                    )
 			{
 				// do nothing when playing audio
 				System.out.println("_onScrollStateChanged / do nothing");
