@@ -874,8 +874,12 @@ public class Note extends FragmentActivity
     public static void updateAudioProgress(FragmentActivity act)
     {
         SeekBar seekBar = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
-        int currentPos = AudioPlayer.mMediaPlayer.getCurrentPosition();
-    	int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
+		int currentPos=0;
+
+		if(AudioPlayer.mMediaPlayer != null)
+        	currentPos = AudioPlayer.mMediaPlayer.getCurrentPosition();
+
+		int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
     	int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
      	int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
 
@@ -1125,7 +1129,9 @@ public class Note extends FragmentActivity
     boolean canShowFullScreenPicture()
     {
         String pictureStr = mDb_page.getNotePictureUri(mCurrentPosition,true);
-        System.out.println(" Note / _canShowFullPicture / pictureStr = " +pictureStr);
+		System.out.println(" Note / _canShowFullPicture / pictureStr = " +pictureStr);
+//		System.out.println(" Note / _canShowFullPicture / Util.isLandscapeOrientation(act) = " +Util.isLandscapeOrientation(act));
+//		System.out.println(" Note / _canShowFullPicture / UtilImage.isLandscapePicture(pictureStr) = " +UtilImage.isLandscapePicture(pictureStr));
         if( !Util.isEmptyString(pictureStr) &&
             ( (Util.isLandscapeOrientation(act) && UtilImage.isLandscapePicture(pictureStr) ) ||
             (!Util.isLandscapeOrientation(act) && !UtilImage.isLandscapePicture(pictureStr))  ) )

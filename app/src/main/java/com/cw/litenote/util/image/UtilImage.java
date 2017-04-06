@@ -791,6 +791,7 @@ public class UtilImage
 			 imageView.setImageBitmap(bitmap);
 	}
 
+	// Some cameras can add rotation data to EXIF, but others just add normal setting to EXIF
 	public static boolean isLandscapePicture(String path)
 	{
 //		System.out.println("UtilImage / isLandscapePicture / path = " +path);
@@ -801,25 +802,27 @@ public class UtilImage
             e.printStackTrace();
         }
         int rotSetting = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
+		System.out.println("UtilImage / isLandscapePicture / rotSetting = " +rotSetting);
         boolean  isLandscape = true;
         if ( (rotSetting == ExifInterface.ORIENTATION_ROTATE_90) ||
              (rotSetting == ExifInterface.ORIENTATION_ROTATE_270)   )
             isLandscape = false;
         else if( (rotSetting == ExifInterface.ORIENTATION_ROTATE_180) ||
                  (rotSetting == ExifInterface.ORIENTATION_NORMAL)       )
-            isLandscape = true;
-        return isLandscape;
+		{
+			// some device can not use width and height to determine landscape
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inJustDecodeBounds = true;
 
-        // some device can not use width and height to determine landscape
-//		BitmapFactory.Options options = new BitmapFactory.Options();
-//		options.inJustDecodeBounds = true;
-//
-//		BitmapFactory.decodeFile(path.replace("file://",""), options);
-//		int width = options.outWidth;
-//		System.out.println("UtilImage / isLandscapePicture / width = " +width);
-//		int height = options.outHeight;
-//		System.out.println("UtilImage / isLandscapePicture / height = " +height);
-//		return width > height;
+			BitmapFactory.decodeFile(path.replace("file://", ""), options);
+			int width = options.outWidth;
+			System.out.println("UtilImage / isLandscapePicture / width = " + width);
+			int height = options.outHeight;
+			System.out.println("UtilImage / isLandscapePicture / height = " + height);
+			isLandscape=(width > height)?true:false;
+		}
+
+		return isLandscape;
+
 	}
 }

@@ -52,7 +52,8 @@ public class Note_addText extends Activity {
 		// set add note button visibility
         if(!note_common.isTextAdded())
         	addButton.setVisibility(View.GONE);
-        
+
+        Note_common.mLinkEditText = null; //avoid buffer has content
         Note_common.mTitleEditText.addTextChangedListener(setTextWatcher());
         Note_common.mBodyEditText.addTextChangedListener(setTextWatcher());
 
