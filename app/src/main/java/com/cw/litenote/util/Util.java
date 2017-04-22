@@ -1244,62 +1244,62 @@ public class Util
     {
 	    // set multiple actions in Intent 
 	    // Refer to: http://stackoverflow.com/questions/11021021/how-to-make-an-intent-with-multiple-actions
-        PackageManager pm = act.getPackageManager();
-        Intent getImageContentIntent = null;
-        Intent openInChooser = null;
+        PackageManager pkgMgr = act.getPackageManager();
+		Intent intentSaf;
+		Intent intent;
+        Intent openInChooser;
         List<ResolveInfo> resInfoSaf = null;
+		List<ResolveInfo> resInfo;
         Intent[] extraIntentsSaf = null;
-        List<ResolveInfo> resInfo = null;
-        Intent[] extraIntents = null;
-        
+        Intent[] extraIntents;
+
         // SAF support starts from Kitkat
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
         {
 			// BEGIN_INCLUDE (use_open_document_intent)
 	        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
-        	getImageContentIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        	intentSaf = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 	        
 	        // Filter to only show results that can be "opened", such as a file (as opposed to a list
 	        // of contacts or time zones)
-        	getImageContentIntent.addCategory(Intent.CATEGORY_OPENABLE);	        
-        	getImageContentIntent.setType(type);
+        	intentSaf.addCategory(Intent.CATEGORY_OPENABLE);
+        	intentSaf.setType(type);
 
         	// get extra SAF intents
-	        resInfoSaf = pm.queryIntentActivities(getImageContentIntent, 0);
-//	        System.out.println("resInfoSaf size = " + resInfoSaf.size());
+	        resInfoSaf = pkgMgr.queryIntentActivities(intentSaf, 0);
         	extraIntentsSaf = new Intent[resInfoSaf.size()];
 	        for (int i = 0; i < resInfoSaf.size(); i++) 
 	        {
 	            // Extract the label, append it, and repackage it in a LabeledIntent
 	            ResolveInfo ri = resInfoSaf.get(i);
 	            String packageName = ri.activityInfo.packageName;
-	            Intent intent = new Intent();
-	            intent.setComponent(new ComponentName(packageName, ri.activityInfo.name));
-	            intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-	            intent.setType(type);
-	            
-		        Spannable saf_span = new SpannableString(" (CLOUD)");
-		        saf_span.setSpan(new ForegroundColorSpan(android.graphics.Color.RED), 0, saf_span.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		        CharSequence newSafLabel = TextUtils.concat(ri.loadLabel(pm), saf_span);
+				intentSaf.setComponent(new ComponentName(packageName, ri.activityInfo.name));
+				intentSaf.setAction(Intent.ACTION_OPEN_DOCUMENT);
+				intentSaf.setType(type);
+
+				// add span (CLOUD)
+//		        Spannable saf_span = new SpannableString(" (CLOUD)");
+//		        saf_span.setSpan(new ForegroundColorSpan(android.graphics.Color.RED), 0, saf_span.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		        CharSequence newSafLabel = TextUtils.concat(ri.loadLabel(pkgMgr), saf_span);
 //	        	System.out.println("SAF label " + i + " = " + newSafLabel );
-	        	extraIntentsSaf[i] = new LabeledIntent(intent, packageName, newSafLabel, ri.icon);
-	        } 
+//				extraIntentsSaf[i] = new LabeledIntent(intentSaf, packageName, newSafLabel, ri.icon);
+
+				extraIntentsSaf[i] = new LabeledIntent(intentSaf, packageName, ri.loadLabel(pkgMgr), ri.icon);
+	        }
         }   
         
         // get extra non-SAF intents
-        getImageContentIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        getImageContentIntent.setType(type);
-        resInfo = pm.queryIntentActivities(getImageContentIntent, 0);	        
-        extraIntents = new Intent[resInfo.size()];	        
-        for (int i = 0; i < resInfo.size(); i++) 
-        {
-            ResolveInfo ri = resInfo.get(i);
-            String packageName = ri.activityInfo.packageName;
-            Intent intent = new Intent();
-            intent.setComponent(new ComponentName(packageName, ri.activityInfo.name));
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.setType(type);
-            CharSequence label = ri.loadLabel(pm);
+        intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType(type);
+        resInfo = pkgMgr.queryIntentActivities(intent, 0);
+        extraIntents = new Intent[resInfo.size()];
+        for (int i = 0; i < resInfo.size(); i++)
+        { ResolveInfo ri = resInfo.get(i);
+			String packageName = ri.activityInfo.packageName;
+			intent.setComponent(new ComponentName(packageName, ri.activityInfo.name));
+			intent.setAction(Intent.ACTION_GET_CONTENT);
+			intent.setType(type);
+            CharSequence label = ri.loadLabel(pkgMgr);
         	extraIntents[i] = new LabeledIntent(intent, packageName, label, ri.icon);
         }
         
@@ -1318,7 +1318,7 @@ public class Util
         		j++;
         	}
         }
-        
+
         // calculate the duplication number and remove duplication
         int len = extraIntentsAll.length;
     	int duplicatedNum = 0;
@@ -1329,8 +1329,6 @@ public class Util
         	if(extraIntentsAll[i] !=  null)
         	{
         		component = extraIntentsAll[i].getComponent();
-//	        		System.out.println("--- extraIntentsAll (" + i + ")= " + extraIntentsAll[i].toString());
-//	        		System.out.println("--- cmp = " + component);
 	        	for(int k=0; k< len; k++)
 	        	{
 	        		if((k != i) && (extraIntentsAll[k] !=  null) && (component.equals(extraIntentsAll[k].getComponent()) ))
@@ -1341,7 +1339,8 @@ public class Util
 	        	}
         	}
         }
-        
+		System.out.println("duplicatedNum = " + duplicatedNum);
+
         // get final intents
         Intent[] extraIntentsFinal = new Intent[len-duplicatedNum];
         int count = 0;
@@ -1350,8 +1349,6 @@ public class Util
         	if(extraIntentsAll[i] != null)
         	{
         		extraIntentsFinal[count] = extraIntentsAll[i];
-	        	ComponentName component = extraIntentsFinal[count].getComponent();
-	        	System.out.println("--- final cmp of ("+ count + ") = " + component);
         		count++;
         	}
         }
@@ -1365,8 +1362,9 @@ public class Util
         	charSeq = act.getResources().getText(R.string.add_new_chooser_video);
         else if(type.startsWith("audio"))
         	charSeq = act.getResources().getText(R.string.add_new_chooser_audio);
-        	
-	    openInChooser = Intent.createChooser(getImageContentIntent, charSeq);
+
+//		openInChooser = Intent.createChooser(intentSaf, charSeq);//option 1
+		openInChooser = Intent.createChooser(intent, charSeq);//option 2
         openInChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntentsFinal);
                 	
         return openInChooser;
