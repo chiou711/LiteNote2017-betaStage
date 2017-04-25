@@ -485,6 +485,10 @@ public class Page extends UilListViewBaseFragment
 		mDndListView.setOnScrollListener(onScroll);
 
         showFooter();
+
+		// scroll highlight audio item to be visible
+		if((AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
+			AudioPlayer.scrollHighlightAudioItemToVisible();
     }
 
     OnScrollListener onScroll = new OnScrollListener() {
@@ -703,7 +707,7 @@ public class Page extends UilListViewBaseFragment
 	// set footer
     static void showFooter()
     {
-    	System.out.println("Page / _setFooter ");
+    	System.out.println("Page / _showFooter ");
 
 		// show footer
         mFooterMessage.setTextColor(ColorSet.color_white);
@@ -740,7 +744,7 @@ public class Page extends UilListViewBaseFragment
     static View audio_panel;
 
     /**
-     * init audi block
+     * init audio block
      */
     public static void initAudioBlock()
     {
@@ -766,9 +770,6 @@ public class Page extends UilListViewBaseFragment
         audioPanel_play_button = (ImageView) mAct.findViewById(R.id.audioPanel_play);
 
         UtilAudio.updateAudioPanel(audioPanel_play_button, audio_panel_title);
-
-        if((AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
-            AudioPlayer.scrollHighlightAudioItemToVisible();
 
         ImageView audioPanel_previous_btn = (ImageView) mAct.findViewById(R.id.audioPanel_previous);
         audioPanel_previous_btn.setImageResource(R.drawable.ic_media_previous);
@@ -910,7 +911,7 @@ public class Page extends UilListViewBaseFragment
 	// set list view footer audio control
     public static void showAudioPanel(String string, boolean enable)
     {
-		System.out.println("Page / _setFooterAudioControl");
+		System.out.println("Page / _showAudioPanel");
 
         audio_panel = mAct.findViewById(R.id.audio_panel);
 

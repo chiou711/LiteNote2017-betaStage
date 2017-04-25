@@ -1248,10 +1248,9 @@ public class Util
 		Intent intentSaf;
 		Intent intent;
         Intent openInChooser;
-        List<ResolveInfo> resInfoSaf = null;
+        List<ResolveInfo> resInfoSaf;
 		List<ResolveInfo> resInfo;
-        Intent[] extraIntentsSaf = null;
-        Intent[] extraIntents;
+		List<LabeledIntent> intentList = new ArrayList<>();
 
         // SAF support starts from Kitkat
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
@@ -1259,7 +1258,7 @@ public class Util
 			// BEGIN_INCLUDE (use_open_document_intent)
 	        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
         	intentSaf = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-	        
+
 	        // Filter to only show results that can be "opened", such as a file (as opposed to a list
 	        // of contacts or time zones)
         	intentSaf.addCategory(Intent.CATEGORY_OPENABLE);
@@ -1267,91 +1266,61 @@ public class Util
 
         	// get extra SAF intents
 	        resInfoSaf = pkgMgr.queryIntentActivities(intentSaf, 0);
-        	extraIntentsSaf = new Intent[resInfoSaf.size()];
-	        for (int i = 0; i < resInfoSaf.size(); i++) 
+
+	        for (int i = 0; i < resInfoSaf.size(); i++)
 	        {
 	            // Extract the label, append it, and repackage it in a LabeledIntent
 	            ResolveInfo ri = resInfoSaf.get(i);
 	            String packageName = ri.activityInfo.packageName;
 				intentSaf.setComponent(new ComponentName(packageName, ri.activityInfo.name));
-				intentSaf.setAction(Intent.ACTION_OPEN_DOCUMENT);
-				intentSaf.setType(type);
 
 				// add span (CLOUD)
-//		        Spannable saf_span = new SpannableString(" (CLOUD)");
-//		        saf_span.setSpan(new ForegroundColorSpan(android.graphics.Color.RED), 0, saf_span.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//		        CharSequence newSafLabel = TextUtils.concat(ri.loadLabel(pkgMgr), saf_span);
-//	        	System.out.println("SAF label " + i + " = " + newSafLabel );
+		        Spannable saf_span = new SpannableString(" (CLOUD)");
+		        saf_span.setSpan(new ForegroundColorSpan(android.graphics.Color.RED), 0, saf_span.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		        CharSequence newSafLabel = TextUtils.concat(ri.loadLabel(pkgMgr), saf_span);
+	        	System.out.println("SAF label " + i + " = " + newSafLabel );
 //				extraIntentsSaf[i] = new LabeledIntent(intentSaf, packageName, newSafLabel, ri.icon);
 
-				extraIntentsSaf[i] = new LabeledIntent(intentSaf, packageName, ri.loadLabel(pkgMgr), ri.icon);
+				intentList.add(new LabeledIntent(intentSaf,packageName,newSafLabel,ri.icon));
 	        }
-        }   
+        }
         
         // get extra non-SAF intents
-        intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType(type);
         resInfo = pkgMgr.queryIntentActivities(intent, 0);
-        extraIntents = new Intent[resInfo.size()];
         for (int i = 0; i < resInfo.size(); i++)
         { ResolveInfo ri = resInfo.get(i);
 			String packageName = ri.activityInfo.packageName;
 			intent.setComponent(new ComponentName(packageName, ri.activityInfo.name));
-			intent.setAction(Intent.ACTION_GET_CONTENT);
-			intent.setType(type);
-            CharSequence label = ri.loadLabel(pkgMgr);
-        	extraIntents[i] = new LabeledIntent(intent, packageName, label, ri.icon);
-        }
-        
-        // get all intents
-        int safSize = (resInfoSaf == null)? 0:resInfoSaf.size(); 
-        int sizeAll = safSize + resInfo.size();
-        Intent[] extraIntentsAll = new Intent[sizeAll];
-        int j =0;
-        for(int i = 0; i < sizeAll; i++)
-        {
-        	if( i < safSize)
-        		extraIntentsAll[i] = extraIntentsSaf[i];
-        	else if( (i >= safSize) && (i < sizeAll ))
-        	{
-        		extraIntentsAll[i] = extraIntents[j];
-        		j++;
-        	}
+			intentList.add(new LabeledIntent(intent,packageName,ri.loadLabel(pkgMgr),ri.icon));
         }
 
-        // calculate the duplication number and remove duplication
-        int len = extraIntentsAll.length;
-    	int duplicatedNum = 0;
-        System.out.println("extraIntentsAll size = " + len );
-        for(int i=0; i<len ; i++)
-        {
-        	ComponentName component = null;
-        	if(extraIntentsAll[i] !=  null)
-        	{
-        		component = extraIntentsAll[i].getComponent();
-	        	for(int k=0; k< len; k++)
-	        	{
-	        		if((k != i) && (extraIntentsAll[k] !=  null) && (component.equals(extraIntentsAll[k].getComponent()) ))
-	        		{
-	        			duplicatedNum++;
-	        			extraIntentsAll[k] = null;
-	        		}
-	        	}
-        	}
-        }
-		System.out.println("duplicatedNum = " + duplicatedNum);
 
-        // get final intents
-        Intent[] extraIntentsFinal = new Intent[len-duplicatedNum];
-        int count = 0;
-        for(int i=0; i<len ; i++)
-        {
-        	if(extraIntentsAll[i] != null)
-        	{
-        		extraIntentsFinal[count] = extraIntentsAll[i];
-        		count++;
-        	}
-        }
+        // remove duplicated item
+        for(int i=0;i<intentList.size();i++)
+		{
+			ComponentName name1 = intentList.get(i).getComponent();
+//			System.out.println("---> intentList.size() = " + intentList.size());
+//			System.out.println("---> name1 = " + name1);
+			for(int j=i+1;j<intentList.size();j++)
+			{
+				ComponentName name2 = intentList.get(j).getComponent();
+//				System.out.println("---> intentList.size() = " + intentList.size());
+//				System.out.println("---> name2 = " + name2);
+				if( name1.equals(name2)) {
+//					System.out.println("---> will remove");
+					intentList.remove(j);
+					j=intentList.size();
+				}
+			}
+		}
+
+		// check
+		for(int i=0; i<intentList.size() ; i++)
+		{
+			System.out.println("--> intent list ("+ i +")" + intentList.get(i).toString());
+		}
         
         // OK to put extra
         CharSequence charSeq = "";
@@ -1363,8 +1332,8 @@ public class Util
         else if(type.startsWith("audio"))
         	charSeq = act.getResources().getText(R.string.add_new_chooser_audio);
 
-//		openInChooser = Intent.createChooser(intentSaf, charSeq);//option 1
-		openInChooser = Intent.createChooser(intent, charSeq);//option 2
+		openInChooser = Intent.createChooser(intentList.remove(intentList.size()-1), charSeq);//remove duplicated item
+		LabeledIntent[] extraIntentsFinal = intentList.toArray(new LabeledIntent[intentList.size()]);
         openInChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntentsFinal);
                 	
         return openInChooser;
