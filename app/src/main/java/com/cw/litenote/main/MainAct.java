@@ -3,6 +3,7 @@ package com.cw.litenote.main;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.cw.litenote.R;
@@ -10,6 +11,7 @@ import com.cw.litenote.config.Config;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.ColorSet;
+import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
 import com.cw.litenote.config.Export_toSDCardFragment;
 import com.cw.litenote.config.Import_fromSDCardFragment;
@@ -43,9 +45,13 @@ import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 public class MainAct extends FragmentActivity implements OnBackStackChangedListener
@@ -155,7 +161,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		String intentLink = addNote_IntentLink(getIntent());
 		if(!Util.isEmptyString(intentLink) )
 		{
-			finish();
+			finish(); // LiteNote not running at first, keep closing
 		}
 		else
 		{
@@ -224,6 +230,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     }
 
     //Add note with Intent link
+	String title;
 	String addNote_IntentLink(Intent intent)
 	{
 		Bundle extras = intent.getExtras();
@@ -253,28 +260,97 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 			System.out.println("-------link path of Share 2 = " + path);
 			mDb_page.open();
-			mDb_page.insertNote("", "", "", "", path, "", 0, (long) 0);// add new note, get return row Id
+			final long rowId = mDb_page.insertNote("", "", "", "", path, "", 0, (long) 0);// add new note, get return row Id
 			mDb_page.close();
-			String title;
 
 			// save to top or to bottom
+			final String link =path;
 			int count = mDb_page.getNotesCount(true);
-			SharedPreferences mPref_add_new_note_location = getSharedPreferences("add_new_note_option", 0);
-			if( mPref_add_new_note_location.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
-					(count > 1)        )
+			SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
+
+			// YouTube
+            if( Util.isYouTubeLink(path))
+            {
+                title = Util.getYoutubeTitle(path);
+
+                if(pref_show_note_attribute
+                        .getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
+                        .equalsIgnoreCase("yes"))
+                {
+                    Date now = new Date();
+                    mDb_page.updateNote(rowId, title, "", "", "", path, "", 0, now.getTime(), true); // update note
+                }
+
+				if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
+						(count > 1)        )
+				{
+					Page.swap(mDb_page);
+				}
+
+				Toast.makeText(this,
+						getResources().getText(R.string.add_new_note_option_title) + title,
+						Toast.LENGTH_SHORT)
+						.show();
+            }
+			// Web page
+			else if(!Util.isEmptyString(path) &&
+					path.startsWith("http")   &&
+					!Util.isYouTubeLink(path)   )
 			{
-				Page.swap();
+				title = path; //set default
+				final CustomWebView web = new CustomWebView(mAct);
+				web.loadUrl(path);
+				web.setVisibility(View.INVISIBLE);
+				web.setWebChromeClient(new WebChromeClient() {
+					@Override
+					public void onReceivedTitle(WebView view, String titleReceived) {
+						super.onReceivedTitle(view, titleReceived);
+						if (!TextUtils.isEmpty(titleReceived) &&
+							!titleReceived.equalsIgnoreCase("about:blank"))
+						{
+							SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
+							if(pref_show_note_attribute
+									.getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
+									.equalsIgnoreCase("yes"))
+							{
+								Date now = new Date();
+								mDb_page.updateNote(rowId, titleReceived, "", "", "", link, "", 0, now.getTime(), true); // update note
+							}
+
+							int count = mDb_page.getNotesCount(true);
+							if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
+									(count > 1)        )
+							{
+								Page.swap(mDb_page);
+							}
+
+							Toast.makeText(mAct,
+									getResources().getText(R.string.add_new_note_option_title) + titleReceived,
+									Toast.LENGTH_SHORT)
+									.show();
+							CustomWebView.pauseWebView(web);
+							CustomWebView.blankWebView(web);
+							if(Page.mItemAdapter != null)
+								Page.mItemAdapter.notifyDataSetChanged();
+							title = titleReceived;
+						}
+					}
+				});
+			}
+            else // other
+            {
+				title = pathOri; //??? better way?
+				if (pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO", "bottom").equalsIgnoreCase("top") &&
+						(count > 1)) {
+					Page.swap(mDb_page);
+				}
+
+				Toast.makeText(this,
+						getResources().getText(R.string.add_new_note_option_title) + title,
+						Toast.LENGTH_SHORT)
+						.show();
 			}
 
-			if( Util.isYouTubeLink(path))
-				title = Util.getYoutubeTitle(path);
-			else
-				title = pathOri; //??? better way?
-
-			Toast.makeText(this,
-					getResources().getText(R.string.add_new_note_option_title) + title,
-					Toast.LENGTH_SHORT)
-					.show();
 			return title;
 		}
 		else
@@ -286,13 +362,14 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
      * 
      */
 
-    // one Intent is already running, call it again in YouTube or Browser will run into this
+    // if one LiteNote Intent is already running, call it again in YouTube or Browser will run into this
     @Override
     protected void onNewIntent(Intent intent)
     {
         super.onNewIntent(intent);
 		System.out.println("MainAct / _onNewIntent");
         addNote_IntentLink(intent);
+		Page.mItemAdapter.notifyDataSetChanged();
     }
 
     // for Rotate screen

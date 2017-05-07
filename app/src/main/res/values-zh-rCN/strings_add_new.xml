@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_new_note">新增笔记</string>
+    <string name="add_new_note_position">页面新笔记位置：</string>
     <string name="add_new_note_top">到顶部</string>
     <string name="add_new_note_bottom">到底部</string>
     <string name="add_new_link_title_also">同时添加连结的标题</string>
-    <string name="add_new_note_optional">可选的</string>
     <string name="add_new_note_option_title">新增笔记：</string>
-    <string name="add_new_note_notice_title">注意</string>
-    <string name="add_new_note_notice_message">您可以在[新增筆記的位置]的设置中恢复[可选的]选项</string>
     <string name="add_new_note_title">新增笔记</string>
     <string name="add_new_note_message">笔记内容:</string>
     <string name="add_new_note_button_add">新增</string>
     <string name="add_new_note_confirm_save">已经有内容在新笔记中，您要保存它吗？</string>
-    <string name="dialog_add_new_option_title">设定所选文件的操作：</string>
-    <string name="dialog_add_new_single">增加单一文件</string>
-    <string name="dialog_add_new_multiple">增加一个目录的本地文件</string>
+    <string name="dialog_add_new_option_title">设定新增笔记的操作：</string>
+    <string name="dialog_add_new_multiple">新增本地文件笔记：包括目录中的所有同类文件</string>
     <string name="note_text">文字</string>
     <string name="note_camera_image">摄像机图像</string>
     <string name="note_camera_video">摄像机视频</string>
-    <string name="note_ready_image">现有的图像</string>
-    <string name="note_ready_video">现有的视频</string>
+    <string name="note_local_image">本地图像</string>
+    <string name="note_local_video">本地视频</string>
     <string name="note_audio">音讯</string>
     <string name="note_youtube_link">YouTube连结</string>
     <string name="note_web_link">网页连结</string>

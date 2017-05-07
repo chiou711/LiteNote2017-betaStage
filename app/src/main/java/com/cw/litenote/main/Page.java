@@ -61,23 +61,6 @@ public class Page extends UilListViewBaseFragment
 	public static DB_page mDb_page;
     SharedPreferences mPref_delete_warn;
 	public static SharedPreferences mPref_show_note_attribute;
-
-    private static Long mNoteNumber1 = (long) 1;
-	private static String mNoteTitle1;
-	private static String mNotePictureUri1;
-	private static String mNoteAudioUri1;
-	private static String mNoteLinkUri1;
-	private static String mNoteBodyString1;
-	private static int mMarkingIndex1;
-	private static Long mCreateTime1;
-	private static Long mNoteNumber2 ;
-	private static String mNotePictureUri2;
-	private static String mNoteAudioUri2;
-	private static String mNoteLinkUri2;
-	private static String mNoteTitle2;
-	private static String mNoteBodyString2;
-	private static int mMarkingIndex2;
-	private static Long mCreateTime2;
 	private List<Boolean> mSelectedList = new ArrayList<>();
 	
 	// This is the Adapter being used to display the list's data.
@@ -257,7 +240,7 @@ public class Page extends UilListViewBaseFragment
 			int loop = Math.abs(startPosition-endPosition);
 			for(int i=0;i< loop;i++)
 			{
-				swapRows(startPosition,endPosition);
+				swapRows(Page.mDb_page, startPosition,endPosition);
 				if((startPosition-endPosition) >0)
 					endPosition++;
 				else
@@ -529,27 +512,45 @@ public class Page extends UilListViewBaseFragment
 	
 	
     // swap rows
-	protected static void swapRows(int startPosition, int endPosition) 
+	protected static void swapRows(DB_page dB_page, int startPosition, int endPosition)
 	{
-		mDb_page.open();
-		mNoteNumber1 = mDb_page.getNoteId(startPosition,false);
-        mNoteTitle1 = mDb_page.getNoteTitle(startPosition,false);
-        mNotePictureUri1 = mDb_page.getNotePictureUri(startPosition,false);
-        mNoteAudioUri1 = mDb_page.getNoteAudioUri(startPosition,false);
-        mNoteLinkUri1 = mDb_page.getNoteLinkUri(startPosition,false);
-        mNoteBodyString1 = mDb_page.getNoteBody(startPosition,false);
-        mMarkingIndex1 = mDb_page.getNoteMarking(startPosition,false);
-    	mCreateTime1 = mDb_page.getNoteCreatedTime(startPosition,false);
+		Long mNoteNumber1;
+		String mNoteTitle1;
+		String mNotePictureUri1;
+		String mNoteAudioUri1;
+		String mNoteLinkUri1;
+		String mNoteBodyString1;
+		int mMarkingIndex1;
+		Long mCreateTime1;
+		Long mNoteNumber2 ;
+		String mNotePictureUri2;
+		String mNoteAudioUri2;
+		String mNoteLinkUri2;
+		String mNoteTitle2;
+		String mNoteBodyString2;
+		int mMarkingIndex2;
+		Long mCreateTime2;
 
-		mNoteNumber2 = mDb_page.getNoteId(endPosition,false);
-        mNoteTitle2 = mDb_page.getNoteTitle(endPosition,false);
-        mNotePictureUri2 = mDb_page.getNotePictureUri(endPosition,false);
-        mNoteAudioUri2 = mDb_page.getNoteAudioUri(endPosition,false);
-        mNoteLinkUri2 = mDb_page.getNoteLinkUri(endPosition,false);
-        mNoteBodyString2 = mDb_page.getNoteBody(endPosition,false);
-        mMarkingIndex2 = mDb_page.getNoteMarking(endPosition,false);
-    	mCreateTime2 = mDb_page.getNoteCreatedTime(endPosition,false);
-        mDb_page.updateNote(mNoteNumber2,
+		dB_page.open();
+		mNoteNumber1 = dB_page.getNoteId(startPosition,false);
+        mNoteTitle1 = dB_page.getNoteTitle(startPosition,false);
+        mNotePictureUri1 = dB_page.getNotePictureUri(startPosition,false);
+        mNoteAudioUri1 = dB_page.getNoteAudioUri(startPosition,false);
+        mNoteLinkUri1 = dB_page.getNoteLinkUri(startPosition,false);
+        mNoteBodyString1 = dB_page.getNoteBody(startPosition,false);
+        mMarkingIndex1 = dB_page.getNoteMarking(startPosition,false);
+    	mCreateTime1 = dB_page.getNoteCreatedTime(startPosition,false);
+
+		mNoteNumber2 = dB_page.getNoteId(endPosition,false);
+        mNoteTitle2 = dB_page.getNoteTitle(endPosition,false);
+        mNotePictureUri2 = dB_page.getNotePictureUri(endPosition,false);
+        mNoteAudioUri2 = dB_page.getNoteAudioUri(endPosition,false);
+        mNoteLinkUri2 = dB_page.getNoteLinkUri(endPosition,false);
+        mNoteBodyString2 = dB_page.getNoteBody(endPosition,false);
+        mMarkingIndex2 = dB_page.getNoteMarking(endPosition,false);
+    	mCreateTime2 = dB_page.getNoteCreatedTime(endPosition,false);
+
+        dB_page.updateNote(mNoteNumber2,
 				 mNoteTitle1,
 				 mNotePictureUri1,
 				 mNoteAudioUri1, 
@@ -559,7 +560,7 @@ public class Page extends UilListViewBaseFragment
 				 mMarkingIndex1,
 				 mCreateTime1,false);		        
 		
-		mDb_page.updateNote(mNoteNumber1,
+		dB_page.updateNote(mNoteNumber1,
 		 		 mNoteTitle2,
 		 		 mNotePictureUri2,
 		 		 mNoteAudioUri2, 
@@ -567,8 +568,9 @@ public class Page extends UilListViewBaseFragment
 				 mNoteLinkUri2,
 		 		 mNoteBodyString2,
 		 		 mMarkingIndex2,
-		 		 mCreateTime2,false);	
-		mDb_page.close();
+		 		 mCreateTime2,false);
+
+		dB_page.close();
 	}
 
     // list view listener: on mark
@@ -1059,16 +1061,16 @@ public class Page extends UilListViewBaseFragment
     }
     
 	
-	static public void swap()
+	static public void swap(DB_page dB_page)
 	{
-        int startCursor = mDb_page.getNotesCount(true)-1;
+        int startCursor = dB_page.getNotesCount(true)-1;
         int endCursor = 0;
 		
 		//reorder data base storage for ADD_NEW_TO_TOP option
 		int loop = Math.abs(startCursor-endCursor);
 		for(int i=0;i< loop;i++)
 		{
-			swapRows(startCursor,endCursor);
+			swapRows(dB_page, startCursor,endCursor);
 			if((startCursor-endCursor) >0)
 				endCursor++;
 			else

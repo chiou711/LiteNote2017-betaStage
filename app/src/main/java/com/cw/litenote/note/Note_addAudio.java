@@ -147,7 +147,7 @@ public class Note_addAudio extends FragmentActivity {
 		        	if( (Note_common.getCount() > 0) &&  
 		        		option.equalsIgnoreCase("single_to_top"))
 		        	{
-		        		Page.swap();
+		        		Page.swap(Page.mDb_page);
 		        		//update playing focus
 		        		AudioPlayer.mAudioIndex++;
 		        	}
@@ -212,7 +212,7 @@ public class Note_addAudio extends FragmentActivity {
 				        	if( (Note_common.getCount() > 0) &&
 	  		        			option.equalsIgnoreCase("directory_to_top") ) 
 				        	{
-				        		Page.swap();
+				        		Page.swap(Page.mDb_page);
 				        		//update playing focus
 				        		AudioPlayer.mAudioIndex++;
 				        	}

@@ -11,6 +11,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -40,10 +41,8 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.note.Note_addAudio;
 import com.cw.litenote.note.Note_addCameraImage;
 import com.cw.litenote.note.Note_addCameraVideo;
-import com.cw.litenote.note.Note_addLink;
 import com.cw.litenote.note.Note_addText;
-import com.cw.litenote.note.Note_addNew_optional;
-import com.cw.litenote.note.Note_addNew_optional_for_multiple;
+import com.cw.litenote.note.Note_addNew_option;
 import com.cw.litenote.note.Note_addReadyImage;
 import com.cw.litenote.note.Note_addReadyVideo;
 import com.cw.litenote.preference.Define;
@@ -55,9 +54,6 @@ import com.cw.litenote.util.Util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.cw.litenote.main.MainAct.REQUEST_ADD_WEB_LINK;
-import static com.cw.litenote.main.MainAct.REQUEST_ADD_YOUTUBE_LINK;
 
 
 public class MainUi 
@@ -207,7 +203,9 @@ public class MainUi
     private final static int ID_NEW_CAMERA_VIDEO = 5;
     private final static int ID_NEW_READY_VIDEO = 6;
     private final static int ID_NEW_YOUTUBE_LINK = 7;
-    private final static int ID_NEW_WEB_LINK = 8;
+	private final static int ID_NEW_WEB_LINK = 8;
+	private final static int ID_NEW_BACK = 9;
+    private final static int ID_NEW_SETTING = 10;
 
     static void addNewNote(final FragmentActivity act)
 	{
@@ -242,7 +240,7 @@ public class MainUi
 		// ready image
         mAddNote.add(new NewNote(ID_NEW_READY_IMAGE,
                                  android.R.drawable.ic_menu_gallery,
-                                 R.string.note_ready_image));
+                                 R.string.note_local_image));
 
 		// camera video
 		if(packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA))
@@ -255,17 +253,28 @@ public class MainUi
 		// ready video
         mAddNote.add(new NewNote(ID_NEW_READY_VIDEO,
                                  R.drawable.ic_ready_video,
-                                 R.string.note_ready_video));
+                                 R.string.note_local_video));
 
 		// YouTube link
         mAddNote.add(new NewNote(ID_NEW_YOUTUBE_LINK,
                                  android.R.drawable.ic_menu_share,
                                  R.string.note_youtube_link));
 
+
 		// Web link
-        mAddNote.add(new NewNote(ID_NEW_WEB_LINK,
-                                 android.R.drawable.ic_menu_share,
-                                 R.string.note_web_link));
+		mAddNote.add(new NewNote(ID_NEW_WEB_LINK,
+				android.R.drawable.ic_menu_share,
+				R.string.note_web_link));
+
+		// Back
+		mAddNote.add(new NewNote(ID_NEW_BACK,
+				R.drawable.ic_menu_back,
+				R.string.btn_Cancel));
+
+		// Setting
+		mAddNote.add(new NewNote(ID_NEW_SETTING,
+				android.R.drawable.ic_menu_preferences,
+				R.string.settings));
 
 		gridView = (GridView) rootView.findViewById(R.id.add_note_grid_view);
 
@@ -292,69 +301,127 @@ public class MainUi
 		// set view to dialog
 		AlertDialog.Builder builder1 = new AlertDialog.Builder(act);
 		builder1.setView(rootView);
-		final AlertDialog dialog1 = builder1.create();
-		dialog1.show();
+		dlgAddNew = builder1.create();
+		dlgAddNew.show();
 	}
+	private static AlertDialog dlgAddNew;
 
 	private static void startAddNoteActivity(FragmentActivity act,int option)
 	{
 		System.out.println("MainUi / _startAddNoteActivity / option = " + option);
+
+		SharedPreferences mPref_add_new_note_location = act.getSharedPreferences("add_new_note_option", 0);
+		boolean bTop = mPref_add_new_note_location.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top");
+		boolean bDirectory = mPref_add_new_note_location.getString("KEY_ADD_DIRECTORY","no").equalsIgnoreCase("yes");
+
 		switch (option) {
 			case ID_NEW_TEXT:
 			{
 				Intent intent = new Intent(act, Note_addText.class);
-				new Note_addNew_optional(act, intent);
+				if(bTop)
+					intent.putExtra("extra_ADD_NEW_TO_TOP", "true");
+				else
+					intent.putExtra("extra_ADD_NEW_TO_TOP", "false");
+
+				act.startActivity(intent);
 			}
 			break;
 
             case ID_NEW_AUDIO:
             {
                 Intent intent = new Intent(act, Note_addAudio.class);
-                new Note_addNew_optional_for_multiple(act, intent);
+				if( bTop && !bDirectory )
+					intent.putExtra("EXTRA_ADD_EXIST", "single_to_top");
+				else if(!bTop && !bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "single_to_bottom");
+				else if(bTop && bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "directory_to_top");
+				else if(!bTop && bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "directory_to_bottom");
+
+				act.startActivity(intent);
             }
             break;
 
 			case ID_NEW_CAMERA_IMAGE:
 			{
 				Intent intent = new Intent(act, Note_addCameraImage.class);
-				new Note_addNew_optional(act, intent);
+				if(bTop)
+					intent.putExtra("extra_ADD_NEW_TO_TOP", "true");
+				else
+					intent.putExtra("extra_ADD_NEW_TO_TOP", "false");
+
+				act.startActivity(intent);
 			}
 			break;
 
 			case ID_NEW_READY_IMAGE:
 			{
 				Intent intent = new Intent(act, Note_addReadyImage.class);
-				new Note_addNew_optional_for_multiple(act, intent);
+				if( bTop && !bDirectory )
+					intent.putExtra("EXTRA_ADD_EXIST", "single_to_top");
+				else if(!bTop && !bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "single_to_bottom");
+				else if(bTop && bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "directory_to_top");
+				else if(!bTop && bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "directory_to_bottom");
+
+				act.startActivity(intent);
 			}
 			break;
 
 			case ID_NEW_CAMERA_VIDEO:
 			{
 				Intent intent = new Intent(act, Note_addCameraVideo.class);
-				new Note_addNew_optional(act, intent);
+				if(bTop)
+					intent.putExtra("extra_ADD_NEW_TO_TOP", "true");
+				else
+					intent.putExtra("extra_ADD_NEW_TO_TOP", "false");
+
+				act.startActivity(intent);
 			}
 			break;
 
 			case ID_NEW_READY_VIDEO:
 			{
 				Intent intent = new Intent(act, Note_addReadyVideo.class);
-				new Note_addNew_optional_for_multiple(act, intent);
+				if( bTop && !bDirectory )
+					intent.putExtra("EXTRA_ADD_EXIST", "single_to_top");
+				else if(!bTop && !bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "single_to_bottom");
+				else if(bTop && bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "directory_to_top");
+				else if(!bTop && bDirectory)
+					intent.putExtra("EXTRA_ADD_EXIST", "directory_to_bottom");
+
+				act.startActivity(intent);
 			}
 			break;
 
 			case ID_NEW_YOUTUBE_LINK:
 			{
-				Intent intent = new Intent(act, Note_addLink.class);
-				intent.putExtra("LinkType",REQUEST_ADD_YOUTUBE_LINK);
+				Intent	intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com"));
 				act.startActivity(intent);
 			}
 			break;
 
 			case ID_NEW_WEB_LINK:
 			{
-				Intent intent = new Intent(act, Note_addLink.class);
-				intent.putExtra("LinkType",REQUEST_ADD_WEB_LINK);
+				Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse("http://www.google.com"));
 				act.startActivity(intent);
+			}
+			break;
+
+			case ID_NEW_BACK:
+			{
+				dlgAddNew.dismiss();
+			}
+			break;
+
+			case ID_NEW_SETTING:
+			{
+				new Note_addNew_option(act);
 			}
 			break;
 
@@ -374,9 +441,6 @@ public class MainUi
     static private SharedPreferences mPref_add_new_folder_location;
     static void addNewFolder(final FragmentActivity act, final int newTableId)
     {
-        final DB_drawer db_drawer = new DB_drawer(act);
-        final DB_folder db_folder = new DB_folder(act,newTableId);
-
         // get folder name
         String folderName = act.getResources()
                                .getString(R.string.default_folder_name)
@@ -452,7 +516,10 @@ public class MainUi
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String folderTitle;
+				DB_drawer db_drawer = new DB_drawer(act);
+				DB_folder db_folder = new DB_folder(act,newTableId);
+
+				String folderTitle;
                 if (!Util.isEmptyString(editFolderName.getText().toString()))
                     folderTitle = editFolderName.getText().toString();
                 else

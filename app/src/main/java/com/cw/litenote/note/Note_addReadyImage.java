@@ -170,7 +170,7 @@ public class Note_addReadyImage extends FragmentActivity {
 		        	if( (Note_common.getCount() > 0) &&
 		        		option.equalsIgnoreCase("single_to_top"))
 		        	{
-		        		Page.swap();
+		        		Page.swap(Page.mDb_page);
 		        	}
 
 		        	if(!Util.isEmptyString(uriStr))
@@ -224,7 +224,7 @@ public class Note_addReadyImage extends FragmentActivity {
 				        	if( (Note_common.getCount() > 0) &&
 	  		        			option.equalsIgnoreCase("directory_to_top") )
 				        	{
-				        		Page.swap();
+				        		Page.swap(Page.mDb_page);
 				        	}
 
 				        	// avoid showing empty toast

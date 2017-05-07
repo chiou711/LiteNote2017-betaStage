@@ -1,6 +1,7 @@
 package com.cw.litenote.main;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -32,7 +33,6 @@ import com.cw.litenote.util.Util;
 import com.cw.litenote.util.ColorSet;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
 
-import java.util.Date;
 
 // Pager adapter
 public class Page_adapter extends SimpleDragSortCursorAdapter
@@ -83,8 +83,10 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 //		System.out.println("Page_adapter / _getView / position = " +  position);
 		View view = convertView;
 		final ViewHolder holder;
-		
-		if (convertView == null) 
+
+		SharedPreferences pref_show_note_attribute = Page.mAct.getSharedPreferences("show_note_attribute", 0);
+
+		if (convertView == null)
 		{
 			view = Page.mAct.getLayoutInflater().inflate(R.layout.page_view_row, parent, false);
 
@@ -162,26 +164,6 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		String pictureUri = Page.mDb_page.getNotePictureUri(position,true);
 		String audioUri = Page.mDb_page.getNoteAudioUri(position,true);
 		String linkUri = Page.mDb_page.getNoteLinkUri(position,true);
-		
-		if( Util.isEmptyString(strTitle) &&
-			Util.isYouTubeLink(linkUri)     )
-		{
-			strTitle = Util.getYoutubeTitle(linkUri);
-
-            // set title with YouTube link title
-            if(Page.mPref_show_note_attribute
-                           .getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
-                           .equalsIgnoreCase("yes"))
-            {
-                String strBody = Page.mDb_page.getNoteBody(position, true);
-                int marking = Page.mDb_page.getNoteMarking(position, true);
-                long rowId = Page.mDb_page.getNoteId(position, true);
-                boolean isOK;
-                Date now = new Date();
-                isOK = Page.mDb_page.updateNote(rowId, strTitle, pictureUri, audioUri, "", linkUri, strBody, marking, now.getTime(), true); // update note
-                System.out.println("Page_adapter / update note of YouTube link / isOK = " + isOK);
-            }
-		}
 		
 		// set title
 		holder.textTitleBlock.setVisibility(View.VISIBLE);
@@ -369,30 +351,9 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 						if (!TextUtils.isEmpty(title) &&
 								!title.equalsIgnoreCase("about:blank")) {
 							holder.textTitleBlock.setVisibility(View.VISIBLE);
-							holder.textTitle.setText(title);
-
 							holder.rowId.setText(String.valueOf(position + 1));
 							holder.rowId.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
 
-							// set title with http link title
-							if (Page.mPref_show_note_attribute
-									.getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
-									.equalsIgnoreCase("yes")) {
-								String strTitle = Page.mDb_page.getNoteTitle(position, true);
-								if (Util.isEmptyString(strTitle))
-									strTitle = title; // replaced with title got from link
-								String strBody = Page.mDb_page.getNoteBody(position, true);
-								String pictureUri = Page.mDb_page.getNotePictureUri(position, true);
-								String audioUri = Page.mDb_page.getNoteAudioUri(position, true);
-								String linkUri = Page.mDb_page.getNoteLinkUri(position, true);
-								int marking = Page.mDb_page.getNoteMarking(position, true);
-								long rowId = Page.mDb_page.getNoteId(position, true);
-
-								boolean isOK;
-								Date now = new Date();
-								isOK = Page.mDb_page.updateNote(rowId, strTitle, pictureUri, audioUri, "", linkUri, strBody, marking, now.getTime(), true); // update note
-								System.out.println("Page_adapter / onReceivedTitle / isOK = " + isOK);
-							}
 						}
 					}
 				});
@@ -408,8 +369,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 
 		
 		// Show note body or not
-		Page.mPref_show_note_attribute = Page.mAct.getSharedPreferences("show_note_attribute", 0);
-	  	if(Page.mPref_show_note_attribute.getString("KEY_SHOW_BODY", "yes").equalsIgnoreCase("yes"))
+	  	if(pref_show_note_attribute.getString("KEY_SHOW_BODY", "yes").equalsIgnoreCase("yes"))
 	  	{
 	  		// test only: enabled for showing picture path
 	  		String strBody = Page.mDb_page.getNoteBody(position,true);
@@ -437,8 +397,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		
 		
 	  	// dragger
-	  	Page.mPref_show_note_attribute = Page.mAct.getSharedPreferences("show_note_attribute", 0);
-	  	if(Page.mPref_show_note_attribute.getString("KEY_ENABLE_DRAGGABLE", "no").equalsIgnoreCase("yes"))
+	  	if(pref_show_note_attribute.getString("KEY_ENABLE_DRAGGABLE", "no").equalsIgnoreCase("yes"))
 	  		holder.imageDragger.setVisibility(View.VISIBLE); 
 	  	else
 	  		holder.imageDragger.setVisibility(View.GONE); 

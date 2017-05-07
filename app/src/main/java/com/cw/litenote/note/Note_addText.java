@@ -70,7 +70,7 @@ public class Note_addText extends Activity {
        				
        				if( getIntent().getExtras().getString("extra_ADD_NEW_TO_TOP", "false").equalsIgnoreCase("true") &&
        				    (Note_common.getCount() > 0) )
-       					Page.swap();
+       					Page.swap(Page.mDb_page);
 
        				Toast.makeText(Note_addText.this, R.string.toast_saved , Toast.LENGTH_SHORT).show();
        				

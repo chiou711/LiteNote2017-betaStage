@@ -269,8 +269,8 @@ public class Note_common {
 //						act.startActivityForResult(intent, Util.ACTIVITY_SELECT_PICTURE);
 						
 						// select global
-						final String[] items = new String[]{mAct.getResources().getText(R.string.note_ready_image).toString(),
-															mAct.getResources().getText(R.string.note_ready_video).toString()};
+						final String[] items = new String[]{mAct.getResources().getText(R.string.note_local_image).toString(),
+															mAct.getResources().getText(R.string.note_local_video).toString()};
 					    AlertDialog.Builder builder = new AlertDialog.Builder(mAct);
 					   
 					    DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
@@ -422,7 +422,7 @@ public class Note_common {
 					final String hint = Util.getYoutubeTitle(curLinkStr);
                     mTitleEditText.setHint(Html.fromHtml("<small style=\"text-color: gray;\"><i>" +
                             hint +
-                            "</i></small>"));
+                            "</i></small>"));//??? no hint?
                     mTitleEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
                         @Override
                         public void onFocusChange(View v, boolean hasFocus) {
