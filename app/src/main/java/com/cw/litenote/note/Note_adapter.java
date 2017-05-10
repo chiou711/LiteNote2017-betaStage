@@ -22,6 +22,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -34,6 +35,7 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.Layout.Alignment;
 import android.text.style.AlignmentSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -163,12 +165,17 @@ class Note_adapter extends FragmentStatePagerAdapter
 	  	    textGroup.setVisibility(View.VISIBLE);
 
 			// text
-	  	    if( Util.isYouTubeLink(linkUri) ||
-			!Util.isEmptyString(strTitle)||
-	  	       !Util.isEmptyString(strBody)   )
+	  	    if( !Util.isEmptyString(strTitle)||
+	  	       	!Util.isEmptyString(strBody) ||
+				Util.isYouTubeLink(linkUri) ||
+				linkUri.startsWith("http")      )
 	  	    {
 	  	    	showTextWebView(position,textWebView);
 	  	    }
+	  	    else
+			{
+				textGroup.setVisibility(View.GONE);
+			}
 	  	}
 
 		// footer of note view
@@ -635,21 +642,24 @@ class Note_adapter extends FragmentStatePagerAdapter
     	String audioUri = db_page.getNoteAudioUri(position,true);
     	String linkUri = db_page.getNoteLinkUri(position,true);
 
-    	// replace note title 
-    	if(Util.isEmptyString(strTitle))
-    	{
-    		// with web title
-    		if( Util.isEmptyString(audioUri) &&
-    		   !Util.isYouTubeLink(linkUri)  &&
-    		   !Util.isEmptyString(mWebTitle)  )
-    	   	{
-    		   strTitle = mWebTitle;
-    	   	}
-    	   	// with YouTube title
-	   		else if(Util.isYouTubeLink(linkUri))
+    	// replace note title
+		//若沒有Title與Body,但有YouTube link或Web link則Title會使用link得到的title,且用Gray顏色
+		boolean bSetGray = false;
+		if( Util.isEmptyString(strTitle) &&
+			Util.isEmptyString(strBody)     )
+		{
+			if(Util.isYouTubeLink(linkUri))
+			{
 				strTitle = Util.getYoutubeTitle(linkUri);
-    	}
-    	
+				bSetGray = true;
+			}
+			else if(linkUri.startsWith("http"))
+			{
+				strTitle = mWebTitle;
+				bSetGray = true;
+			}
+		}
+
     	Long createTime = db_page.getNoteCreatedTime(position,true);
     	String head = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+
 		       	  	  "<html><head>" +
@@ -686,6 +696,13 @@ class Note_adapter extends FragmentStatePagerAdapter
        							0,
        							spanTitle.length(), 
        							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+			//ref http://stackoverflow.com/questions/3282940/set-color-of-textview-span-in-android
+			if(bSetGray) {
+				ForegroundColorSpan foregroundSpan = new ForegroundColorSpan(Color.GRAY);
+				spanTitle.setSpan(foregroundSpan, 0, spanTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+
        		strTitle = Html.toHtml(spanTitle);
        	}
        	else

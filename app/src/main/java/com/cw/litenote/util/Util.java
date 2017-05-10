@@ -54,6 +54,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
@@ -72,6 +73,7 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Patterns;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -84,6 +86,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Util 
@@ -1426,9 +1429,53 @@ public class Util
 	}
 
 
-	// Get Http title
+	// Set Http title
 	static String httpTitle;
-	public static void getHttpTitle(String httpUrl,Activity act,final EditText editText)
+	public static void setHttpTitle(String httpUrl, Activity act, final EditText editText) {
+		if (!isEmptyString(httpUrl)) {
+			try {
+				WebView wv = new WebView(act);
+				wv.loadUrl(httpUrl);
+				isTimeUp = false;
+				setupLongTimeout(1000);
+
+				//Add for non-stop showing of full screen web view
+				wv.setWebViewClient(new WebViewClient() {
+					@Override
+					public boolean shouldOverrideUrlLoading(WebView view, String url) {
+						view.loadUrl(url);
+						return true;
+					}
+				});
+
+				wv.setWebChromeClient(new WebChromeClient() {
+					@Override
+					public void onReceivedTitle(WebView view, String title) {
+						super.onReceivedTitle(view, title);
+						httpTitle = title;
+						editText.setHint(Html.fromHtml("<small style=\"text-color: gray;\"><i>" +
+								httpTitle +
+								"</i></small>"));
+						editText.setSelection(0);//??? sometimes title is not seen
+
+						editText.setOnTouchListener(new View.OnTouchListener() {
+							@Override
+							public boolean onTouch(View v, MotionEvent event) {
+								((EditText) v).setText(httpTitle);
+								((EditText) v).setSelection(httpTitle.length());
+								return false;
+							}
+						});
+					}
+				});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	// Set Http title
+	public static void setHttpTitle(String httpUrl, Activity act, final TextView textView)
 	{
 		if(!isEmptyString(httpUrl))
 		{
@@ -1450,25 +1497,14 @@ public class Util
 				});
 
 				wv.setWebChromeClient(new WebChromeClient() {
-                    @Override
-                    public void onReceivedTitle(WebView view, String title) {
-                        super.onReceivedTitle(view, title);
-                        httpTitle = title;
-                        editText.setHint(Html.fromHtml("<small style=\"text-color: gray;\"><i>" +
-                                httpTitle +
-                                "</i></small>"));
-
-                        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                            @Override
-                            public void onFocusChange(View v, boolean hasFocus) {
-                                if (hasFocus) {
-                                    ((EditText) v).setText(httpTitle);
-                                    ((EditText) v).setSelection(httpTitle.length());
-                                }
-                            }
-                        });
-                    }
-                });
+					@Override
+					public void onReceivedTitle(WebView view, String title) {
+						super.onReceivedTitle(view, title);
+						textView.setText(title);
+						textView.setTextColor(Color.GRAY);
+						System.out.println("Util / _setHttpTitle / title = " +title);
+					}
+				});
 			}
 			catch(Exception e)
 			{
@@ -1476,6 +1512,7 @@ public class Util
 			}
 		}
 	}
+
 
 	static boolean isTimeUp;
 	static Timer longTimer;

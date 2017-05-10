@@ -3,6 +3,7 @@ package com.cw.litenote.main;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -164,11 +165,30 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		String pictureUri = Page.mDb_page.getNotePictureUri(position,true);
 		String audioUri = Page.mDb_page.getNoteAudioUri(position,true);
 		String linkUri = Page.mDb_page.getNoteLinkUri(position,true);
-		
+
 		// set title
-		holder.textTitleBlock.setVisibility(View.VISIBLE);
-		holder.textTitle.setText(strTitle);
-		holder.textTitle.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
+		if( Util.isEmptyString(strTitle) )
+		{
+
+			if(Util.isYouTubeLink(linkUri)) {
+				strTitle = Util.getYoutubeTitle(linkUri);
+				holder.textTitleBlock.setVisibility(View.VISIBLE);
+				holder.textTitle.setText(strTitle);
+				holder.textTitle.setTextColor(Color.GRAY);
+			}
+			else if(linkUri.startsWith("http"))
+			{
+				holder.textTitleBlock.setVisibility(View.VISIBLE);
+				Util.setHttpTitle(linkUri,Page.mAct,holder.textTitle);
+			}
+		}
+		else
+		{
+			holder.textTitleBlock.setVisibility(View.VISIBLE);
+			holder.textTitle.setText(strTitle);
+			holder.textTitle.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
+		}
+
 
 		// set audio name
 		String audio_name = null;
@@ -239,7 +259,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			pictureUri = "http://img.youtube.com/vi/"+Util.getYoutubeId(linkUri)+"/0.jpg";
 		}
 //		System.out.println("Page_adapter / _getView / pictureUri = " + pictureUri);
-		
+
 		// show thumb nail if picture Uri exists
 		if(UtilImage.hasImageExtension(pictureUri, Page.mAct ) ||
 		   UtilVideo.hasVideoExtension(pictureUri, Page.mAct )   )
@@ -373,12 +393,15 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 	  	{
 	  		// test only: enabled for showing picture path
 	  		String strBody = Page.mDb_page.getNoteBody(position,true);
-	  		if(!Util.isEmptyString(strBody))
-	  		{}	//do nothing
-	  		else if(!Util.isEmptyString(pictureUri))
-	  			strBody = pictureUri;
-	  		else if(!Util.isEmptyString(linkUri))
-	  			strBody = linkUri;
+	  		if(!Util.isEmptyString(strBody)){
+				//normal: do nothing
+			}
+	  		else if(!Util.isEmptyString(pictureUri)) {
+//				strBody = pictureUri;//show picture Uri
+			}
+	  		else if(!Util.isEmptyString(linkUri)) {
+//				strBody = linkUri; //show link Uri
+			}
 
 			holder.textBody.setText(strBody);
 //			holder.textBody.setTextSize(12);

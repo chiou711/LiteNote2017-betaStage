@@ -643,8 +643,41 @@ public class Note_edit extends Activity
 			{
 				// for audio
 				Uri audioUri = returnedIntent.getData();
-				
+
+				// SAF support, take persistent Uri permission
+				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+				{
+					int takeFlags = returnedIntent.getFlags()
+							& (Intent.FLAG_GRANT_READ_URI_PERMISSION
+							| Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+					// add for solving inspection error
+					takeFlags |= Intent.FLAG_GRANT_READ_URI_PERMISSION;
+
+					//fix: no permission grant found for UID 10070 and Uri content://media/external/file/28
+					String authority = audioUri.getAuthority();
+					if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage")) //??? add condition?
+					{
+						getContentResolver().takePersistableUriPermission(audioUri, takeFlags);
+					}
+				}
+
+				String scheme = audioUri.getScheme();
 				String audioUriStr = audioUri.toString();
+
+				// get real path
+				if(	(scheme.equalsIgnoreCase("file") ||
+					 scheme.equalsIgnoreCase("content") ) ) {
+
+					// check if content scheme points to local file
+					if (scheme.equalsIgnoreCase("content")) {
+						String realPath = Util.getLocalRealPathByUri(this, audioUri);
+
+						if (realPath != null)
+							audioUriStr = "file://".concat(realPath);
+					}
+				}
+
 //				System.out.println(" Note_edit / onActivityResult / Util.CHOOSER_SET_AUDIO / mPictureUri = " + mPictureUri);
 	        	Note_common.saveStateInDB(mNoteId,true,mPictureUri, audioUriStr, "");
 	        	

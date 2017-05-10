@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.text.Html;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -413,29 +414,37 @@ public class Note_common {
 
             // title        	
 			String strTitleEdit = mDb.getNoteTitle_byId(rowId);
-			String curLinkStr = mLinkEditText.getText().toString();
+			final String curLinkStr = mLinkEditText.getText().toString();
 			if( Util.isEmptyString(strTitleEdit) &&
 				Util.isEmptyString(mTitleEditText.getText().toString()) )
 			{
 				if(Util.isYouTubeLink(curLinkStr) )
 				{
 					final String hint = Util.getYoutubeTitle(curLinkStr);
-                    mTitleEditText.setHint(Html.fromHtml("<small style=\"text-color: gray;\"><i>" +
-                            hint +
-                            "</i></small>"));//??? no hint?
-                    mTitleEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+					mTitleEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
                         @Override
                         public void onFocusChange(View v, boolean hasFocus) {
                             if (hasFocus) {
-                                ((EditText) v).setText(hint);
-                                ((EditText) v).setSelection(hint.length());
+								mTitleEditText.setHint(Html.fromHtml("<small style=\"text-color: gray;\"><i>" +
+																	  hint +
+																	  "</i></small>") );//??? no hint?
                             }
                         }
                     });
+
+					mTitleEditText.setOnTouchListener(new View.OnTouchListener() {
+						@Override
+						public boolean onTouch(View v, MotionEvent event) {
+						        ((EditText) v).setText(hint);
+                                ((EditText) v).setSelection(hint.length());
+							return false;
+						}
+					});
 				}
 				else if(curLinkStr.startsWith("http"))
 				{
-					Util.getHttpTitle(curLinkStr,mAct,mTitleEditText);
+					Util.setHttpTitle(curLinkStr,mAct,mTitleEditText);
 				}
 			}
         }
