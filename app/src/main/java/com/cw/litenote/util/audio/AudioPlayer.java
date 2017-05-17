@@ -198,7 +198,8 @@ public class AudioPlayer
 	   					{
 	   						@Override
 	   						public void onBufferingUpdate(MediaPlayer mp, int percent) {
-	   							Page.seekBarProgress.setSecondaryProgress(percent);
+								if(Page.seekBarProgress != null)
+	   								Page.seekBarProgress.setSecondaryProgress(percent);
 	   						}
 	   					});
    						
@@ -515,7 +516,8 @@ public class AudioPlayer
 			Toast.makeText(mAct,R.string.audio_message_no_media_file_is_found,Toast.LENGTH_SHORT).show();
 			
 			// do not show highlight
-			MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);
+			if(MainAct.mSubMenuItemAudio != null)
+				MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);
 			TabsHost.setAudioPlayingTab_WithHighlight(false);
 			Page.mItemAdapter.notifyDataSetChanged();
 

@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -222,9 +223,34 @@ public class Note_UI
                 public void onClick(View view)
                 {
                     System.out.println("Note_UI / _setPictureView_listeners / onClick to play YouTube / linkUri = " + linkUri);
-                    openLink_YouTube(linkUri);
+//                    openLink_YouTube(linkUri);
+                    // apply YouTube DATA API
+                    Intent intent = new Intent(act,YouTubePlayerAct.class);
+                    intent.putExtra("EXTRA_LINK_URI",linkUri);
+                    act.startActivity(intent);
                 }
             });
+        }
+        else if(Util.isEmptyString(strPicture) &&
+                linkUri.startsWith("http")     &&
+            	Note.isViewAllMode()              )
+        {
+            // set listener for running browser
+            if (viewGroup != null) {
+                CustomWebView linkWebView = ((CustomWebView) viewGroup.findViewById(R.id.link_web_view));
+                linkWebView.setOnTouchListener(new View.OnTouchListener() {
+                                                   @Override
+                                                   public boolean onTouch(View v, MotionEvent event) {
+                                                       if (event.getAction() == MotionEvent.ACTION_DOWN)
+                                                       {
+                                                           Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(linkUri));
+                                                           act.startActivity(i);
+                                                       }
+                                                       return true;
+                                                   }
+                                               }
+                );
+            }
         }
 
         // view mode
@@ -235,7 +261,7 @@ public class Note_UI
 	  		picView_back_button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back /*android.R.drawable.ic_menu_revert*/, 0, 0, 0);
 			// click to finish Note_view_pager
 	  		picView_back_button.setOnClickListener(new View.OnClickListener() {
-	            public void onClick(View view) 
+	            public void onClick(View view)
 	            {
     		        // remove current link web view
 					int position = Note.mCurrentPosition;
@@ -247,40 +273,40 @@ public class Note_UI
 						CustomWebView.pauseWebView(linkWebView);
 						CustomWebView.blankWebView(linkWebView);
 					}
-	    	    	
+
 	    	    	// set not full screen
 	    	    	Util.setNotFullScreen(act);
-	    	    	
+
         			// back to view all mode
 	        		Note.setViewAllMode();
 					Note.setOutline(act);
 	            }
-	        });   
-			
+	        });
+
 			// image: view mode
 	  		picView_viewMode_button.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_view, 0, 0, 0);
-			// click to select view mode 
+			// click to select view mode
 	  		picView_viewMode_button.setOnClickListener(new View.OnClickListener() {
 
-	            public void onClick(View view) 
+	            public void onClick(View view)
 	            {
                     TextView audio_title_text_view = (TextView) act.findViewById(R.id.pager_audio_title);
                     audio_title_text_view.setSelected(false);
-	            	
+
                     isWithinDelay = false;
 
-	            	//Creating the instance of PopupMenu  
+	            	//Creating the instance of PopupMenu
 	                PopupMenu popup = new PopupMenu(act, view);
-	                
-	                //Inflating the Popup using xml file  
-	                popup.getMenuInflater().inflate(R.menu.pop_up_menu, popup.getMenu()); 
-	                
-	                //registering popup with OnMenuItemClickListener  
-	                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() 
-	                {  
-		                public boolean onMenuItemClick(MenuItem item) 
-		                {  
-		                	
+
+	                //Inflating the Popup using xml file
+	                popup.getMenuInflater().inflate(R.menu.pop_up_menu, popup.getMenu());
+
+	                //registering popup with OnMenuItemClickListener
+	                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+	                {
+		                public boolean onMenuItemClick(MenuItem item)
+		                {
+
 		                	switch (item.getItemId()) {
 		                    case R.id.view_all:
 		                 		 Note.setViewAllMode();
@@ -294,18 +320,18 @@ public class Note_UI
 		                 		 Note.setTextMode();
 								 Note.setOutline(act);
 		                    	 break;
-		                     }		                	
-		                	 return true;  
-		                }  
-	                });  
-	                
-	                popup.setOnDismissListener(new PopupMenu.OnDismissListener() 
+		                     }
+		                	 return true;
+		                }
+	                });
+
+	                popup.setOnDismissListener(new PopupMenu.OnDismissListener()
 	                {
 						@Override
-						public void onDismiss(PopupMenu menu) 
+						public void onDismiss(PopupMenu menu)
 						{
                             TextView audio_title_text_view = (TextView) act.findViewById(R.id.pager_audio_title);
-							if(AudioPlayer.mMediaPlayer != null) 
+							if(AudioPlayer.mMediaPlayer != null)
 							{
 								if(AudioPlayer.mMediaPlayer.isPlaying()) {
 									Note.showAudioName(act);
@@ -318,41 +344,41 @@ public class Note_UI
                             tempShow_picViewUI(100,strPicture);
 						}
 					} );
-	                
+
 	                popup.show();//showing pop up menu, will show status bar
 	            }
-	        });       			
-			
+	        });
+
 			// image: previous button
 	  		picView_previous_button.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_previous, 0, 0, 0);
-			// click to previous 
-	  		picView_previous_button.setOnClickListener(new View.OnClickListener() 
+			// click to previous
+	  		picView_previous_button.setOnClickListener(new View.OnClickListener()
 	        {
 	            public void onClick(View view) {
 	            	Note.mCurrentPosition--;
 	            	pager.setCurrentItem(pager.getCurrentItem() - 1);
 	            }
-	        });   
-        
+	        });
+
 			// image: next button
 	  		picView_next_button.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_next, 0, 0, 0);
-			// click to next 
+			// click to next
 	  		picView_next_button.setOnClickListener(new View.OnClickListener()
 	        {
 	            public void onClick(View view) {
 	            	Note.mCurrentPosition++;
 	            	pager.setCurrentItem(pager.getCurrentItem() + 1);
 	            }
-	        }); 
+	        });
 	  	}
-	  	
+
 	  	// video view: apply media control customization or not
 	  	if(Note.isPictureMode()|| Note.isViewAllMode())
 	  	{
 			if(!UtilVideo.hasMediaControlWidget)
 			{
 				// set video seek bar listener
-				videoView_seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() 
+				videoView_seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
 				{
 					// onStartTrackingTouch
 					@Override
@@ -365,25 +391,25 @@ public class Note_UI
 								UtilVideo.mVideoView.setBackground(null);
 							else
 								UtilVideo.mVideoView.setBackgroundDrawable(null);
-							
+
 							UtilVideo.mVideoView.setVisibility(View.VISIBLE);
 							UtilVideo.mVideoPlayer = new VideoPlayer(act,pager,strPicture);
 							UtilVideo.mVideoView.seekTo(UtilVideo.mPlayVideoPosition);
 						}
 					}
-					
+
 					// onProgressChanged
 					@Override
-					public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) 
+					public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 					{
 						System.out.println("Note_UI / _onProgressChanged");
 						if(fromUser)
-						{	
+						{
 							// show progress change
 					    	int currentPos = videoFileLength_inMilliSeconds*progress/(seekBar.getMax()+1);
 					    	// update current play time
 					     	videoView_currPosition.setText(Util.getTimeFormatString(currentPos));
-					     	
+
 					     	//add below to keep showing seek bar
 					     	if(Note.isPictureMode())
 					     		showPicViewUI_previous_next(true,mPosition);
@@ -393,10 +419,10 @@ public class Note_UI
 					    	tempShow_picViewUI(3001,strPicture); // for 3 seconds, _onProgressChanged
 						}
 					}
-					
+
 					// onStopTrackingTouch
 					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) 
+					public void onStopTrackingTouch(SeekBar seekBar)
 					{
 						System.out.println("Note_UI / _onStopTrackingTouch");
 						if( UtilVideo.mVideoView != null  )
@@ -408,7 +434,7 @@ public class Note_UI
                                 handler.removeCallbacks(runnable);
                             tempShow_picViewUI(3002,strPicture); // for 3 seconds, _onProgressChanged
 						}
-					}	
+					}
 				});
 			}
 	  	}
