@@ -420,7 +420,7 @@ public class Note extends FragmentActivity
 
         // Set outline of view mode
         setOutline(act);
-}
+	}
 
 	@Override
 	protected void onStart() {

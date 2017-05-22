@@ -226,7 +226,7 @@ class Note_adapter extends FragmentStatePagerAdapter
     	// Check if Uri is for YouTube
     	if(Util.isEmptyString(pictureUri) && Util.isYouTubeLink(linkUri) )
     	{
-			pictureUri = "http://img.youtube.com/vi/"+Util.getYoutubeId(linkUri)+"/0.jpg";
+			pictureUri = "http://img.youtube.com/vi/"+Util.getYoutubeId(linkUri)+"/0.jpg";//??? how to get this for playlist
 			System.out.println("Note_adapter / _showPictureView / YouTube pictureUri = " + pictureUri);
 		}
 
@@ -283,7 +283,7 @@ class Note_adapter extends FragmentStatePagerAdapter
 			System.out.println("Note_adapter / _showPictureView / show link thumb view");
   			videoView.setVisibility(View.GONE);
   			UtilVideo.mVideoView = null;
-  			imageView.setVisibility(View.GONE);	
+  			imageView.setVisibility(View.GONE);
   			linkWebView.setVisibility(View.VISIBLE);
   		}
 		else
@@ -777,7 +777,8 @@ class Note_adapter extends FragmentStatePagerAdapter
                                 switch (failReason.getType())
                                 {
                                     case IO_ERROR:
-                                        message = "Input/Output error";
+//                                        message = "Input/Output error";
+										message = act.getResources().getString(R.string.file_not_found);
                                         break;
                                     case DECODING_ERROR:
                                         message = "Image can't be decoded";

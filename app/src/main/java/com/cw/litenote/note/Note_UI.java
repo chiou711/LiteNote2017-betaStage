@@ -57,7 +57,6 @@ public class Note_UI
         {
             setPictureView_listeners(act, pager, pictureUri, linkUri, pictureGroup);
 
-            TextView picView_title;
             TextView picView_footer;
             Button picView_back_button;
             Button picView_viewMode_button;
@@ -65,7 +64,6 @@ public class Note_UI
             SeekBar videoView_seekBar;
             TextView videoView_fileLength;
 
-            picView_title = (TextView) (pictureGroup.findViewById(R.id.image_title));
             picView_footer = (TextView) (pictureGroup.findViewById(R.id.image_footer));
 
             picView_back_button = (Button) (pictureGroup.findViewById(R.id.image_view_back));
@@ -80,21 +78,24 @@ public class Note_UI
             else
                 picView_back_button.setVisibility(View.GONE);
 
-            String pictureName;
-            if(!Util.isEmptyString(pictureUri))
-                pictureName = Util.getDisplayNameByUriString(pictureUri, act);
-            else if(Util.isYouTubeLink(linkUri))
-                pictureName = linkUri;
-            else
-                pictureName = "";
+            // Test only: unmarked for checking picture title
+//            TextView picView_title;
+//            picView_title = (TextView) (pictureGroup.findViewById(R.id.image_title));
+//            String pictureName;
+//            if(!Util.isEmptyString(pictureUri))
+//                pictureName = Util.getDisplayNameByUriString(pictureUri, act);
+//            else if(Util.isYouTubeLink(linkUri))
+//                pictureName = linkUri;
+//            else
+//                pictureName = "";
 
-            if(!Util.isEmptyString(pictureName))
-            {
-                picView_title.setVisibility(View.VISIBLE);
-                picView_title.setText(pictureName);
-            }
-            else
-                picView_title.setVisibility(View.INVISIBLE);
+//            if(!Util.isEmptyString(pictureName))
+//            {
+//                picView_title.setVisibility(View.VISIBLE);
+//                picView_title.setText(pictureName);
+//            }
+//            else
+//                picView_title.setVisibility(View.INVISIBLE);
 
             if(Note.isPictureMode()) {
                 picView_footer.setVisibility(View.VISIBLE);
@@ -212,8 +213,7 @@ public class Note_UI
                 }
             });
         }
-        else if(Util.isEmptyString(strPicture) &&
-                Util.isYouTubeLink(linkUri)       )
+        else if(Util.isYouTubeLink(linkUri))
         {
             mVideoPlayButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_media_play, 0, 0, 0);
             mVideoPlayButton.setVisibility(View.VISIBLE);

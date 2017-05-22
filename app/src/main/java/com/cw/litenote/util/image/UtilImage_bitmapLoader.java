@@ -110,11 +110,12 @@ public class UtilImage_bitmapLoader
 				mVideoAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"Searching media ...");
 			}
 		}
-		else 
-		{
-			System.out.println("UtilImage_bitmapLoader constructor / can not decide image and video");
-			mPicImageView.setVisibility(View.GONE);
-		}
+		//??? add some code when content is scheme?
+//		else
+//		{
+//			System.out.println("UtilImage_bitmapLoader constructor / can not decide image and video");
+//			mPicImageView.setVisibility(View.GONE);
+//		}
 	}
   
     public void setLoadingListeners()

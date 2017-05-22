@@ -89,14 +89,7 @@ public class Note_addReadyImage extends FragmentActivity {
 	    					   Util.CHOOSER_SET_PICTURE);
     }
 
-    public static Uri writeToTempImageAndGetPathUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-
-	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) 
+	protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent)
 	{
 		System.out.println("Note_addReadyPicture / onActivityResult");
 		if (resultCode == Activity.RESULT_OK)
@@ -106,63 +99,16 @@ public class Note_addReadyImage extends FragmentActivity {
 			if(requestCode == Util.CHOOSER_SET_PICTURE)
             {
 				Uri selectedUri = imageReturnedIntent.getData();
-				String authority = selectedUri.getAuthority();
-				// SAF support, take persistent Uri permission
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-				{
-			    	// Check for the freshest data.
-                    // for Google drive
-			    	if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage") )//??? add condition?
-			    	{
-                        int takeFlags = imageReturnedIntent.getFlags()
-                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-						// add for solving inspection error
-						takeFlags |= Intent.FLAG_GRANT_READ_URI_PERMISSION;
-
-						getContentResolver().takePersistableUriPermission(selectedUri, takeFlags);
-			    	}
-                    // for Google Photos
-                    else if(authority.equalsIgnoreCase("com.google.android.apps.photos.contentprovider") )
-                    {
-                        InputStream is = null;
-                        try {
-                            is = getContentResolver().openInputStream(selectedUri);
-                            Bitmap bmp = BitmapFactory.decodeStream(is);
-                            selectedUri = Uri.parse(writeToTempImageAndGetPathUri(this, bmp).toString());
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }finally {
-                            try {
-                                is.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-				}
-
 				String scheme = selectedUri.getScheme();
 				// check option of Add multiple
+
+				String uriStr = Util.getPicturePathOnActivityResult(this,imageReturnedIntent);
 				String option = getIntent().getExtras().getString("EXTRA_ADD_EXIST", "single_to_bottom");
 
 				// add single file
 				if(option.equalsIgnoreCase("single_to_top") ||
            		   option.equalsIgnoreCase("single_to_bottom")	)
 				{
-
-					System.out.println("Note_addReadyImage / onActivityResult / selectedUri = " + selectedUri);
-					String realPath = Util.getLocalRealPathByUri(this, selectedUri);
-					System.out.println("Note_addReadyImage / onActivityResult / realPath = " + realPath);
-
-					String uriStr;
-
-					if(realPath != null)
-						uriStr = "file://".concat(realPath); // local
-					else
-						uriStr = selectedUri.toString(); // remote
-
 					System.out.println("Note_addReadyImage / onActivityResult / uriStr = " + uriStr);
 		  		    mRowId = null; // set null for Insert
 		        	mRowId = Note_common.savePictureStateInDB(mRowId,true,uriStr, "", "", "");

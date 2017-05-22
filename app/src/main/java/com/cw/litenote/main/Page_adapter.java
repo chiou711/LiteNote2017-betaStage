@@ -181,6 +181,12 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 				holder.textTitleBlock.setVisibility(View.VISIBLE);
 				Util.setHttpTitle(linkUri,Page.mAct,holder.textTitle);
 			}
+			else
+			{
+				// make sure empty title is empty after scrolling
+				holder.textTitleBlock.setVisibility(View.VISIBLE);
+				holder.textTitle.setText("");
+			}
 		}
 		else
 		{

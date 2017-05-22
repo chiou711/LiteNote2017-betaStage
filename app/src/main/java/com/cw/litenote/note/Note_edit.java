@@ -552,8 +552,7 @@ public class Note_edit extends Activity
 		Dialog dialog = builder.create();
 		dialog.show();
     }
-    
-    
+
 //    static String mSelectedAudioUri;
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnedIntent) 
 	{
@@ -602,29 +601,8 @@ public class Note_edit extends Activity
 		// choose picture
         if(requestCode == Util.CHOOSER_SET_PICTURE && resultCode == Activity.RESULT_OK)
         {
-			Uri selectedUri = returnedIntent.getData(); 
-			System.out.println("selected Uri = " + selectedUri.toString());
-			String authority = selectedUri.getAuthority();
-			// SAF support, take persistent Uri permission
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-			{
-		    	int takeFlags = returnedIntent.getFlags()
-		                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-		                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-				// add for solving inspection error
-				takeFlags |= Intent.FLAG_GRANT_READ_URI_PERMISSION;
-
-		    	// Check for the freshest data.
-		    	if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage")) //add other condition? 	
-		    	{
-		    		getContentResolver().takePersistableUriPermission(selectedUri, takeFlags);
-		    	}
-			}			
-			
-			
-			String pictureUri = selectedUri.toString();
-        	System.out.println("check onActivityResult / uriStr = " + pictureUri);
+			String pictureUri = Util.getPicturePathOnActivityResult(this,returnedIntent);
+        	System.out.println("Note_edit / _onActivityResult / pictureUri = " + pictureUri);
         	
         	mNoteId = Note_common.saveStateInDB(mNoteId,true,pictureUri, mAudioUri, "");
         	

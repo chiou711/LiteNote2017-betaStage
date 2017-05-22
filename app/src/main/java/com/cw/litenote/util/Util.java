@@ -1,6 +1,7 @@
 package com.cw.litenote.util;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -54,6 +55,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -1372,9 +1375,8 @@ public class Util
 
 	    String videoId = "";
 	    
-	    // 1st method: for https://www.youtube.com/watch?v=_sQSXwdtxlY format
 	    if (url != null && url.trim().length() > 0 && url.startsWith("http")) {
-	        String expression = "^.*((youtu.be\\/)|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??v?=?([^#\\&\\?]*).*";
+            String expression = "^.*((youtu.be/)|(v/)|(/u/w/)|(embed/)|(watch\\?))\\??v?=?([^#&?]*).*";
 	        CharSequence input = url;
 	        Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);//??? some Urls are NG
 	        Matcher matcher = pattern.matcher(input);
@@ -1384,22 +1386,53 @@ public class Util
 	                videoId = groupIndex1;
 	        }
 	    }
-
-	    // 2nd method: for https://youtu.be/V7MfPD7kZuQ format
-	    if(Util.isEmptyString(videoId))
-	    {
-		    String reg = "^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$";
-		    Pattern pattern = Pattern.compile(reg ,Pattern.CASE_INSENSITIVE);
-		    Matcher matcher = pattern.matcher(url);
-		    if (matcher.matches()){
-		        videoId = matcher.group(1);
-		    }
-	    }
 	    System.out.println("Util / _getYoutubeId / video_id = " + videoId);
 	    return videoId;		
-	}	
+	}
 
-	static JsonAsync jsonAsyncTask;
+
+    // Get YouTube list Id
+    public static String getYoutubeListId(String url) {
+
+        String videoId = "";
+
+        if (url != null && url.trim().length() > 0 && url.startsWith("http")) {
+			String expression = "^.*((youtu.be/)|(v/)|(/u/w/)|(embed/)|(watch\\?))\\??v?=?([^#&?]*).*list?=?([^#&?]*).*";
+            CharSequence input = url;
+            Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);//??? some Urls are NG
+            Matcher matcher = pattern.matcher(input);
+            if (matcher.matches()) {
+                String groupIndex1 = matcher.group(8);
+                if (groupIndex1 != null )
+                    videoId = groupIndex1;
+            }
+        }
+
+        System.out.println("Util / _getYoutubeListId / list_id = " + videoId);
+        return videoId;
+    }
+
+	// Get YouTube playlist Id
+	public static String getYoutubePlaylistId(String url) {
+
+		String videoId = "";
+
+		if (url != null && url.trim().length() > 0 && url.startsWith("http")) {
+			String expression = "^.*((youtu.be/)|(v/)|(/u/w/)|(embed/)|(playlist\\?))\\??v?=?([^#&?]*).*list?=?([^#&?]*).*";
+			CharSequence input = url;
+			Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);//??? some Urls are NG
+			Matcher matcher = pattern.matcher(input);
+			if (matcher.matches()) {
+				String groupIndex1 = matcher.group(8);
+				if (groupIndex1 != null )
+					videoId = groupIndex1;
+			}
+		}
+		System.out.println("Util / _getYoutubePlaylistId / playlist_id = " + videoId);
+		return videoId;
+	}
+
+    static JsonAsync jsonAsyncTask;
 	// Get YouTube title
 	public static String getYoutubeTitle(String youtubeUrl) 
 	{
@@ -1650,4 +1683,63 @@ public class Util
 			path = path.replace("/mnt/internal_sd", Environment.getExternalStorageDirectory().getAbsolutePath());
 		return path;
 	}
+
+
+	// Get picture path on activity result
+	public static String getPicturePathOnActivityResult(Activity act, Intent returnedIntent)
+	{
+		Uri selectedUri = returnedIntent.getData();
+		System.out.println("Note_edit / _onActivityResult / selectedUri = " + selectedUri.toString());
+
+		// SAF support, take persistent Uri permission
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+		{
+			// Check for the freshest data.
+			// for Google drive
+			String authority = selectedUri.getAuthority();
+			if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage") )//??? add condition?
+			{
+				int takeFlags = returnedIntent.getFlags()
+						& (Intent.FLAG_GRANT_READ_URI_PERMISSION
+						| Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+				// add for solving inspection error
+				takeFlags |= Intent.FLAG_GRANT_READ_URI_PERMISSION;
+
+				act.getContentResolver().takePersistableUriPermission(selectedUri, takeFlags);
+			}
+			// for Google Photos
+			else if(authority.equalsIgnoreCase("com.google.android.apps.photos.contentprovider") )
+			{
+				InputStream is = null;
+				try
+				{
+					is = act.getContentResolver().openInputStream(selectedUri);
+					Bitmap bmp = BitmapFactory.decodeStream(is);
+					ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+					bmp.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+					String path = MediaStore.Images.Media.insertImage(act.getContentResolver(), bmp, "Title", null);
+					selectedUri = Uri.parse(path);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}finally {
+					try {
+						is.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		String pictureUri;
+		String realPath = Util.getLocalRealPathByUri(act, selectedUri);
+
+		if(realPath != null)
+			pictureUri = "file://".concat(realPath); // local
+		else
+			pictureUri = selectedUri.toString(); // remote
+
+		return pictureUri;
+	}
+
 }
