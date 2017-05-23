@@ -497,6 +497,12 @@ public class Note_common {
     boolean isNoteModified()
     {
     	boolean bModified = false;
+//		System.out.println("Note_common / _isNoteModified / isTitleModified() = " + isTitleModified());
+//		System.out.println("Note_common / _isNoteModified / isPictureModified() = " + isPictureModified());
+//		System.out.println("Note_common / _isNoteModified / isAudioModified() = " + isAudioModified());
+//		System.out.println("Note_common / _isNoteModified / isBodyModified() = " + isBodyModified());
+//		System.out.println("Note_common / _isNoteModified / bRemovePictureUri = " + bRemovePictureUri);
+//		System.out.println("Note_common / _isNoteModified / bRemoveAudioUri = " + bRemoveAudioUri);
     	if( isTitleModified() ||
     		isPictureModified() ||
     		isAudioModified() ||

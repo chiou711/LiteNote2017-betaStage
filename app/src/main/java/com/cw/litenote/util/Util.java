@@ -1374,20 +1374,34 @@ public class Util
 	public static String getYoutubeId(String url) {
 
 	    String videoId = "";
-	    
+
+		// format 1: https://www.youtube.com/watch?v=_sQSXwdtxlY format
+//		// format 2: https://youtu.be/V7MfPD7kZuQ format (notice: start with V)
 	    if (url != null && url.trim().length() > 0 && url.startsWith("http")) {
-            String expression = "^.*((youtu.be/)|(v/)|(/u/w/)|(embed/)|(watch\\?))\\??v?=?([^#&?]*).*";
+//			String expression = "^.*((youtu.be\\/)|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??v?=?([^#\\&\\?]*).*";
+            String expression = "^.*((youtu.be\\/)|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??(v=)?([^#\\&\\?]*).*";
 	        CharSequence input = url;
 	        Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);//??? some Urls are NG
 	        Matcher matcher = pattern.matcher(input);
 	        if (matcher.matches()) {
-	            String groupIndex1 = matcher.group(7);
+//				String groupIndex1 = matcher.group(7);
+				String groupIndex1 = matcher.group(8);
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(0) = " + matcher.group(0));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(1) = " + matcher.group(1));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(2) = " + matcher.group(2));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(3) = " + matcher.group(3));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(4) = " + matcher.group(4));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(5) = " + matcher.group(5));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(6) = " + matcher.group(6));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(7) = " + matcher.group(7));
+//				System.out.println("Util / _getYoutubeId 1 / matcher.group(8) = " + matcher.group(8));
 	            if (groupIndex1 != null && groupIndex1.length() == 11)
 	                videoId = groupIndex1;
 	        }
 	    }
-	    System.out.println("Util / _getYoutubeId / video_id = " + videoId);
-	    return videoId;		
+		System.out.println("Util / _getYoutubeId / video_id = " + videoId);
+
+	    return videoId;
 	}
 
 

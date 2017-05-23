@@ -78,24 +78,24 @@ public class Note_UI
             else
                 picView_back_button.setVisibility(View.GONE);
 
-            // Test only: unmarked for checking picture title
-//            TextView picView_title;
-//            picView_title = (TextView) (pictureGroup.findViewById(R.id.image_title));
-//            String pictureName;
-//            if(!Util.isEmptyString(pictureUri))
-//                pictureName = Util.getDisplayNameByUriString(pictureUri, act);
-//            else if(Util.isYouTubeLink(linkUri))
-//                pictureName = linkUri;
-//            else
-//                pictureName = "";
+            // Show picture title
+            TextView picView_title;
+            picView_title = (TextView) (pictureGroup.findViewById(R.id.image_title));
+            String pictureName;
+            if(!Util.isEmptyString(pictureUri))
+                pictureName = Util.getDisplayNameByUriString(pictureUri, act);
+            else if(Util.isYouTubeLink(linkUri))
+                pictureName = linkUri;
+            else
+                pictureName = "";
 
-//            if(!Util.isEmptyString(pictureName))
-//            {
-//                picView_title.setVisibility(View.VISIBLE);
-//                picView_title.setText(pictureName);
-//            }
-//            else
-//                picView_title.setVisibility(View.INVISIBLE);
+            if(!Util.isEmptyString(pictureName))
+            {
+                picView_title.setVisibility(View.VISIBLE);
+                picView_title.setText(pictureName);
+            }
+            else
+                picView_title.setVisibility(View.INVISIBLE);
 
             if(Note.isPictureMode()) {
                 picView_footer.setVisibility(View.VISIBLE);
