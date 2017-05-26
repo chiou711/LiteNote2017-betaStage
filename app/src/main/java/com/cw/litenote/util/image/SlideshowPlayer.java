@@ -8,21 +8,26 @@ import com.cw.litenote.util.Util;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
+import android.widget.TextView;
+
 public class SlideshowPlayer extends FragmentActivity
 {
-	private static final String IMAGE_INDEX = "IMAGE_INDEX";
-	private static final int DURATION = 5000; // 5 seconds per slide
+	private String STATE_SLIDE_INDEX = "STATE_SLIDE_INDEX";
+	private int slideIndex; // index of the next image to display
+	private static int switch_time;
 	private ImageView imageView; // displays the current image
-   
+	private TextView textView; // displays the current text
+
 	private SlideshowInfo slideshow; // slide show being played
-	private Handler imageHandler; // used to update the slide show
-	private int imageIndex; // index of the next image to display
+	private Handler slideHandler; // used to update the slide show
 	private BroadcastReceiver mReceiver;
    
 	// initializes the SlideshowPlayer Activity
@@ -45,21 +50,24 @@ public class SlideshowPlayer extends FragmentActivity
 		if (savedInstanceState == null) // Activity starting
 		{
 			System.out.println("_onCreate / savedInstanceState == null"); 
-			imageIndex = 0; // start from first image
+			slideIndex = 0; // start from first image
 		}
 		else // Activity resuming
 		{
-			imageIndex = savedInstanceState.getInt(IMAGE_INDEX);     
+			slideIndex = savedInstanceState.getInt(STATE_SLIDE_INDEX);
 		}       
       
 		// get SlideshowInfo for slideshow to play
 		slideshow = MainAct.slideshowInfo;
-   	  	imageHandler = new Handler(); // create handler to control slideshow
+   	  	slideHandler = new Handler(); // create handler to control slideshow
 
    	  	IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
    	  	filter.addAction(Intent.ACTION_SCREEN_OFF);
    	  	mReceiver = new SlideshowScreenReceiver();
-   	  	registerReceiver(mReceiver, filter);   
+   	  	registerReceiver(mReceiver, filter);
+
+		SharedPreferences pref_sw_time = MainAct.mAct.getSharedPreferences("slideshow_sw_time", 0);
+		switch_time = Integer.valueOf(pref_sw_time.getString("KEY_SLIDESHOW_SW_TIME","5"));
 	}
    
 	@Override
@@ -83,7 +91,7 @@ public class SlideshowPlayer extends FragmentActivity
 	{
 //		System.out.println("SlideshowPlayer / onRestoreInstanceState ");
 		super.onRestoreInstanceState(savedInstanceState);
-		imageIndex = savedInstanceState.getInt(IMAGE_INDEX); 		
+		slideIndex = savedInstanceState.getInt(STATE_SLIDE_INDEX);
 	}
    
 	// called after onStart or onPause
@@ -92,7 +100,7 @@ public class SlideshowPlayer extends FragmentActivity
 	{
 //		System.out.println("SlideshowPlayer / onResume ");
 		super.onResume();
-   	  	imageHandler.post(runSlideshow); // post updateSlideshow to execute
+   	  	slideHandler.post(runSlideshow); // post updateSlideshow to execute
 	}
 
 	// called when the Activity is paused
@@ -101,7 +109,7 @@ public class SlideshowPlayer extends FragmentActivity
 	{
 //		System.out.println("SlideshowPlayer / onPause ");
 		super.onPause();
-   	  	imageHandler.removeCallbacks(runSlideshow);
+   	  	slideHandler.removeCallbacks(runSlideshow);
 	}
 
 	// save slide show state so it can be restored in onCreate
@@ -111,10 +119,10 @@ public class SlideshowPlayer extends FragmentActivity
 //		System.out.println("SlideshowPlayer / onSaveInstanceState ");
 		super.onSaveInstanceState(outState);
 		// save nextItemIndex and slideshowName
-		imageIndex--;
-		if(imageIndex<0)
-			imageIndex =0;
-		outState.putInt(IMAGE_INDEX, imageIndex); 
+		slideIndex--;
+		if(slideIndex <0)
+			slideIndex =0;
+		outState.putInt(STATE_SLIDE_INDEX, slideIndex);
 	}    
    
 	// called when the Activity stops
@@ -141,36 +149,45 @@ public class SlideshowPlayer extends FragmentActivity
 		@Override
 		public void run()
 		{
-			if(imageIndex >= slideshow.imageSize())
-				imageIndex = 0;
+			if(slideIndex >= slideshow.imageSize())
+				slideIndex = 0;
 
-			String uriStr = slideshow.getImageAt(imageIndex);
-			System.out.println(" Runnable updateSlideshow / imageIndex = " + imageIndex);
-//			if(SlideshowScreenReceiver.toBeScreenOn) //not needed
+			String uriStr = slideshow.getImageAt(slideIndex);
+			String text = slideshow.getTextAt(slideIndex);
+			System.out.println(" Runnable updateSlideshow / slideIndex = " + slideIndex);
+
+			// check if Uri exists
+			boolean uriOK;
+			if(UtilImage.hasImageExtension(uriStr,SlideshowPlayer.this))
+				uriOK = Util.isUriExisted(Uri.parse(uriStr).toString(), SlideshowPlayer.this);
+			else
+				uriOK = false;
+
+			if(uriOK)
 			{
-				// check if Uri exists
-				boolean uriOK;
-				
-				if(UtilImage.hasImageExtension(uriStr,SlideshowPlayer.this))
-					uriOK = Util.isUriExisted(Uri.parse(uriStr).toString(), SlideshowPlayer.this);
-				else
-					uriOK = false;
-				
-				if(uriOK)
+				// image
+				imageView = (ImageView) findViewById(R.id.slideshow_image);
+				UilCommon.imageLoader.displayImage(Uri.parse(uriStr).toString() ,
+										 imageView,
+										 UilCommon.optionsForFadeIn,
+										 UilCommon.animateFirstListener);
+				// text
+				textView = (TextView) findViewById(R.id.slideshow_text);
+				if(!Util.isEmptyString(text))
 				{
-					imageView = (ImageView) findViewById(R.id.imageView);
-	  		      	UilCommon.imageLoader.displayImage(Uri.parse(uriStr).toString() ,
-	  		    		  					 imageView,
-	  		    		  					 UilCommon.optionsForFadeIn,
-	  		    		  					 UilCommon.animateFirstListener);
-					imageIndex++;
-	  				imageHandler.postDelayed(runSlideshow, DURATION);
+					textView.setVisibility(View.VISIBLE);
+					textView.setText(text);
 				}
 				else
-				{
-					imageIndex++;
-					imageHandler.post(runSlideshow); // go to display next instantly
-				}
+					textView.setVisibility(View.GONE);
+
+				slideIndex++;
+				slideHandler.postDelayed(runSlideshow, switch_time*1000);
+			}
+			else
+			{
+				slideIndex++;
+				slideHandler.post(runSlideshow); // go to display next instantly
 			}
 		}
 	}; 

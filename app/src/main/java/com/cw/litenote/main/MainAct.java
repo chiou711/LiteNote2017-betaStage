@@ -603,8 +603,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	public static int mPlaying_pageId;
 	public static int mPlaying_folderPos;
 	public static int mPlaying_folderTableId;
-	public final static int REQUEST_ADD_YOUTUBE_LINK = 1;
-	public final static int REQUEST_ADD_WEB_LINK = 2;
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) //??? java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
     {
@@ -727,9 +726,17 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         		{
         			if(mDb_page.getNoteMarking(i,false) == 1)
         			{
-        				String pictureUri = mDb_page.getNotePictureUri(i,false);
+						String pictureUri = mDb_page.getNotePictureUri(i,false);
+						String text = mDb_page.getNoteTitle(i,false);
+
+						if(!Util.isEmptyString(mDb_page.getNoteBody(i,false)))
+							text += " : " + mDb_page.getNoteBody(i,false);
+
         				if((pictureUri.length() > 0) && UtilImage.hasImageExtension(pictureUri,this)) // skip empty
-        					slideshowInfo.addImage(pictureUri);
+						{
+							slideshowInfo.addImage(pictureUri);
+							slideshowInfo.addText(text);
+						}
         			}
         		}
         		mDb_page.close();

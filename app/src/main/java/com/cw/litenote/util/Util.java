@@ -1375,8 +1375,8 @@ public class Util
 
 	    String videoId = "";
 
-		// format 1: https://www.youtube.com/watch?v=_sQSXwdtxlY format
-//		// format 2: https://youtu.be/V7MfPD7kZuQ format (notice: start with V)
+		// format 1: https://www.youtube.com/watch?v=_sQSXwdtxlY
+		// format 2: https://youtu.be/V7MfPD7kZuQ (notice: start with V)
 	    if (url != null && url.trim().length() > 0 && url.startsWith("http")) {
 //			String expression = "^.*((youtu.be\\/)|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??v?=?([^#\\&\\?]*).*";
             String expression = "^.*((youtu.be\\/)|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??(v=)?([^#\\&\\?]*).*";
