@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SlideshowPlayer extends FragmentActivity
 {
@@ -143,6 +144,9 @@ public class SlideshowPlayer extends FragmentActivity
 	}
 
 
+	boolean bEnablePlay = true;
+	boolean bShowPause = false;
+	Toast toast;
 	// Runnable: runSlideshow
 	private Runnable runSlideshow = new Runnable()
 	{
@@ -167,22 +171,49 @@ public class SlideshowPlayer extends FragmentActivity
 			{
 				// image
 				imageView = (ImageView) findViewById(R.id.slideshow_image);
-				UilCommon.imageLoader.displayImage(Uri.parse(uriStr).toString() ,
-										 imageView,
-										 UilCommon.optionsForFadeIn,
-										 UilCommon.animateFirstListener);
-				// text
-				textView = (TextView) findViewById(R.id.slideshow_text);
-				if(!Util.isEmptyString(text))
-				{
-					textView.setVisibility(View.VISIBLE);
-					textView.setText(text);
-				}
-				else
-					textView.setVisibility(View.GONE);
+				imageView.setOnClickListener(new View.OnClickListener() {
+					public void onClick(View view) {
+						bEnablePlay = !bEnablePlay;
 
-				slideIndex++;
-				slideHandler.postDelayed(runSlideshow, switch_time*1000);
+						if(!bEnablePlay) {
+							if((toast != null) &&toast.getView().isShown())
+								toast.cancel();
+
+							toast = Toast.makeText(SlideshowPlayer.this, R.string.toast_pause, Toast.LENGTH_SHORT);
+							toast.show();
+						}
+						else {
+							if((toast != null) && toast.getView().isShown())
+								toast.cancel();
+
+							toast = Toast.makeText(SlideshowPlayer.this, R.string.toast_play, Toast.LENGTH_SHORT);
+							toast.show();
+
+							slideHandler.removeCallbacks(runSlideshow);
+							slideHandler.post(runSlideshow);
+						}
+					}
+				});
+
+				if(bEnablePlay) {
+					UilCommon.imageLoader.displayImage(Uri.parse(uriStr).toString(),
+							imageView,
+							UilCommon.optionsForFadeIn,
+							UilCommon.animateFirstListener);
+
+					// text
+					textView = (TextView) findViewById(R.id.slideshow_text);
+					if (!Util.isEmptyString(text)) {
+						textView.setVisibility(View.VISIBLE);
+						textView.setText(text);
+					} else
+						textView.setVisibility(View.GONE);
+
+					slideIndex++;
+
+					bShowPause = false;
+				}
+				slideHandler.postDelayed(runSlideshow, switch_time * 1000);
 			}
 			else
 			{
@@ -191,5 +222,4 @@ public class SlideshowPlayer extends FragmentActivity
 			}
 		}
 	}; 
-   
 }

@@ -9,4 +9,6 @@
     <string name="toast_import_finished">所選檔案已匯入</string>
     <string name="toast_input_filename">請輸入一個檔案名稱</string>
     <string name="toast_saved">儲存</string>
+    <string name="toast_pause">暫停</string>
+    <string name="toast_play">播放</string>
 </resources>

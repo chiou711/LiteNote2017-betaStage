@@ -9,4 +9,6 @@
     <string name="toast_import_finished">The selected file has been imported</string>
     <string name="toast_input_filename">Please input a file name</string>
     <string name="toast_saved">Saved</string>
+    <string name="toast_pause">Pause</string>
+    <string name="toast_play">Play</string>
 </resources>
