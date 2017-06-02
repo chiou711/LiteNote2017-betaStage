@@ -12,11 +12,11 @@ public class SlideshowScreenReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
             // do whatever you need to do here
-        	System.out.println("SlideshowScreenReceiver / toBeScreenOn = false");
+        	System.out.println("SlideshowScreenReceiver / _onReceive / toBeScreenOn = false");
             toBeScreenOn = false;
         } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
             // and do whatever you need to do here
-        	System.out.println("SlideshowScreenReceiver / toBeScreenOn = true");
+        	System.out.println("SlideshowScreenReceiver / _onReceive / toBeScreenOn = true");
             toBeScreenOn = true;
         }
     }

@@ -722,26 +722,27 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     			
         		// add images for slide show
     			mDb_page.open();
-        		for(int i = 0; i< mDb_page.getNotesCount(false) ; i++)
+        		for(int position = 0; position < mDb_page.getNotesCount(false) ; position++)
         		{
-        			if(mDb_page.getNoteMarking(i,false) == 1)
+        			if(mDb_page.getNoteMarking(position,false) == 1)
         			{
-						String pictureUri = mDb_page.getNotePictureUri(i,false);
-						String text = mDb_page.getNoteTitle(i,false);
+						String pictureUri = mDb_page.getNotePictureUri(position,false);
+						String text = mDb_page.getNoteTitle(position,false);
 
-						if(!Util.isEmptyString(mDb_page.getNoteBody(i,false)))
-							text += " : " + mDb_page.getNoteBody(i,false);
+						if(!Util.isEmptyString(mDb_page.getNoteBody(position,false)))
+							text += " : " + mDb_page.getNoteBody(position,false);
 
-        				if((pictureUri.length() > 0) && UtilImage.hasImageExtension(pictureUri,this)) // skip empty
+//						if(!Util.isEmptyString(pictureUri) && UtilImage.hasImageExtension(pictureUri,this)) // skip empty
+						if( (!Util.isEmptyString(pictureUri) && UtilImage.hasImageExtension(pictureUri,this)) ||
+                            !(Util.isEmptyString(text)) 														) // skip empty
 						{
-							slideshowInfo.addImage(pictureUri);
-							slideshowInfo.addText(text);
+							slideshowInfo.addShowItem(pictureUri,text,position);
 						}
         			}
         		}
         		mDb_page.close();
         		          		
-        		if(slideshowInfo.imageSize() > 0)
+        		if(slideshowInfo.showItemsSize() > 0)
         		{
 					// create new Intent to launch the slideShow player Activity
 					Intent playSlideshow = new Intent(this, SlideshowPlayer.class);

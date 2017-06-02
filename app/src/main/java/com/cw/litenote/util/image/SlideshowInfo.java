@@ -5,51 +5,40 @@ import java.util.List;
 
 public class SlideshowInfo
 {
-   private List<String> imageList; // this slideshow's images
-   private List<String> textList; // this slideshow's texts
+   private List<ViewHolder> showList;
+
+   public class ViewHolder {
+       String imagePath;
+       String text;
+       Integer position;
+   }
 
    // constructor 
    public SlideshowInfo()
    {
-      imageList = new ArrayList<>();
-      textList = new ArrayList<>();
+       showList = new ArrayList<>();
    }
 
-   // add a new image path
-   public void addImage(String path)
+   public void addShowItem(String path,String text,Integer position)
    {
-	  System.out.println("path = " + path); 
-      imageList.add(path);
+       ViewHolder holder = new ViewHolder();
+       holder.imagePath = path;
+       holder.text = text;
+       holder.position = position;
+       showList.add(holder);
    }
 
-   // add a new text
-   public void addText(String text)
+   public ViewHolder getShowItem(Integer index)
    {
-      System.out.println("text = " + text);
-      textList.add(text);
-   }
-   
-   // return String at position index
-   public String getImageAt(int index)
-   {
-      if (index >= 0 && index < imageList.size())
-         return imageList.get(index);
-      else
-         return null;
+       System.out.println("SlideshowInfo / _getShowItem / index = " + index);
+       if ((index >= 0) && (index < showList.size()))
+           return showList.get(index);
+       else
+           return null;
    }
 
-   // return text at position index
-   public String getTextAt(int index)
+   public int showItemsSize()
    {
-      if (index >= 0 && index < imageList.size())
-         return textList.get(index);
-      else
-         return null;
-   }
-   
-   // return number of images/videos in the slideshow
-   public int imageSize()
-   {
-      return imageList.size();
+       return showList.size();
    }
 }
