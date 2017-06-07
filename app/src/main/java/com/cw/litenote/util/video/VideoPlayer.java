@@ -142,13 +142,9 @@ public class VideoPlayer
 						//
 						if(!UtilVideo.hasMediaControlWidget)
 						{
-							if( Note_UI.showSeekBarProgress /*&&
-							    Note_view_pagerUI.isWithinDelay*/          )
-							{
-//								Note_UI.primaryVideoSeekBarProgressUpdater(pager,UtilVideo.mPlayVideoPosition,mCurrentPicStr);
+							if( Note_UI.showSeekBarProgress )
 								Note_UI.primaryVideoSeekBarProgressUpdater(pager,Note.mCurrentPosition,UtilVideo.mPlayVideoPosition,mCurrentPicStr);
-							}
-								
+
 							// final play
 							int diff = Math.abs(UtilVideo.mPlayVideoPosition - Note_UI.videoFileLength_inMilliSeconds);
 							if( diff  <= 1000)

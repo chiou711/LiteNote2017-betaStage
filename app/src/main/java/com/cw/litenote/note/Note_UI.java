@@ -57,22 +57,17 @@ public class Note_UI
         {
             setPictureView_listeners(act, pager, pictureUri, linkUri, pictureGroup);
 
-            TextView picView_footer;
-            Button picView_back_button;
-            Button picView_viewMode_button;
-            TextView videoView_currPosition;
-            SeekBar videoView_seekBar;
-            TextView videoView_fileLength;
 
-            picView_footer = (TextView) (pictureGroup.findViewById(R.id.image_footer));
+            TextView picView_footer = (TextView) (pictureGroup.findViewById(R.id.image_footer));
 
-            picView_back_button = (Button) (pictureGroup.findViewById(R.id.image_view_back));
-            picView_viewMode_button = (Button) (pictureGroup.findViewById(R.id.image_view_mode));
+            Button picView_back_button = (Button) (pictureGroup.findViewById(R.id.image_view_back));
+            Button picView_viewMode_button = (Button) (pictureGroup.findViewById(R.id.image_view_mode));
 
-            videoView_currPosition = (TextView) (pictureGroup.findViewById(R.id.video_current_pos));
-            videoView_seekBar = (SeekBar)(pictureGroup.findViewById(R.id.video_seek_bar));
-            videoView_fileLength = (TextView) (pictureGroup.findViewById(R.id.video_file_length));
+            TextView videoView_currPosition = (TextView) (pictureGroup.findViewById(R.id.video_current_pos));
+            SeekBar videoView_seekBar = (SeekBar)(pictureGroup.findViewById(R.id.video_seek_bar));
+            TextView videoView_fileLength = (TextView) (pictureGroup.findViewById(R.id.video_file_length));
 
+            // show back button
             if(Note.isPictureMode())
                 picView_back_button.setVisibility(View.VISIBLE);
             else
@@ -97,6 +92,7 @@ public class Note_UI
             else
                 picView_title.setVisibility(View.INVISIBLE);
 
+            // show footer
             if(Note.isPictureMode()) {
                 picView_footer.setVisibility(View.VISIBLE);
                 picView_footer.setText((pager.getCurrentItem()+1) +
@@ -105,12 +101,13 @@ public class Note_UI
             else
                 picView_footer.setVisibility(View.GONE);
 
+            // for video
             if(UtilVideo.hasVideoExtension(pictureUri, act))
             {
                 if(!UtilVideo.hasMediaControlWidget)
                     Note_UI.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
                 else
-                    showPicViewUI_previous_next(false,0);
+                    show_picViewUI_previous_next(false,0);
             }
 
             // set image view buttons (View Mode, Previous, Next) visibility
@@ -119,14 +116,22 @@ public class Note_UI
                 picView_viewMode_button.setVisibility(View.VISIBLE);
 
                 // show previous/next buttons for image, not for video
-                if(!UtilVideo.hasMediaControlWidget )
-                    showPicViewUI_previous_next(true,position);
-                else if(UtilVideo.mVideoView == null) // for image
-                    showPicViewUI_previous_next(true,position);
+                if(UtilVideo.hasVideoExtension(pictureUri, act) &&
+                   !UtilVideo.hasMediaControlWidget                 ) // for video
+                {
+                    System.out.println("Note_UI / constructor / for video");
+                    show_picViewUI_previous_next(true, position);
+                }
+                else if(UtilImage.hasImageExtension(pictureUri,act) &&
+                        (UtilVideo.mVideoView == null)                  )// for image
+                {
+                    System.out.println("Note_UI / constructor / for image");
+                    show_picViewUI_previous_next(true,position);
+                }
             }
             else
             {
-                showPicViewUI_previous_next(false,0);
+                show_picViewUI_previous_next(false,0);
                 picView_viewMode_button.setVisibility(View.GONE);
             }
 
@@ -156,10 +161,15 @@ public class Note_UI
         }
     } //Note_view_UI constructor
 
-    static boolean isWithinDelay;
-
     private static String mPictureString;
-
+    /**
+     *  Set picutre view listeners
+     * @param act
+     * @param pager
+     * @param strPicture
+     * @param linkUri
+     * @param viewGroup
+     */
 	private void setPictureView_listeners(final FragmentActivity act,final ViewPager pager,
                                          final String strPicture, final String linkUri, ViewGroup viewGroup)
 	{
@@ -293,8 +303,6 @@ public class Note_UI
                     TextView audio_title_text_view = (TextView) act.findViewById(R.id.pager_audio_title);
                     audio_title_text_view.setSelected(false);
 
-                    isWithinDelay = false;
-
 	            	//Creating the instance of PopupMenu
 	                PopupMenu popup = new PopupMenu(act, view);
 
@@ -412,10 +420,10 @@ public class Note_UI
 
 					     	//add below to keep showing seek bar
 					     	if(Note.isPictureMode())
-					     		showPicViewUI_previous_next(true,mPosition);
+					     		show_picViewUI_previous_next(true,mPosition);
 					        showSeekBarProgress = true;
                             if(handler != null)
-                                handler.removeCallbacks(runnable);
+                                handler.removeCallbacks(runnableHideUi);
 					    	tempShow_picViewUI(3001,strPicture); // for 3 seconds, _onProgressChanged
 						}
 					}
@@ -431,7 +439,7 @@ public class Note_UI
 							if(UtilVideo.mVideoPlayer != null)
 								UtilVideo.mVideoView.seekTo(mPlayVideoPosition);
                             if(handler != null)
-                                handler.removeCallbacks(runnable);
+                                handler.removeCallbacks(runnableHideUi);
                             tempShow_picViewUI(3002,strPicture); // for 3 seconds, _onProgressChanged
 						}
 					}
@@ -442,29 +450,24 @@ public class Note_UI
 
 	public void tempShow_picViewUI(long delayTime, String pictureStr)
 	{
-		System.out.println("Note_UI / _delay_picViewUI / delayTime = " + delayTime);
+		System.out.println("Note_UI / _tempShow_picViewUI / delayTime = " + delayTime);
         mPictureString = pictureStr;
         handler = new Handler();
-        // with delay
-        isWithinDelay = true; // only set true here
-        handler.postDelayed(runnable,delayTime);
+        handler.postDelayed(runnableHideUi,delayTime);
     }
 
 
     Handler handler;
-    Runnable runnable = new Runnable()
+    public Runnable runnableHideUi = new Runnable()
     {
         public void run()
         {
-            if(!isWithinDelay)
-                return;
-
-//            System.out.println("Note_UI / _runnable ");
+            System.out.println("Note_UI / _runnableHideUi ");
             if(pager != null)
             {
                 int position =  pager.getCurrentItem();
                 String tagImageStr = "current"+ position +"pictureView";
-                System.out.println("Note_UI / _runnable / position = " + position);
+                System.out.println("Note_UI / _runnableHideUi / position = " + position);
                 ViewGroup imageGroup = (ViewGroup) pager.findViewWithTag(tagImageStr);
 
                 if(imageGroup != null)
@@ -474,7 +477,6 @@ public class Note_UI
                     if(!Util.isEmptyString(mPictureString))
                         hide_picViewUI(mPictureString);
                 }
-
                 showSeekBarProgress = false;
             }
         }
@@ -485,7 +487,7 @@ public class Note_UI
         String tagStr = "current"+ pager.getCurrentItem() +"pictureView";
         ViewGroup pictureGroup = (ViewGroup) pager.findViewWithTag(tagStr);
 
-//        System.out.println("Note_UI / _hide_picViewUI / tagStr = " + tagStr);
+        System.out.println("Note_UI / _hide_picViewUI / tagStr = " + tagStr);
 
         if((pictureGroup != null))
         {
@@ -520,45 +522,46 @@ public class Note_UI
             TextView videoView_fileLength = (TextView) (pictureGroup.findViewById(R.id.video_file_length));
 
             // since the play button is designed at the picture center, should be gone when playing
-            if(UtilVideo.getVideoState() == UtilVideo.VIDEO_AT_PLAY)
+            System.out.println("Note_UI / _hide_picViewUI / UtilVideo.getVideoState() = " + UtilVideo.getVideoState());
+            if(UtilVideo.getVideoState() == UtilVideo.VIDEO_AT_PLAY) {
+                System.out.println("Note_UI / _hide_picViewUI / setVisibility(View.GONE) ");
+
                 videoPlayButton.setVisibility(View.GONE);
+            }
 
             if((!UtilVideo.hasMediaControlWidget) && UtilVideo.hasVideoExtension(pictureStr, act))
             {
                 picView_previous_button.setVisibility(View.GONE); //??? how to avoid this flash?
                 picView_next_button.setVisibility(View.GONE);
-                updateVideoPlayButtonState(pager,pager.getCurrentItem());
             }
 
             videoView_currPosition.setVisibility(View.GONE);
             videoView_seekBar.setVisibility(View.GONE);
             videoView_fileLength.setVisibility(View.GONE);
-
         }
 
-        isWithinDelay = false;
         cancel_UI_callbacks();
 	}
 	
-    void cancel_UI_callbacks()
+    static void cancel_UI_callbacks()
     {
-        if(Note.picUI != null) {
-            if(Note.picUI.handler != null)
-                Note.picUI.handler.removeCallbacks(Note.picUI.runnable);
-            Note.picUI = null;
+        if(Note.picUI_touch != null) {
+            if(Note.picUI_touch.handler != null)
+                Note.picUI_touch.handler.removeCallbacks(Note.picUI_touch.runnableHideUi);
+            Note.picUI_touch = null;
         }
 
-        if(Note_adapter.picUI != null) {
-            if(Note_adapter.picUI.handler != null)
-                Note_adapter.picUI.handler.removeCallbacks(Note_adapter.picUI.runnable);
-            Note_adapter.picUI = null;
+        if(Note_adapter.picUI_primary != null) {
+            if(Note_adapter.picUI_primary.handler != null)
+                Note_adapter.picUI_primary.handler.removeCallbacks(Note_adapter.picUI_primary.runnableHideUi);
+            Note_adapter.picUI_primary = null;
         }
     }
 
-    private void showPicViewUI_previous_next(boolean show,int position) {
+    private void show_picViewUI_previous_next(boolean show, int position) {
         String tagStr = "current" + position + "pictureView";
         ViewGroup pictureGroup = (ViewGroup) pager.findViewWithTag(tagStr);
-//        System.out.println("Note_UI / _showPicViewUI_previous_next / tagStr = " + tagStr);
+//        System.out.println("Note_UI / _show_PicViewUI_previous_next / tagStr = " + tagStr);
 
         Button picView_previous_button;
         Button picView_next_button;
@@ -598,12 +601,12 @@ public class Note_UI
     public static void updateVideoPlayButtonState(ViewPager pager,int position)
     {
         ViewGroup pictureGroup = getPictureGroup(position,pager);
-        Button mVideoPlayButton = null;
+        Button videoPlayButton = null;
 
         if(pictureGroup != null)
-            mVideoPlayButton = (Button) (pictureGroup.findViewById(R.id.video_view_play_video));
+            videoPlayButton = (Button) (pictureGroup.findViewById(R.id.video_view_play_video));
 
-    	Button btn = mVideoPlayButton;
+    	Button btn = videoPlayButton;
 
     	if(btn == null)
     		return;

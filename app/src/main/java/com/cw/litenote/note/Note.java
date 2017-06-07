@@ -290,11 +290,7 @@ public class Note extends FragmentActivity
 			String pictureUriInDB = mDb_page.getNotePictureUri_byId(mNoteId);
 			if(UtilVideo.hasVideoExtension(pictureUriInDB,act)) {
 				VideoPlayer.stopVideo();
-				if(picUI != null) {
-					if(picUI.handler != null)
-						picUI.handler.removeCallbacks(Note.picUI.runnable);
-					picUI = null;
-				}
+				Note_UI.cancel_UI_callbacks();
 			}
 
             setOutline(act);
@@ -404,12 +400,7 @@ public class Note extends FragmentActivity
 	    super.onConfigurationChanged(newConfig);
 	    System.out.println("Note / _onConfigurationChanged");
 
-
-		if(picUI != null)
-		{
-			picUI.handler.removeCallbacks(picUI.runnable);
-			picUI = null;
-		}
+		Note_UI.cancel_UI_callbacks();
 
         setLayoutView();
 
@@ -477,11 +468,7 @@ public class Note extends FragmentActivity
     	CustomWebView.pauseWebView(linkWebView);
     	CustomWebView.blankWebView(linkWebView);
 
-		if(picUI != null)
-		{
-			picUI.handler.removeCallbacks(picUI.runnable);
-			picUI = null;
-		}
+		Note_UI.cancel_UI_callbacks();
 	}
 	
 	@Override
@@ -1049,7 +1036,7 @@ public class Note extends FragmentActivity
 										.equalsIgnoreCase("TEXT_ONLY");
     }
 
-    static Note_UI picUI;
+	static Note_UI picUI_touch;
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         int maskedAction = event.getActionMasked();
@@ -1061,41 +1048,51 @@ public class Note extends FragmentActivity
         		 // update playing state of picture mode
     			 System.out.println("Note / _dispatchTouchEvent / MotionEvent.ACTION_DOWN / mPager.getCurrentItem() =" + mPager.getCurrentItem());
 
-				if(picUI == null) {
-					System.out.println("Note / _dispatchTouchEvent / picUI == null");
-					picUI = new Note_UI(act,mPager, mPager.getCurrentItem());
-					picUI.tempShow_picViewUI(5000,getCurrentPictureString());//1st touch to turn on UI
-				}
-				else
-				{
-					System.out.println("Note / _dispatchTouchEvent / picUI != null");
-					if(picUI.handler != null)
-						picUI.handler.removeCallbacks(picUI.runnable);
+				 //1st touch to turn on UI
+				 if(picUI_touch == null) {
+				 	picUI_touch = new Note_UI(act,mPager, mPager.getCurrentItem());
+				 	picUI_touch.tempShow_picViewUI(5000,getCurrentPictureString());
+				 }
+				 //2nd touch to turn off UI
+				 else
+				 {
+					 Note_UI.cancel_UI_callbacks();
+					 picUI_touch = new Note_UI(act,mPager, mPager.getCurrentItem());
 
-					picUI = new Note_UI(act,mPager, mPager.getCurrentItem());
-
-
-					if((UtilVideo.mVideoView != null) && (UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_STOP) )
-					{
-						if(Note_UI.isWithinDelay) {
-							if(!Note_UI.showSeekBarProgress)
-								picUI.tempShow_picViewUI(100,getCurrentPictureString());//2nd touch to turn off UI
-							else
-								picUI.tempShow_picViewUI(1000, getCurrentPictureString());//2nd touch to turn off UI
-						}
+					 // for video
+					 if((UtilVideo.mVideoView != null) &&
+						(UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_STOP) )
+					 {
+						if (!Note_UI.showSeekBarProgress)
+							picUI_touch.tempShow_picViewUI(100, getCurrentPictureString());
 						else
-							picUI.tempShow_picViewUI(5008, getCurrentPictureString());//2nd touch to turn off UI
-					}
-					else
-					{
-						if(Note_UI.isWithinDelay) {
-							picUI.tempShow_picViewUI(100,getCurrentPictureString());//2nd touch to turn off UI
-						}
-						else
-							picUI.tempShow_picViewUI(5001, getCurrentPictureString());//2nd touch to turn off UI
-					}
+							picUI_touch.tempShow_picViewUI(1000, getCurrentPictureString());
+					 }
+					 // for image
+					 else
+						picUI_touch.tempShow_picViewUI(101,getCurrentPictureString());
+				 }
 
-				}
+				 //1st touch to turn off UI (primary)
+				 if(Note_adapter.picUI_primary != null)
+				 {
+					 Note_UI.cancel_UI_callbacks();
+					 Note_adapter.picUI_primary = new Note_UI(act,mPager, mPager.getCurrentItem());
+
+					 // for video
+					 if((UtilVideo.mVideoView != null) &&
+							(UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_STOP) )
+					 {
+						 if (!Note_UI.showSeekBarProgress)
+							 Note_adapter.picUI_primary.tempShow_picViewUI(100, getCurrentPictureString());
+						 else
+							 Note_adapter.picUI_primary.tempShow_picViewUI(1000, getCurrentPictureString());
+					 }
+					 // for image
+					 else
+						 Note_adapter.picUI_primary.tempShow_picViewUI(101,getCurrentPictureString());
+				 }
+
     	  	  	 break;
 	        case MotionEvent.ACTION_MOVE: 
 	        case MotionEvent.ACTION_UP:

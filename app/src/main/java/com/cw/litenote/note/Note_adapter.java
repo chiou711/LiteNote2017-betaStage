@@ -241,7 +241,7 @@ class Note_adapter extends FragmentStatePagerAdapter
   			linkWebView.setVisibility(View.GONE);
   			UtilVideo.mVideoView = null;
   			imageView.setVisibility(View.VISIBLE);
-  			showImageByTouchImageView(spinner, imageView, pictureUri);
+  			showImageByTouchImageView(spinner, imageView, pictureUri,position);
   		}
   		// show video view
   		else if(UtilVideo.hasVideoExtension(pictureUri, act))
@@ -318,7 +318,7 @@ class Note_adapter extends FragmentStatePagerAdapter
 	}
 	
 	static Intent mIntentView;
-    static Note_UI picUI;
+	static Note_UI picUI_primary;
 
 	@Override
 	public void setPrimaryItem(final ViewGroup container, int position, Object object) 
@@ -422,16 +422,11 @@ class Note_adapter extends FragmentStatePagerAdapter
 				}
 
                 // Show picture view UI
-                if (Note.isViewAllMode() || Note.isPictureMode() )
+				if (Note.isViewAllMode() || Note.isPictureMode() )
                 {
-                    if(picUI != null)
-                    {
-						picUI.handler.removeCallbacks(picUI.runnable);
-                        picUI = null;
-                    }
-
-					picUI = new Note_UI(act, pager, position);
-					picUI.tempShow_picViewUI(5002, pictureStr);//1st touch to turn on UI
+					Note_UI.cancel_UI_callbacks();
+					picUI_primary = new Note_UI(act, pager, position);
+					picUI_primary.tempShow_picViewUI(5002, pictureStr);
                 }
 
 				// Set video view
@@ -447,11 +442,6 @@ class Note_adapter extends FragmentStatePagerAdapter
 						UtilVideo.mPlayVideoPosition = Note.mPositionOfChangeView;
 						UtilVideo.setVideoViewLayout(pictureStr);
 
-                        if (!UtilVideo.hasMediaControlWidget) {
-							Note_UI.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
-                            picUI.tempShow_picViewUI(5004,pictureStr);
-                        }
-
 						if (UtilVideo.mPlayVideoPosition > 0)
 							UtilVideo.playOrPauseVideo(pager,pictureStr);
 					}
@@ -465,7 +455,7 @@ class Note_adapter extends FragmentStatePagerAdapter
 
 							if (!UtilVideo.hasMediaControlWidget) {
 								Note_UI.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
-                                picUI.tempShow_picViewUI(5003,pictureStr); // for 3 seconds, _showPictureViewUI
+								picUI_primary.tempShow_picViewUI(5003,pictureStr);
                             }
 
 							UtilVideo.playOrPauseVideo(pager,pictureStr);
@@ -739,7 +729,7 @@ class Note_adapter extends FragmentStatePagerAdapter
     }
 
     // show image by touch image view
-    private void showImageByTouchImageView(final View spinner, final TouchImageView pictureView, String strPicture)
+    private void showImageByTouchImageView(final View spinner, final TouchImageView pictureView, String strPicture,final Integer position)
     {
         if(Util.isEmptyString(strPicture))
         {
@@ -763,7 +753,7 @@ class Note_adapter extends FragmentStatePagerAdapter
                             @Override
                             public void onLoadingStarted(String imageUri, View view)
                             {
-                                System.out.println("_showImageByTouchImageView / onLoadingStarted");
+                                System.out.println("Note_adapter / _showImageByTouchImageView / onLoadingStarted");
                                 // make spinner appears at center
                                 spinner.setVisibility(View.VISIBLE);
                                 view.setVisibility(View.GONE);
@@ -772,7 +762,7 @@ class Note_adapter extends FragmentStatePagerAdapter
                             @Override
                             public void onLoadingFailed(String imageUri, View view, FailReason failReason)
                             {
-                                System.out.println("_showImageByTouchImageView / onLoadingFailed");
+                                System.out.println("Note_adapter / _showImageByTouchImageView / onLoadingFailed");
                                 String message = null;
                                 switch (failReason.getType())
                                 {
@@ -801,7 +791,7 @@ class Note_adapter extends FragmentStatePagerAdapter
                             @Override
                             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage)
                             {
-                                System.out.println("_showImageByTouchImageView / onLoadingComplete");
+                                System.out.println("Note_adapter / _showImageByTouchImageView / onLoadingComplete");
                                 spinner.setVisibility(View.GONE);
                                 view.setVisibility(View.VISIBLE);
                                 pictureView.setImageBitmap(loadedImage);
