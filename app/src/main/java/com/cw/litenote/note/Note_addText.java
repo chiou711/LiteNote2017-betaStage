@@ -32,7 +32,7 @@ public class Note_addText extends Activity {
         setContentView(R.layout.note_add_new_text);
         setTitle(R.string.add_new_note_title);// set title
         
-        System.out.println("Note_addNew / onCreate");
+        System.out.println("Note_addText / onCreate");
 
         getActionBar().setBackgroundDrawable(new ColorDrawable(ColorSet.getBarColor(this)));
 

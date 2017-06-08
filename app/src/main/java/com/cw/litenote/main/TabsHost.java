@@ -572,8 +572,9 @@ public class TabsHost extends Fragment
     	{
     		MainAct.mPlaying_pageId--;
     	}
-    	else if(mNow_pageId == MainAct.mPlaying_pageId)
-    	{
+        else if((mNow_pageId == MainAct.mPlaying_pageId) &&
+                (MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos))
+        {
     		if(AudioPlayer.mMediaPlayer != null)
     		{
     			UtilAudio.stopAudioPlayer();
