@@ -2,14 +2,14 @@
     <item
         android:id="@+id/VIEW_NOTE_CHECK"
         android:orderInCategory="1"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="@string/btn_Select"
         android:icon="@drawable/btn_check_on_holo_dark">
     </item>
     <item
         android:id="@+id/VIEW_NOTE_MODE"
         android:orderInCategory="2"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="@string/view_note_mode"
         android:icon="@android:drawable/ic_menu_view">
     <menu xmlns:android="http://schemas.android.com/apk/res/android">
@@ -32,11 +32,11 @@
         android:orderInCategory="3"
         android:title="@string/view_note_slide_action_previous"
         android:icon="@android:drawable/ic_media_previous"
-        android:showAsAction="always|withText" />
+        android:showAsAction="always" />
 
     <item android:id="@+id/ACTION_NEXT"
         android:orderInCategory="4"
         android:title="@string/view_note_slide_action_next"
         android:icon="@android:drawable/ic_media_next"
-        android:showAsAction="always|withText" />
+        android:showAsAction="always" />
 </menu>

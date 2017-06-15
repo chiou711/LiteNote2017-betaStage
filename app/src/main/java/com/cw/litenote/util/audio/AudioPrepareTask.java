@@ -30,15 +30,6 @@ public class AudioPrepareTask extends AsyncTask<String,Integer,String>
 	 protected void onPreExecute() 
 	 {
 	 	super.onPreExecute();
-
-
-		if(Util.isLandscapeOrientation(mActivity) &&
-		   !Page.mDndListView.isShown() &&
-		   (MainUi.getMenuUiState() != R.id.SLIDE_SHOW) && // add for Slide show state
-		   Note.isPictureMode()                )
-		{
-			Util.setImmersiveNavigator(mActivity);
-		}
 	 	System.out.println("AudioPrepareTask / onPreExecute" );
 
 		mPrepareDialog = new ProgressDialog(mActivity);

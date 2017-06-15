@@ -1587,23 +1587,6 @@ public class Util
 	  }
 	}
 
-	// set Immersive Navigator
-	public static void setImmersiveNavigator(Activity act)
-	{
-		System.out.println("Util / _setImmersiveNavigator");
-		if (Build.VERSION.SDK_INT > 19)
-		{
-			View decorView = act.getWindow().getDecorView();
-			int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-					| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-					| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-					| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-					| View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-					| View.SYSTEM_UI_FLAG_IMMERSIVE;
-			decorView.setSystemUiVisibility(uiOptions);
-		}
-	}
-
 	// set full screen
 	public static void setFullScreen(Activity act)
 	{
@@ -1617,12 +1600,30 @@ public class Util
 						 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		} 
 		else 
-		{ 
-		    View decorView = act.getWindow().getDecorView();
-		    
-		    // set full screen to hide the status bar.
-		    int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-		    decorView.setSystemUiVisibility(uiOptions);
+		{
+			//ref: https://stackoverflow.com/questions/28983621/detect-soft-navigation-bar-availability-in-android-device-progmatically
+			Resources res = act.getResources();
+			int id = res.getIdentifier("config_showNavigationBar", "bool", "android");
+			boolean hasNavBar = ( id > 0 && res.getBoolean(id));
+
+            // flags
+            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE//??? add bottom offset
+                           |View.SYSTEM_UI_FLAG_FULLSCREEN
+                           |View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+
+            if (Build.VERSION.SDK_INT >= 19)
+                uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+            //has navigation bar
+			if(hasNavBar)
+			{
+				uiOptions = uiOptions
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+			}
+
+            View decorView = act.getWindow().getDecorView();
+			decorView.setSystemUiVisibility(uiOptions);
 		}
 	}
 	
@@ -1639,11 +1640,11 @@ public class Util
 						 WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 		} 
 		else 
-		{ 
+		{
+            // show the status bar and navigation bar
 		    View decorView = act.getWindow().getDecorView();
-		    // show the status bar.
-		    int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
-		    decorView.setSystemUiVisibility(uiOptions);
+            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            decorView.setSystemUiVisibility(uiOptions);
 		}
 	}
 

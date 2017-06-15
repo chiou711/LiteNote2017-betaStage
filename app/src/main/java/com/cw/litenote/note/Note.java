@@ -105,6 +105,17 @@ public class Note extends FragmentActivity
 		AsyncTaskVideoBitmapPager.mRotationStr = null;
     } //onCreate end
 
+
+	// Add to prevent resizing full screen picture,
+	// when popup menu shows up at picture mode
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		System.out.println("Note / _onWindowFocusChanged");
+		if (hasFocus && isPictureMode() )
+			Util.setFullScreen(act);
+	}
+
 	void setLayoutView()
 	{
         System.out.println("Note / _setLayoutView");
@@ -379,7 +390,7 @@ public class Note extends FragmentActivity
         act.invalidateOptionsMenu();
 	}
 
-	
+
     //Refer to http://stackoverflow.com/questions/4434027/android-videoview-orientation-change-with-buffered-video
 	/***************************************************************
 	video play spec of Pause and Rotate:
@@ -399,6 +410,13 @@ public class Note extends FragmentActivity
 	public void onConfigurationChanged(Configuration newConfig) {
 	    super.onConfigurationChanged(newConfig);
 	    System.out.println("Note / _onConfigurationChanged");
+
+		// dismiss popup menu we
+		if(Note_UI.popup != null)
+		{
+			Note_UI.popup.dismiss();
+			Note_UI.popup = null;
+		}
 
 		Note_UI.cancel_UI_callbacks();
 
@@ -682,7 +700,7 @@ public class Note extends FragmentActivity
             float y = 0.0f;
             // List of meta states found here: developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
             int metaState = 0;
-            MotionEvent event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_DOWN,
+            MotionEvent event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP,
                                                     x, y,metaState);
             dispatchTouchEvent(event);
             event.recycle();
@@ -1041,13 +1059,9 @@ public class Note extends FragmentActivity
     public boolean dispatchTouchEvent(MotionEvent event) {
         int maskedAction = event.getActionMasked();
         switch (maskedAction) {
-
-	        case MotionEvent.ACTION_DOWN:
-	        case MotionEvent.ACTION_POINTER_DOWN: 
-	        	 //??? how to detect zoom image?
-        		 // update playing state of picture mode
-    			 System.out.println("Note / _dispatchTouchEvent / MotionEvent.ACTION_DOWN / mPager.getCurrentItem() =" + mPager.getCurrentItem());
-
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+    			 System.out.println("Note / _dispatchTouchEvent / MotionEvent.ACTION_UP / mPager.getCurrentItem() =" + mPager.getCurrentItem());
 				 //1st touch to turn on UI
 				 if(picUI_touch == null) {
 				 	picUI_touch = new Note_UI(act,mPager, mPager.getCurrentItem());
@@ -1055,53 +1069,46 @@ public class Note extends FragmentActivity
 				 }
 				 //2nd touch to turn off UI
 				 else
-				 {
-					 Note_UI.cancel_UI_callbacks();
-					 picUI_touch = new Note_UI(act,mPager, mPager.getCurrentItem());
-
-					 // for video
-					 if((UtilVideo.mVideoView != null) &&
-						(UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_STOP) )
-					 {
-						if (!Note_UI.showSeekBarProgress)
-							picUI_touch.tempShow_picViewUI(100, getCurrentPictureString());
-						else
-							picUI_touch.tempShow_picViewUI(1000, getCurrentPictureString());
-					 }
-					 // for image
-					 else
-						picUI_touch.tempShow_picViewUI(101,getCurrentPictureString());
-				 }
+					 setTransientPicViewUI();
 
 				 //1st touch to turn off UI (primary)
 				 if(Note_adapter.picUI_primary != null)
-				 {
-					 Note_UI.cancel_UI_callbacks();
-					 Note_adapter.picUI_primary = new Note_UI(act,mPager, mPager.getCurrentItem());
-
-					 // for video
-					 if((UtilVideo.mVideoView != null) &&
-							(UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_STOP) )
-					 {
-						 if (!Note_UI.showSeekBarProgress)
-							 Note_adapter.picUI_primary.tempShow_picViewUI(100, getCurrentPictureString());
-						 else
-							 Note_adapter.picUI_primary.tempShow_picViewUI(1000, getCurrentPictureString());
-					 }
-					 // for image
-					 else
-						 Note_adapter.picUI_primary.tempShow_picViewUI(101,getCurrentPictureString());
-				 }
-
+					 setTransientPicViewUI();
     	  	  	 break;
-	        case MotionEvent.ACTION_MOVE: 
-	        case MotionEvent.ACTION_UP:
-	        case MotionEvent.ACTION_POINTER_UP:
+
+	        case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
 	        case MotionEvent.ACTION_CANCEL: 
 	        	 break;
         }
 
         return super.dispatchTouchEvent(event);
+    }
+
+	/**
+	 * Set delay for transient picture view UI
+	 *
+	 */
+    void setTransientPicViewUI()
+    {
+        Note_UI.cancel_UI_callbacks();
+        picUI_touch = new Note_UI(act,mPager, mPager.getCurrentItem());
+
+        // for video
+        String pictureUriInDB = mDb_page.getNotePictureUri_byId(mNoteId);
+        if(UtilVideo.hasVideoExtension(pictureUriInDB,act) &&
+                (UtilVideo.mVideoView != null) &&
+                (UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_STOP) )
+        {
+            if (!Note_UI.showSeekBarProgress)
+                picUI_touch.tempShow_picViewUI(110, getCurrentPictureString());
+            else
+                picUI_touch.tempShow_picViewUI(1110, getCurrentPictureString());
+        }
+        // for image
+        else
+            picUI_touch.tempShow_picViewUI(111,getCurrentPictureString());
     }
 
 	public static void stopAV()

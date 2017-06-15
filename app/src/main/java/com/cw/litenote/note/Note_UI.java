@@ -161,6 +161,7 @@ public class Note_UI
         }
     } //Note_view_UI constructor
 
+    static PopupMenu popup;
     private static String mPictureString;
     /**
      *  Set picutre view listeners
@@ -304,7 +305,7 @@ public class Note_UI
                     audio_title_text_view.setSelected(false);
 
 	            	//Creating the instance of PopupMenu
-	                PopupMenu popup = new PopupMenu(act, view);
+	                popup = new PopupMenu(act, view);
 
 	                //Inflating the Popup using xml file
 	                popup.getMenuInflater().inflate(R.menu.pop_up_menu, popup.getMenu());
@@ -348,12 +349,14 @@ public class Note_UI
 							}
 							else
 								audio_title_text_view.setSelected(false);
-
-                            tempShow_picViewUI(100,strPicture);
 						}
 					} );
+                    popup.show();//showing pop up menu, will show status bar
 
-	                popup.show();//showing pop up menu, will show status bar
+                    // for transient popup
+                    cancel_UI_callbacks();
+                    Note_adapter.picUI_primary = new Note_UI(act,pager, pager.getCurrentItem());
+                    Note_adapter.picUI_primary.tempShow_picViewUI(5005,strPicture);
 	            }
 	        });
 
@@ -504,6 +507,8 @@ public class Note_UI
             picView_footer.setVisibility(View.GONE);
 
             picView_back_button.setVisibility(View.GONE);
+
+            // view mode button visibility affects pop up menu ON/OFF
             picView_viewMode_button.setVisibility(View.GONE);
 
             if(Note.isPictureMode() && UtilImage.hasImageExtension(pictureStr, act))
@@ -522,10 +527,7 @@ public class Note_UI
             TextView videoView_fileLength = (TextView) (pictureGroup.findViewById(R.id.video_file_length));
 
             // since the play button is designed at the picture center, should be gone when playing
-            System.out.println("Note_UI / _hide_picViewUI / UtilVideo.getVideoState() = " + UtilVideo.getVideoState());
             if(UtilVideo.getVideoState() == UtilVideo.VIDEO_AT_PLAY) {
-                System.out.println("Note_UI / _hide_picViewUI / setVisibility(View.GONE) ");
-
                 videoPlayButton.setVisibility(View.GONE);
             }
 
