@@ -19,12 +19,12 @@ import android.widget.Toast;
 
 public class Note_addAudio extends FragmentActivity { 
 
-    static Long mNoteId;
-    static String mSelectedAudioUri;
+    Long noteId;
+    String selectedAudioUri;
     Note_common note_common;
-    static boolean mEnSaveDb = true;
-	static String mAudioUriInDB;
-	private static DB_page mDb;
+    boolean enSaveDb = true;
+	String audioUriInDB;
+	private DB_page dB;
     boolean bUseSelectedFile;
 	
 	@Override
@@ -34,21 +34,21 @@ public class Note_addAudio extends FragmentActivity {
         System.out.println("Note_addAudio / onCreate");
         
         note_common = new Note_common(this);
-        mAudioUriInDB = "";
-        mSelectedAudioUri = "";
+        audioUriInDB = "";
+        selectedAudioUri = "";
         bUseSelectedFile = false;
 			
         // get row Id from saved instance
-        mNoteId = (savedInstanceState == null) ? null :
+        noteId = (savedInstanceState == null) ? null :
             (Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
         
         // get audio Uri in DB if instance is not null
-        mDb = Page.mDb_page;
+        dB = Page.mDb_page;
         if(savedInstanceState != null)
         {
-	        System.out.println("Note_addAudio / mNoteId =  " + mNoteId);
-	        if(mNoteId != null)
-	        	mAudioUriInDB = mDb.getNoteAudioUri_byId(mNoteId);
+	        System.out.println("Note_addAudio / noteId =  " + noteId);
+	        if(noteId != null)
+	        	audioUriInDB = dB.getNoteAudioUri_byId(noteId);
         }
         
         // at the first beginning
@@ -80,13 +80,13 @@ public class Note_addAudio extends FragmentActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
    	 	System.out.println("Note_addNew / onSaveInstanceState");
-        outState.putSerializable(DB_page.KEY_NOTE_ID, mNoteId);
+        outState.putSerializable(DB_page.KEY_NOTE_ID, noteId);
     }
     
     @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
-        mEnSaveDb = false;
+        enSaveDb = false;
         finish();
     }
     
@@ -140,11 +140,11 @@ public class Note_addAudio extends FragmentActivity {
 							uriStr = "file://".concat(realPath);
 					}
 					
-		  		    mNoteId = null; // set null for Insert
-		        	mNoteId = Note_common.insertAudioToDB(uriStr);
-		        	mSelectedAudioUri = uriStr;
+		  		    noteId = null; // set null for Insert
+		        	noteId = note_common.insertAudioToDB(uriStr);
+		        	selectedAudioUri = uriStr;
 		        	
-		        	if( (Note_common.getCount() > 0) &&  
+		        	if( (note_common.getCount() > 0) &&
 		        		option.equalsIgnoreCase("single_to_top"))
 		        	{
 		        		Page.swap(Page.mDb_page);
@@ -204,12 +204,12 @@ public class Note_addAudio extends FragmentActivity {
 						for(String urlStr:urlsArray)
 						{
 							System.out.println("urlStr = " + urlStr);
-				  		    mNoteId = null; // set null for Insert
+				  		    noteId = null; // set null for Insert
 				  		    if(!Util.isEmptyString(urlStr))
-				  		    	mNoteId = Note_common.insertAudioToDB(urlStr);
-				        	mSelectedAudioUri = urlStr;
+				  		    	noteId = note_common.insertAudioToDB(urlStr);
+				        	selectedAudioUri = urlStr;
 				        	
-				        	if( (Note_common.getCount() > 0) &&
+				        	if( (note_common.getCount() > 0) &&
 	  		        			option.equalsIgnoreCase("directory_to_top") ) 
 				        	{
 				        		Page.swap(Page.mDb_page);
@@ -260,7 +260,7 @@ public class Note_addAudio extends FragmentActivity {
 
     void chooseAudioMedia()
     {
-	    mEnSaveDb = true;
+	    enSaveDb = true;
         startActivityForResult(Util.chooseMediaIntentByType(Note_addAudio.this,"audio/*"),
         					   Util.CHOOSER_SET_AUDIO);        
     }	

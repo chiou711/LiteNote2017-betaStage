@@ -44,7 +44,7 @@ public class UtilImage_bitmapLoader
 		Bitmap bmVideoIcon = BitmapFactory.decodeResource(mAct.getResources(), R.drawable.ic_media_play);
 		Uri imageUri = Uri.parse(mPictureUriInDB);
 		String pictureUri = imageUri.toString();
-		System.out.println("UtilImage_bitmapLoader constructor / pictureUri = " + pictureUri);
+//		System.out.println("UtilImage_bitmapLoader / _constructor / pictureUri = " + pictureUri);
 		
 		// 1 for image check
 		if (UtilImage.hasImageExtension(pictureUri,mAct)) 
@@ -60,7 +60,7 @@ public class UtilImage_bitmapLoader
 		// 2 for video check
 		else if (UtilVideo.hasVideoExtension(pictureUri,mAct)) 
 		{
-			System.out.println("UtilImage_bitmapLoader constructor / has video extension");
+//			System.out.println("UtilImage_bitmapLoader / _constructor / has video extension");
 			Uri uri = Uri.parse(pictureUri);
 			String path = uri.getPath();
 			
@@ -70,7 +70,6 @@ public class UtilImage_bitmapLoader
 				path = Util.getLocalRealPathByUri(mAct,uri);
 			}
 
-            System.out.println("UtilImage_bitmapLoader constructor / pictureUri = " + pictureUri);
 			// for local
 			if(!pictureUri.startsWith("http") && (path != null))
 			{

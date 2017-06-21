@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 /*
  * Note: 
- * 	mCameraVideoUri: used to show in confirmation Continue dialog
+ * 	cameraVideoUri: used to show in confirmation Continue dialog
  *  	Two conditions:
  *  	1. is got after taking picture
  *  	2. is kept during rotation
@@ -32,14 +32,14 @@ import android.widget.Toast;
  */
 public class Note_addCameraVideo extends Activity {
 
-    static Long mNoteId;
-    static String mCameraVideoUri;
+    Long noteId;
+    String cameraVideoUri;
     Note_common note_common;
-    static boolean mEnSaveDb;
-	static String mVideoUriInDB;
-	private static DB_page mDb;
-	static int TAKE_VIDEO_ACT = 1;    
-	private Uri mVideoUri;
+    boolean enSaveDb;
+	String videoUriInDB;
+	private DB_page dB;
+	final int TAKE_VIDEO_ACT = 1;
+	private Uri videoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,21 +48,21 @@ public class Note_addCameraVideo extends Activity {
         System.out.println("Note_addCameraVideo / onCreate");
         
         note_common = new Note_common(this);
-        mVideoUriInDB = "";
-        mCameraVideoUri = "";
-        mEnSaveDb = true;
+        videoUriInDB = "";
+        cameraVideoUri = "";
+        enSaveDb = true;
         
         // get row Id from saved instance
-        mNoteId = (savedInstanceState == null) ? null :
+        noteId = (savedInstanceState == null) ? null :
             (Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
         
         // get picture Uri in DB if instance is not null
-        mDb = Page.mDb_page;
+        dB = Page.mDb_page;
         if(savedInstanceState != null)
         {
-	        System.out.println("Note_addCameraVideo / onCreate / mNoteId =  " + mNoteId);
-	        if(mNoteId != null)
-	        	mVideoUriInDB = mDb.getNotePictureUri_byId(mNoteId);
+	        System.out.println("Note_addCameraVideo / onCreate / noteId =  " + noteId);
+	        if(noteId != null)
+	        	videoUriInDB = dB.getNotePictureUri_byId(noteId);
         }
         
         // at the first beginning
@@ -79,7 +79,7 @@ public class Note_addCameraVideo extends Activity {
     protected void onRestoreInstanceState(Bundle savedInstanceState)
     {
     	super.onRestoreInstanceState(savedInstanceState);
-    	mCameraVideoUri = savedInstanceState.getString("showCameraPictureUri");
+    	cameraVideoUri = savedInstanceState.getString("showCameraPictureUri");
     }
 
     // for Add new picture (stage 1)
@@ -87,8 +87,8 @@ public class Note_addCameraVideo extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-       	System.out.println("Note_addCameraVideo / onPause / keep mPictureUriInDB");
-       	mNoteId = Note_common.savePictureStateInDB(mNoteId,mEnSaveDb,mVideoUriInDB, "", "", "");
+       	System.out.println("Note_addCameraVideo / onPause / keep pictureUriInDB");
+       	noteId = note_common.savePictureStateInDB(noteId, enSaveDb, videoUriInDB, "", "", "");
     }
 
     // for Add new picture (stage 2)
@@ -97,13 +97,13 @@ public class Note_addCameraVideo extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
    	 	System.out.println("Note_addCameraVideo / onSaveInstanceState");
-        outState.putSerializable(DB_page.KEY_NOTE_ID, mNoteId);
+        outState.putSerializable(DB_page.KEY_NOTE_ID, noteId);
     }
     
     @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
-	    mEnSaveDb = false;
+	    enSaveDb = false;
 	    finish();
     }
     
@@ -149,9 +149,9 @@ public class Note_addCameraVideo extends Activity {
             // Continue only if the File was successfully created
             if (tempFile != null) 
             {
-            	mVideoUri = Uri.fromFile(tempFile); // so far, file size is 0 
-                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mVideoUri); // appoint Uri for captured image
-                mVideoUriInDB = mVideoUri.toString(); 
+            	videoUri = Uri.fromFile(tempFile); // so far, file size is 0
+                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoUri); // appoint Uri for captured image
+                videoUriInDB = videoUri.toString();
                 startActivityForResult(takeVideoIntent, TAKE_VIDEO_ACT);
             }
         }
@@ -190,15 +190,15 @@ public class Note_addCameraVideo extends Activity {
 				
 				
 				// set for Rotate any times
-		        if(mNoteId != null)
+		        if(noteId != null)
 		        {
-		        	mCameraVideoUri = mDb.getNotePictureUri_byId(mNoteId);
+		        	cameraVideoUri = dB.getNotePictureUri_byId(noteId);
 		        }
 
 		        // Add for Sony, the file size is 0 for given file name by putExtra 
 				if(videoReturnedIntent != null )
 				{
-					Uri uri = Uri.parse(mCameraVideoUri);
+					Uri uri = Uri.parse(cameraVideoUri);
 				    File file = new File(uri.getPath());
 				    
 				    // update file name by returned intent
@@ -206,15 +206,15 @@ public class Note_addCameraVideo extends Activity {
 				    {
 				    	System.out.println("--- file size = 0");
 				    	String path = Util.getLocalRealPathByUri(Note_addCameraVideo.this,intentVideoUri);
-				    	mVideoUriInDB = "file://" + path;
-				    	mEnSaveDb = true;
-				       	mNoteId = Note_common.savePictureStateInDB(mNoteId,mEnSaveDb,mVideoUriInDB, "", "", "");
-				    	mEnSaveDb = false;
+				    	videoUriInDB = "file://" + path;
+				    	enSaveDb = true;
+				       	noteId = note_common.savePictureStateInDB(noteId, enSaveDb, videoUriInDB, "", "", "");
+				    	enSaveDb = false;
 				    }
 				}
 		        
     			if( getIntent().getExtras().getString("extra_ADD_NEW_TO_TOP", "false").equalsIgnoreCase("true") &&
-    				(Note_common.getCount() > 0) )
+    				(note_common.getCount() > 0) )
 		               Page.swap(Page.mDb_page);
     			
     			Toast.makeText(this, R.string.toast_saved , Toast.LENGTH_SHORT).show();
@@ -223,7 +223,7 @@ public class Note_addCameraVideo extends Activity {
 				int lastContentId = getLastCapturedVideoId(this);
 				handleDuplicatedVideo(this, lastContentId);
     			
-	  		    mNoteId = null; // set null for Insert
+	  		    noteId = null; // set null for Insert
 	  		    takeVideoWithName();
 			} 
 			else if (resultCode == RESULT_CANCELED)
@@ -237,15 +237,15 @@ public class Note_addCameraVideo extends Activity {
 				Toast.makeText(this, R.string.note_cancel_add_new, Toast.LENGTH_LONG).show();
 				
 				// delete the temporary note in DB
-                note_common.deleteNote(mNoteId);
-                mEnSaveDb = false;
+                note_common.deleteNote(noteId);
+                enSaveDb = false;
                 
                 // When auto time out of taking picture App happens, 
             	// Note_addCameraVideo activity will start from onCreate,
                 // at this case, mImageUri is null
-                if(mVideoUri != null) 
+                if(videoUri != null)
                 {
-	           		File tempFile = new File(mVideoUri.getPath());
+	           		File tempFile = new File(videoUri.getPath());
 	        		if(tempFile.isFile())
 	        		{
 	                    // delete 0 bit temporary file
@@ -260,7 +260,7 @@ public class Note_addCameraVideo extends Activity {
 		}
 	}
 
-	public static void handleDuplicatedVideo(Context context, int lastContentId)
+	public void handleDuplicatedVideo(Context context, int lastContentId)
 	{
 	    /*
 	     * Checking for duplicate images
@@ -303,7 +303,7 @@ public class Note_addCameraVideo extends Activity {
 
 	    videoCursor.close();
 	    
-	    Uri uri = Uri.parse(mVideoUriInDB);
+	    Uri uri = Uri.parse(videoUriInDB);
 	    File file2 = new File(uri.getPath());
 
 	    System.out.println("- file1 size = " + file1.length());
@@ -368,12 +368,12 @@ public class Note_addCameraVideo extends Activity {
 	    	   		String repPath =  file2.getPath();
 	         	  
 	    	   		// update new Uri to DB
-	    	   		mVideoUriInDB = "file://" + Uri.parse(file1.getPath()).toString();
+	    	   		videoUriInDB = "file://" + Uri.parse(file1.getPath()).toString();
 					
 					// set for Rotate any times
-			        if(mNoteId != null)
+			        if(noteId != null)
 			        {
-			        	mCameraVideoUri = mDb.getNotePictureUri_byId(mNoteId);
+			        	cameraVideoUri = dB.getNotePictureUri_byId(noteId);
 			        }
 			        
 	    	   		// delete //??? delete thumb nail? check again!

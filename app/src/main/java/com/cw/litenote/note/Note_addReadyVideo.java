@@ -21,10 +21,9 @@ import android.widget.Toast;
  */
 public class Note_addReadyVideo extends Activity {
 
-    static Long mRowId;
+    Long rowId;
     Note_common note_common;
-	static int TAKE_PICTURE_ACT = 1;  
-	
+
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +33,7 @@ public class Note_addReadyVideo extends Activity {
         note_common = new Note_common(this);
 	
         // get row Id from saved instance
-        mRowId = (savedInstanceState == null) ? null :
+        rowId = (savedInstanceState == null) ? null :
             (Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
         
         // at the first beginning
@@ -67,7 +66,7 @@ public class Note_addReadyVideo extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
    	 	System.out.println("Note_addOkVideo / onSaveInstanceState");
-        outState.putSerializable(DB_page.KEY_NOTE_ID, mRowId);
+        outState.putSerializable(DB_page.KEY_NOTE_ID, rowId);
     }
     
     @Override
@@ -118,10 +117,10 @@ public class Note_addReadyVideo extends Activity {
            		   option.equalsIgnoreCase("single_to_bottom")	)
 				{
 					String uriStr = selectedUri.toString();
-		  		    mRowId = null; // set null for Insert
-		        	mRowId = Note_common.savePictureStateInDB(mRowId,true,uriStr, "", "", ""); 
+		  		    rowId = null; // set null for Insert
+		        	rowId = note_common.savePictureStateInDB(rowId,true,uriStr, "", "", "");
 		        	
-		        	if( (Note_common.getCount() > 0) &&  
+		        	if( (note_common.getCount() > 0) &&
 		        		option.equalsIgnoreCase("single_to_top"))
 		        	{
 		        		Page.swap(Page.mDb_page);
@@ -171,11 +170,11 @@ public class Note_addReadyVideo extends Activity {
 						for(String urlStr:urlsArray)
 						{
 							System.out.println("urlStr = " + urlStr);
-				  		    mRowId = null; // set null for Insert
+				  		    rowId = null; // set null for Insert
 				  		    if(!Util.isEmptyString(urlStr))
-				  		    	mRowId = Note_common.savePictureStateInDB(mRowId,true,urlStr, "", "", ""); 
+				  		    	rowId = note_common.savePictureStateInDB(rowId,true,urlStr, "", "", "");
 				        	
-				        	if( (Note_common.getCount() > 0) &&
+				        	if( (note_common.getCount() > 0) &&
 	  		        			option.equalsIgnoreCase("directory_to_top") ) 
 				        	{
 				        		Page.swap(Page.mDb_page);

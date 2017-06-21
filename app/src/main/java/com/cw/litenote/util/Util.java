@@ -32,14 +32,17 @@ import com.cw.litenote.R;
 import com.cw.litenote.main.TabsHost;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.note.Note;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.video.UtilVideo;
 import com.cw.litenote.preference.Define;
+import com.google.android.youtube.player.YouTubeIntents;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -1561,9 +1564,9 @@ public class Util
 	}
 
 
-	static boolean isTimeUp;
-	static Timer longTimer;
-	synchronized static void setupLongTimeout(long timeout)
+	public static boolean isTimeUp;
+	public static Timer longTimer;
+	public synchronized static void setupLongTimeout(long timeout)
 	{
 	  if(longTimer != null) 
 	  {
@@ -1757,4 +1760,52 @@ public class Util
 		return pictureUri;
 	}
 
+	final public static int YOUTUBE_LINK_INTENT = 99;
+	//
+	// Open link of YouTube
+	//
+	// Due to "AdWords or copyright" server limitation, for some URI,
+	// "video is not available" message could show up.
+	// At this case, one solution is to switch current mobile website to desktop website by browser setting.
+	// So, base on URI key words to decide "YouTube App" or "browser" launch.
+	public static void openLink_YouTube(Activity act, String linkUri)
+	{
+		// by YouTube App
+		if(linkUri.contains("youtu.be"))
+		{
+			// stop audio and video if playing
+			Note.stopAV();
+
+			String id = Util.getYoutubeId(linkUri);
+			// option 1
+			Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(act, id, true, true);
+
+			// option 2
+//			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" + id));
+//			intent.putExtra("force_fullscreen",true);
+//			intent.putExtra("finish_on_ended",true);
+//			act.startActivity(intent);
+
+			act.startActivityForResult(intent,YOUTUBE_LINK_INTENT);
+		}
+		// by Chrome browser
+		else if(linkUri.contains("youtube.com"))
+		{
+			Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(linkUri));
+			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			i.setPackage("com.android.chrome");
+
+			try
+			{
+				act.startActivity(i);
+			}
+			catch (ActivityNotFoundException e)
+			{
+				// Chrome is probably not installed
+				// Try with the default browser
+				i.setPackage(null);
+				act.startActivity(i);
+			}
+		}
+	}
 }

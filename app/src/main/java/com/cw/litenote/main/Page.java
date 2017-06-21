@@ -76,6 +76,7 @@ public class Page extends UilListViewBaseFragment
 	public static SeekBar seekBarProgress;
 	public static int media_file_length; // this value contains the song duration in milliseconds. Look at getDuration() method in MediaPlayer class
 	static ProgressBar mSpinner;
+    static int currPlayPosition;
 
     public Page(){}
 
@@ -126,16 +127,29 @@ public class Page extends UilListViewBaseFragment
 			{
     			System.out.println("Page / _onItemClick");
 
-    			mDb_page.open();
-	    		int count = mDb_page.getNotesCount(false);
-	    		mDb_page.close();
+                currPlayPosition = position;
+				mDb_page.open();
+				int count = mDb_page.getNotesCount(false);
+				String linkStr = mDb_page.getNoteLinkUri(position,false);
+				mDb_page.close();
 
-				if(position < count)// avoid footer error
-				{
-					Intent intent;
-					intent = new Intent(getActivity(), Note.class);
-			        intent.putExtra("POSITION", position);
-			        startActivity(intent);
+				if(position < count) {
+
+					SharedPreferences pref_open_youtube;
+					pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
+
+					if( Util.isYouTubeLink(linkStr) &&
+					    pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
+					{
+						Util.openLink_YouTube(mAct, linkStr);
+					}
+					else
+					{
+						Intent intent;
+						intent = new Intent(getActivity(), Note.class);
+						intent.putExtra("POSITION", position);
+						startActivity(intent);
+					}
 				}
 			}
         });
@@ -1394,6 +1408,6 @@ public class Page extends UilListViewBaseFragment
 		mProgress = (int)(((float)currentPos/ media_file_length)*100);
     	seekBarProgress.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
     }
-    
-    
+
+
 }

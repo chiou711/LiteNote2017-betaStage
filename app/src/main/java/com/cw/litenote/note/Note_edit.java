@@ -34,24 +34,24 @@ import android.widget.Toast;
 public class Note_edit extends Activity 
 {
 
-    private Long mNoteId, mCreatedTime;
-    private String mTitle, mPictureUri, mAudioUri, mLinkUri, mCameraPictureUri, mBody;
+    private Long noteId, createdTime;
+    private String title, picUriStr, audioUri, linkUri, cameraPictureUri, body;
     SharedPreferences mPref_delete_warn;
     Note_common note_common;
-    private boolean mEnSaveDb = true;
+    private boolean enSaveDb = true;
     boolean bUseCameraImage;
-    DB_page mDb;
-    static TouchImageView mEnlargedImage;
-    int mPosition;
-    int EDIT_LINK = 1;
+    DB_page dB;
+    TouchImageView enlargedImage;
+    int position;
+    final int EDIT_LINK = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
         
         // check note count first
-        mDb = Page.mDb_page;
-        if(mDb.getNotesCount(true) ==  0)
+        dB = Page.mDb_page;
+        if(dB.getNotesCount(true) ==  0)
         {
         	finish(); // add for last note being deleted
         	return;
@@ -62,43 +62,43 @@ public class Note_edit extends Activity
     	
         System.out.println("Note_edit / onCreate");
         
-		mEnlargedImage = (TouchImageView)findViewById(R.id.expanded_image);
+		enlargedImage = (TouchImageView)findViewById(R.id.expanded_image);
 
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setBackgroundDrawable(new ColorDrawable(ColorSet.getBarColor(this)));
 
     	Bundle extras = getIntent().getExtras();
-    	mPosition = extras.getInt("list_view_position");
-    	mNoteId = extras.getLong(DB_page.KEY_NOTE_ID);
-    	mPictureUri = extras.getString(DB_page.KEY_NOTE_PICTURE_URI);
-    	mAudioUri = extras.getString(DB_page.KEY_NOTE_AUDIO_URI);
-    	mLinkUri = extras.getString(DB_page.KEY_NOTE_LINK_URI);
-    	mTitle = extras.getString(DB_page.KEY_NOTE_TITLE);
-    	mBody = extras.getString(DB_page.KEY_NOTE_BODY);
-    	mCreatedTime = extras.getLong(DB_page.KEY_NOTE_CREATED);
+    	position = extras.getInt("list_view_position");
+    	noteId = extras.getLong(DB_page.KEY_NOTE_ID);
+    	picUriStr = extras.getString(DB_page.KEY_NOTE_PICTURE_URI);
+    	audioUri = extras.getString(DB_page.KEY_NOTE_AUDIO_URI);
+    	linkUri = extras.getString(DB_page.KEY_NOTE_LINK_URI);
+    	title = extras.getString(DB_page.KEY_NOTE_TITLE);
+    	body = extras.getString(DB_page.KEY_NOTE_BODY);
+    	createdTime = extras.getLong(DB_page.KEY_NOTE_CREATED);
         
 
         //initialization
-        note_common = new Note_common(this, mNoteId, mTitle, mPictureUri, mAudioUri, "", mLinkUri, mBody, mCreatedTime);
+        note_common = new Note_common(this, noteId, title, picUriStr, audioUri, "", linkUri, body, createdTime);
         note_common.UI_init();
-        mCameraPictureUri = "";
+        cameraPictureUri = "";
         bUseCameraImage = false;
 
         if(savedInstanceState != null)
         {
-	        System.out.println("Note_edit / onCreate / mNoteId =  " + mNoteId);
-	        if(mNoteId != null)
+	        System.out.println("Note_edit / onCreate / noteId =  " + noteId);
+	        if(noteId != null)
 	        {
-	        	mPictureUri = mDb.getNotePictureUri_byId(mNoteId);
-	       		Note_common.mCurrentPictureUri = mPictureUri;
-	        	mAudioUri = mDb.getNoteAudioUri_byId(mNoteId);
-	        	Note_common.mCurrentAudioUri = mAudioUri;
+	        	picUriStr = dB.getNotePictureUri_byId(noteId);
+				note_common.currPictureUri = picUriStr;
+	        	audioUri = dB.getNoteAudioUri_byId(noteId);
+				note_common.currAudioUri = audioUri;
 	        }
         }
         
     	// show view
-        Note_common.populateFields_all(mNoteId);
+		note_common.populateFields_all(noteId);
 		
 		// OK button: edit OK, save
         Button okButton = (Button) findViewById(R.id.note_edit_ok);
@@ -108,16 +108,16 @@ public class Note_edit extends Activity
 
             public void onClick(View view) {
                 setResult(RESULT_OK);
-				if(Note_common.bRemovePictureUri)
+				if(note_common.bRemovePictureUri)
 				{
-					mPictureUri = "";
+					picUriStr = "";
 				}
-				if(Note_common.bRemoveAudioUri)
+				if(note_common.bRemoveAudioUri)
 				{
-					mAudioUri = "";
+					audioUri = "";
 				}	
-				System.out.println("Note_edit / onClick (okButton) / mNoteId = " + mNoteId);
-                mEnSaveDb = true;
+				System.out.println("Note_edit / onClick (okButton) / noteId = " + noteId);
+                enSaveDb = true;
                 finish();
             }
 
@@ -150,18 +150,18 @@ public class Note_edit extends Activity
                         {   @Override
                             public void onClick(DialogInterface dialog1, int which1)
                         	{
-                        		Note_common.deleteNote(mNoteId);
+                                note_common.deleteNote(noteId);
                         		
                         		
                         		if(MainUi.isSamePageTable())
                                 	AudioPlayer.prepareAudioInfo();
                         		
                         		// Stop Play/Pause if current edit item is played and is not at Stop state
-                        		if(Page.mHighlightPosition == mPosition)
+                        		if(Page.mHighlightPosition == position)
                         			UtilAudio.stopAudioIfNeeded();
                         		
                         		// update highlight position
-                        		if(mPosition < Page.mHighlightPosition )
+                        		if(position < Page.mHighlightPosition )
                         			AudioPlayer.mAudioIndex--;
                         		
                             	finish();
@@ -172,7 +172,7 @@ public class Note_edit extends Activity
             	else{
             	    //no warning:start
 	                setResult(RESULT_CANCELED);
-	                Note_common.deleteNote(mNoteId);
+                    note_common.deleteNote(noteId);
 	                finish();
             	}
             }
@@ -194,7 +194,7 @@ public class Note_edit extends Activity
             	}
             	else
             	{
-            		mEnSaveDb = false;
+            		enSaveDb = false;
                     finish();
             	}
             }
@@ -212,15 +212,15 @@ public class Note_edit extends Activity
 					@Override
 					public void onClick(DialogInterface dialog, int which) 
 					{
-						if(Note_common.bRemovePictureUri)
+						if(note_common.bRemovePictureUri)
 						{
-							mPictureUri = "";
+							picUriStr = "";
 						}
-						if(Note_common.bRemoveAudioUri)
+						if(note_common.bRemoveAudioUri)
 						{
-							mAudioUri = "";
+							audioUri = "";
 						}						
-					    mEnSaveDb = true;
+					    enSaveDb = true;
 					    finish();
 					}})
 			   // cancel
@@ -239,28 +239,28 @@ public class Note_edit extends Activity
 
 						if(originalPictureFileName.isEmpty())
 						{   // no picture at first
-							note_common.removePictureStringFromOriginalNote(mNoteId);
-		                    mEnSaveDb = false;
+							note_common.removePictureStringFromOriginalNote(noteId);
+		                    enSaveDb = false;
 						}
 						else
 						{	// roll back existing picture
-							Note_common.bRollBackData = true;
-							mPictureUri = originalPictureFileName;
-							mEnSaveDb = true;
+                            note_common.bRollBackData = true;
+							picUriStr = originalPictureFileName;
+							enSaveDb = true;
 						}	
 						
 						String originalAudioFileName = extras.getString(DB_page.KEY_NOTE_AUDIO_URI);
 
 						if(originalAudioFileName.isEmpty())
 						{   // no picture at first
-							note_common.removeAudioStringFromOriginalNote(mNoteId);
-		                    mEnSaveDb = false;
+							note_common.removeAudioStringFromOriginalNote(noteId);
+		                    enSaveDb = false;
 						}
 						else
 						{	// roll back existing picture
-							Note_common.bRollBackData = true;
-							mAudioUri = originalAudioFileName;
-							mEnSaveDb = true;
+                            note_common.bRollBackData = true;
+							audioUri = originalAudioFileName;
+							enSaveDb = true;
 						}	
 						//??? Add linkUri related?
 	                    finish();
@@ -274,10 +274,10 @@ public class Note_edit extends Activity
     protected void onPause() {
         super.onPause();
         
-        System.out.println("Note_edit / onPause / mEnSaveDb = " + mEnSaveDb);
-        System.out.println("Note_edit / onPause / mPictureUri = " + mPictureUri);
-        System.out.println("Note_edit / onPause / mAudioUri = " + mAudioUri);
-        mNoteId = Note_common.saveStateInDB(mNoteId,mEnSaveDb,mPictureUri, mAudioUri, "");
+        System.out.println("Note_edit / onPause / enSaveDb = " + enSaveDb);
+        System.out.println("Note_edit / onPause / picUriStr = " + picUriStr);
+        System.out.println("Note_edit / onPause / audioUri = " + audioUri);
+        noteId = note_common.saveStateInDB(noteId, enSaveDb, picUriStr, audioUri, "");
     }
 
     // for Rotate screen
@@ -285,21 +285,21 @@ public class Note_edit extends Activity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        System.out.println("Note_edit / onSaveInstanceState / mEnSaveDb = " + mEnSaveDb);
+        System.out.println("Note_edit / onSaveInstanceState / enSaveDb = " + enSaveDb);
         System.out.println("Note_edit / onSaveInstanceState / bUseCameraImage = " + bUseCameraImage);
-        System.out.println("Note_edit / onSaveInstanceState / mCameraPictureUri = " + mCameraPictureUri);
+        System.out.println("Note_edit / onSaveInstanceState / cameraPictureUri = " + cameraPictureUri);
         
-        if(Note_common.bRemovePictureUri)
+        if(note_common.bRemovePictureUri)
     	    outState.putBoolean("removeOriginalPictureUri",true);
 
-        if(Note_common.bRemoveAudioUri)
+        if(note_common.bRemoveAudioUri)
     	    outState.putBoolean("removeOriginalAudioUri",true);
         
         
         if(bUseCameraImage)
         {
         	outState.putBoolean("UseCameraImage",true);
-        	outState.putString("showCameraImageUri", mPictureUri);
+        	outState.putString("showCameraImageUri", picUriStr);
         }
         else
         {
@@ -307,8 +307,8 @@ public class Note_edit extends Activity
         	outState.putString("showCameraImageUri", "");
         }
         
-        mNoteId = Note_common.saveStateInDB(mNoteId,mEnSaveDb,mPictureUri, mAudioUri, "");
-        outState.putSerializable(DB_page.KEY_NOTE_ID, mNoteId);
+        noteId = note_common.saveStateInDB(noteId, enSaveDb, picUriStr, audioUri, "");
+        outState.putSerializable(DB_page.KEY_NOTE_ID, noteId);
         
     }
     
@@ -322,26 +322,26 @@ public class Note_edit extends Activity
     	else
     		bUseCameraImage = false;
     	
-    	mCameraPictureUri = savedInstanceState.getString("showCameraImageUri");
+    	cameraPictureUri = savedInstanceState.getString("showCameraImageUri");
     	
     	System.out.println("Note_edit / onRestoreInstanceState / savedInstanceState.getBoolean removeOriginalPictureUri =" +
     							savedInstanceState.getBoolean("removeOriginalPictureUri"));
         if(savedInstanceState.getBoolean("removeOriginalPictureUri"))
         {
-        	mCameraPictureUri = "";
-        	Note_common.mOriginalPictureUri="";
-        	Note_common.mCurrentPictureUri="";
-        	note_common.removePictureStringFromOriginalNote(mNoteId);
-        	Note_common.populateFields_all(mNoteId);
-        	Note_common.bRemovePictureUri = true;
+        	cameraPictureUri = "";
+			note_common.oriPictureUri ="";
+			note_common.currPictureUri ="";
+        	note_common.removePictureStringFromOriginalNote(noteId);
+			note_common.populateFields_all(noteId);
+			note_common.bRemovePictureUri = true;
         }
         if(savedInstanceState.getBoolean("removeOriginalAudioUri"))
         {
-        	Note_common.mOriginalAudioUri="";
-        	Note_common.mCurrentAudioUri="";
-        	note_common.removeAudioStringFromOriginalNote(mNoteId);
-        	Note_common.populateFields_all(mNoteId);
-        	Note_common.bRemoveAudioUri = true;
+			note_common.oriAudioUri ="";
+			note_common.currAudioUri ="";
+        	note_common.removeAudioStringFromOriginalNote(noteId);
+			note_common.populateFields_all(noteId);
+			note_common.bRemoveAudioUri = true;
         }      //??? need this for Link uri?  
     }
 
@@ -352,9 +352,9 @@ public class Note_edit extends Activity
     
     @Override
     public void onBackPressed() {
-	    if(Note_common.bShowEnlargedImage == true)
+	    if(note_common.bShowEnlargedImage == true)
 	    {
-	    	Note_common.closeEnlargedImage();
+            note_common.closeEnlargedImage();
 	    }
 	    else
 	    {
@@ -364,7 +364,7 @@ public class Note_edit extends Activity
 	    	}
 	    	else
 	    	{
-	            mEnSaveDb = false;
+	            enSaveDb = false;
 	            finish();
 	    	}
 	    }
@@ -374,7 +374,7 @@ public class Note_edit extends Activity
     static final int CHANGE_AUDIO = R.id.ADD_AUDIO;
     static final int CAPTURE_IMAGE = R.id.ADD_NEW_IMAGE;
     static final int CAPTURE_VIDEO = R.id.ADD_NEW_VIDEO;
-	private Uri pictureUri;
+	private Uri picUri;
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -413,7 +413,7 @@ public class Note_edit extends Activity
 		    	}
 		    	else
 		    	{
-		            mEnSaveDb = false;
+		            enSaveDb = false;
 		            finish();
 		    	}
 		        return true;
@@ -421,25 +421,25 @@ public class Note_edit extends Activity
             case CHANGE_YOUTUBE_LINK:
 //            	Intent intent_youtube_link = new Intent(Intent.ACTION_VIEW,Uri.parse("http://www.youtube.com"));
 //            	startActivityForResult(intent_youtube_link,EDIT_YOUTUBE_LINK);
-//            	mEnSaveDb = false;
+//            	enSaveDb = false;
             	setLinkUri();
 			    return true;
 			    
             case CHANGE_AUDIO:
-            	Note_common.bRemoveAudioUri = false; // reset
+				note_common.bRemoveAudioUri = false; // reset
             	setAudioSource();
 			    return true;
 			    
             case CAPTURE_IMAGE:
             	Intent intentImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             	// new picture Uri with current time stamp
-            	pictureUri = UtilImage.getPictureUri("IMG_" + Util.getCurrentTimeString() + ".jpg",
+            	picUri = UtilImage.getPictureUri("IMG_" + Util.getCurrentTimeString() + ".jpg",
 						   						   Note_edit.this); 
-            	mPictureUri = pictureUri.toString();
-			    intentImage.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+            	picUriStr = picUri.toString();
+			    intentImage.putExtra(MediaStore.EXTRA_OUTPUT, picUri);
 			    startActivityForResult(intentImage, Util.ACTIVITY_TAKE_PICTURE); 
-			    mEnSaveDb = true;
-			    Note_common.bRemovePictureUri = false; // reset
+			    enSaveDb = true;
+				note_common.bRemovePictureUri = false; // reset
 			    
 			    if(UtilImage.mExpandedImageView != null)
 			    	UtilImage.closeExpandedImage();
@@ -449,13 +449,13 @@ public class Note_edit extends Activity
             case CAPTURE_VIDEO:
             	Intent intentVideo = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
             	// new picture Uri with current time stamp
-            	pictureUri = UtilImage.getPictureUri("VID_" + Util.getCurrentTimeString() + ".mp4",
+            	picUri = UtilImage.getPictureUri("VID_" + Util.getCurrentTimeString() + ".mp4",
 						   						   Note_edit.this); 
-            	mPictureUri = pictureUri.toString();
-			    intentVideo.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+            	picUriStr = picUri.toString();
+			    intentVideo.putExtra(MediaStore.EXTRA_OUTPUT, picUri);
 			    startActivityForResult(intentVideo, Util.ACTIVITY_TAKE_PICTURE); 
-			    mEnSaveDb = true;
-			    Note_common.bRemovePictureUri = false; // reset
+			    enSaveDb = true;
+				note_common.bRemovePictureUri = false; // reset
 			    
 			    return true;			    
 			    
@@ -481,22 +481,22 @@ public class Note_edit extends Activity
 		@Override
 		public void onClick(DialogInterface dialog, int which) 
 		{
-		    mEnSaveDb = true;
+		    enSaveDb = true;
 	        startActivityForResult(Util.chooseMediaIntentByType(Note_edit.this,"audio/*"),
 	        					   Util.CHOOSER_SET_AUDIO);
 		}});
 		// None
-		if(!mAudioUri.isEmpty())
+		if(!audioUri.isEmpty())
 		{
 			builder.setPositiveButton(R.string.btn_None, new DialogInterface.OnClickListener(){
 					@Override
 					public void onClick(DialogInterface dialog, int which) 
 					{
-						Note_common.bRemoveAudioUri = true;
-						Note_common.mOriginalAudioUri = "";
-						mAudioUri = "";
-						Note_common.removeAudioStringFromCurrentEditNote(mNoteId);
-						Note_common.populateFields_all(mNoteId);
+						note_common.bRemoveAudioUri = true;
+						note_common.oriAudioUri = "";
+						audioUri = "";
+						note_common.removeAudioStringFromCurrentEditNote(noteId);
+						note_common.populateFields_all(noteId);
 					}});		
 		}
 		
@@ -517,7 +517,7 @@ public class Note_edit extends Activity
 			{
 	    		Intent intent_web_link = new Intent(Intent.ACTION_VIEW,Uri.parse("http://www.google.com"));
 	    		startActivityForResult(intent_web_link,EDIT_LINK);	
-	    		mEnSaveDb = false;
+	    		enSaveDb = false;
 			}
 		});
 		
@@ -529,11 +529,11 @@ public class Note_edit extends Activity
 			{
 	        	Intent intent_youtube_link = new Intent(Intent.ACTION_VIEW,Uri.parse("http://www.youtube.com"));
 	        	startActivityForResult(intent_youtube_link,EDIT_LINK);
-	        	mEnSaveDb = false;
+	        	enSaveDb = false;
 			}
 		});
 		// None
-		if(!mLinkUri.isEmpty())
+		if(!linkUri.isEmpty())
 		{
 			builder.setPositiveButton(R.string.btn_None, new DialogInterface.OnClickListener()
 			{
@@ -541,10 +541,10 @@ public class Note_edit extends Activity
 				public void onClick(DialogInterface dialog, int which) 
 				{
 //						Note_common.bRemoveAudioUri = true;
-					Note_common.mOriginalLinkUri = "";
-					mLinkUri = "";
-					Note_common.removeLinkUriFromCurrentEditNote(mNoteId);
-					Note_common.populateFields_all(mNoteId);
+					note_common.oriLinkUri = "";
+					linkUri = "";
+					note_common.removeLinkUriFromCurrentEditNote(noteId);
+					note_common.populateFields_all(noteId);
 				}
 			});		
 		}
@@ -553,7 +553,7 @@ public class Note_edit extends Activity
 		dialog.show();
     }
 
-//    static String mSelectedAudioUri;
+//    static String selectedAudioUri;
 	protected void onActivityResult(int requestCode, int resultCode, Intent returnedIntent) 
 	{
 		// take picture
@@ -561,40 +561,40 @@ public class Note_edit extends Activity
 		{
 			if (resultCode == Activity.RESULT_OK)
 			{
-				pictureUri = Uri.parse(Note_common.mCurrentPictureUri);
+				picUri = Uri.parse(note_common.currPictureUri);
 //				String str = getResources().getText(R.string.note_take_picture_OK ).toString();
 //	            Toast.makeText(Note_edit.this, str + " " + imageUri.toString(), Toast.LENGTH_SHORT).show();
-	            Note_common.populateFields_all(mNoteId);
+				note_common.populateFields_all(noteId);
 	            bUseCameraImage = true;
-	            mCameraPictureUri = Note_common.mCurrentPictureUri;
+	            cameraPictureUri = note_common.currPictureUri;
 			} 
 			else if (resultCode == RESULT_CANCELED)
 			{
 				bUseCameraImage = false;
 				// to use captured picture or original picture
-				if(!mCameraPictureUri.isEmpty())
+				if(!cameraPictureUri.isEmpty())
 				{
 					// update
-					Note_common.saveStateInDB(mNoteId,mEnSaveDb,mCameraPictureUri, mAudioUri, "");// replace with existing picture
-					Note_common.populateFields_all(mNoteId);
+					note_common.saveStateInDB(noteId, enSaveDb, cameraPictureUri, audioUri, "");// replace with existing picture
+					note_common.populateFields_all(noteId);
 		            
 					// set for Rotate any times
 		            bUseCameraImage = true;
-		            mPictureUri = Note_common.mCurrentPictureUri; // for pause
-		            mCameraPictureUri = Note_common.mCurrentPictureUri; // for save instance
+		            picUriStr = note_common.currPictureUri; // for pause
+		            cameraPictureUri = note_common.currPictureUri; // for save instance
 
 				}
 				else
 				{
 					// skip new Uri, roll back to original one
-			    	Note_common.mCurrentPictureUri = Note_common.mOriginalPictureUri;
-			    	mPictureUri = Note_common.mOriginalPictureUri;
+					note_common.currPictureUri = note_common.oriPictureUri;
+			    	picUriStr = note_common.oriPictureUri;
 					Toast.makeText(Note_edit.this, R.string.note_cancel_add_new, Toast.LENGTH_LONG).show();
 				}
 				
-				mEnSaveDb = true;
-				Note_common.saveStateInDB(mNoteId,mEnSaveDb,mPictureUri, mAudioUri, "");
-				Note_common.populateFields_all(mNoteId);
+				enSaveDb = true;
+				note_common.saveStateInDB(noteId, enSaveDb, picUriStr, audioUri, "");
+				note_common.populateFields_all(noteId);
 			}
 		}
 		
@@ -602,16 +602,16 @@ public class Note_edit extends Activity
         if(requestCode == Util.CHOOSER_SET_PICTURE && resultCode == Activity.RESULT_OK)
         {
 			String pictureUri = Util.getPicturePathOnActivityResult(this,returnedIntent);
-        	System.out.println("Note_edit / _onActivityResult / pictureUri = " + pictureUri);
+        	System.out.println("Note_edit / _onActivityResult / picUri = " + pictureUri);
         	
-        	mNoteId = Note_common.saveStateInDB(mNoteId,true,pictureUri, mAudioUri, "");
-        	
-            Note_common.populateFields_all(mNoteId);
+        	noteId = note_common.saveStateInDB(noteId,true,pictureUri, audioUri, "");
+
+			note_common.populateFields_all(noteId);
 			
             // set for Rotate any times
             bUseCameraImage = true;
-            mPictureUri = Note_common.mCurrentPictureUri; // for pause
-            mCameraPictureUri = Note_common.mCurrentPictureUri; // for save instance
+            picUriStr = note_common.currPictureUri; // for pause
+            cameraPictureUri = note_common.currPictureUri; // for save instance
         }  
         
         // choose audio
@@ -656,11 +656,11 @@ public class Note_edit extends Activity
 					}
 				}
 
-//				System.out.println(" Note_edit / onActivityResult / Util.CHOOSER_SET_AUDIO / mPictureUri = " + mPictureUri);
-	        	Note_common.saveStateInDB(mNoteId,true,mPictureUri, audioUriStr, "");
-	        	
-	        	Note_common.populateFields_all(mNoteId);
-	        	mAudioUri = audioUriStr;
+//				System.out.println(" Note_edit / onActivityResult / Util.CHOOSER_SET_AUDIO / picUriStr = " + picUriStr);
+				note_common.saveStateInDB(noteId,true, picUriStr, audioUriStr, "");
+
+				note_common.populateFields_all(noteId);
+	        	this.audioUri = audioUriStr;
 	    			
 	        	showSavedFileToast(audioUriStr);
 			} 
@@ -678,7 +678,7 @@ public class Note_edit extends Activity
 		{
 			Toast.makeText(Note_edit.this, R.string.note_cancel_add_new, Toast.LENGTH_LONG).show();
             setResult(RESULT_CANCELED, getIntent());
-            mEnSaveDb = true;
+            enSaveDb = true;
             return; // must add this
 		}		
 	}

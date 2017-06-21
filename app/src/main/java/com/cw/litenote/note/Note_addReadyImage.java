@@ -1,10 +1,6 @@
 package com.cw.litenote.note;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 import com.cw.litenote.main.Page;
 import com.cw.litenote.R;
@@ -12,15 +8,10 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.Util;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
@@ -30,7 +21,7 @@ import android.widget.Toast;
  */
 public class Note_addReadyImage extends FragmentActivity {
 
-    static Long mRowId;
+    Long rowId;
     Note_common note_common;
 
 	@Override
@@ -42,7 +33,7 @@ public class Note_addReadyImage extends FragmentActivity {
         note_common = new Note_common(this);
 	
         // get row Id from saved instance
-        mRowId = (savedInstanceState == null) ? null :
+        rowId = (savedInstanceState == null) ? null :
             (Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
         
         // at the first beginning
@@ -75,7 +66,7 @@ public class Note_addReadyImage extends FragmentActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
    	 	System.out.println("Note_addReadyPicture / onSaveInstanceState");
-        outState.putSerializable(DB_page.KEY_NOTE_ID, mRowId);
+        outState.putSerializable(DB_page.KEY_NOTE_ID, rowId);
     }
     
     @Override
@@ -110,10 +101,10 @@ public class Note_addReadyImage extends FragmentActivity {
            		   option.equalsIgnoreCase("single_to_bottom")	)
 				{
 					System.out.println("Note_addReadyImage / onActivityResult / uriStr = " + uriStr);
-		  		    mRowId = null; // set null for Insert
-		        	mRowId = Note_common.savePictureStateInDB(mRowId,true,uriStr, "", "", "");
+		  		    rowId = null; // set null for Insert
+		        	rowId = note_common.savePictureStateInDB(rowId,true,uriStr, "", "", "");
 
-		        	if( (Note_common.getCount() > 0) &&
+		        	if( (note_common.getCount() > 0) &&
 		        		option.equalsIgnoreCase("single_to_top"))
 		        	{
 		        		Page.swap(Page.mDb_page);
@@ -163,11 +154,11 @@ public class Note_addReadyImage extends FragmentActivity {
 						for(String urlStr:urlsArray)
 						{
 							System.out.println("urlStr = " + urlStr);
-				  		    mRowId = null; // set null for Insert
+				  		    rowId = null; // set null for Insert
 				  		    if(!Util.isEmptyString(urlStr))
-				  		    	mRowId = Note_common.savePictureStateInDB(mRowId,true,urlStr, "", "", "");
+				  		    	rowId = note_common.savePictureStateInDB(rowId,true,urlStr, "", "", "");
 
-				        	if( (Note_common.getCount() > 0) &&
+				        	if( (note_common.getCount() > 0) &&
 	  		        			option.equalsIgnoreCase("directory_to_top") )
 				        	{
 				        		Page.swap(Page.mDb_page);
@@ -205,7 +196,6 @@ public class Note_addReadyImage extends FragmentActivity {
 			Toast.makeText(Note_addReadyImage.this, R.string.note_cancel_add_new, Toast.LENGTH_LONG).show();
             setResult(RESULT_CANCELED, getIntent());
             finish();
-            return; // must add this
 		}
 	}
     

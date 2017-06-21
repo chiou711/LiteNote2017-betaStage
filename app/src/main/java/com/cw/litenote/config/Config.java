@@ -64,7 +64,10 @@ public class Config extends Fragment
 		
 		//Set Take Picture Option
 		setTakeImageOption();
-		
+
+		//Select launch YouTube option
+		selectLaunchYouTubeOption();
+
 		//Set deleting warning 
 		setDeleteWarn();
 
@@ -93,14 +96,13 @@ public class Config extends Fragment
 	 *  set take picture option
 	 *  
 	 */
-	// vibration
 	SharedPreferences mPref_takePicture;
 	TextView mTextViewTakePicture;	
 	void setTakeImageOption()
 	{
 		//  set current
 		mPref_takePicture = getActivity().getSharedPreferences("takeImage", 0);
-		View viewVibration = mRootView.findViewById(R.id.takePictureOption);
+		View viewOption = mRootView.findViewById(R.id.takePictureOption);
 		mTextViewTakePicture = (TextView)mRootView.findViewById(R.id.TakePictureOptionSetting);
 		
 		if(mPref_takePicture.getString("KEY_SHOW_CONFIRMATION_DIALOG","no").equalsIgnoreCase("yes"))		   
@@ -109,7 +111,7 @@ public class Config extends Fragment
 			mTextViewTakePicture.setText(getResources().getText(R.string.confirm_dialog_button_no).toString());
 
 		// Select new 
-		viewVibration.setOnClickListener(new OnClickListener() {
+		viewOption.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				
@@ -159,6 +161,77 @@ public class Config extends Fragment
 				  .setSingleChoiceItems(items, -1, listener)
 				  .setNegativeButton(R.string.btn_Cancel, null)
 				  .show();
+	}
+
+	/**
+	 *  set launch YouTube option
+	 *
+	 */
+	SharedPreferences pref_open_youtube;
+	TextView textViewLaunchYouTube;
+	void selectLaunchYouTubeOption()
+	{
+		//  set current
+		pref_open_youtube = getActivity().getSharedPreferences("show_note_attribute", 0);
+		View viewOption = mRootView.findViewById(R.id.SelectLaunchYouTubeOption);
+		textViewLaunchYouTube = (TextView)mRootView.findViewById(R.id.SelectLaunchYouTubeSetting);
+
+		if(pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","no").equalsIgnoreCase("yes"))
+			textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_yes).toString());
+		else
+			textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_no).toString());
+
+		// Select
+		viewOption.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				selectLaunchYouTubeOptionDialog();
+			}
+		});
+	}
+
+	void selectLaunchYouTubeOptionDialog()
+	{
+		final String[] items = new String[]{
+				getResources().getText(R.string.confirm_dialog_button_yes).toString(),
+				getResources().getText(R.string.confirm_dialog_button_no).toString()   };
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+		String strLaunchYouTube = pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","no");
+
+		// add current selection
+		for(int i=0;i< items.length;i++)
+		{
+			if(strLaunchYouTube.equalsIgnoreCase("yes"))
+				items[0] = getResources().getText(R.string.confirm_dialog_button_yes).toString() + " *";
+			else if(strLaunchYouTube.equalsIgnoreCase("no"))
+				items[1] = getResources().getText(R.string.confirm_dialog_button_no).toString() + " *";
+		}
+
+		DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(which == 0)
+				{
+					pref_open_youtube.edit().putString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","yes").apply();
+					textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_yes).toString());
+				}
+				else if(which == 1)
+				{
+					pref_open_youtube.edit().putString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","no").apply();
+					textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_no).toString());
+				}
+
+				//end
+				dialog.dismiss();
+			}
+		};
+		builder.setTitle(R.string.config_launch_youtube_when_has_youtube_link)
+				.setSingleChoiceItems(items, -1, listener)
+				.setNegativeButton(R.string.btn_Cancel, null)
+				.show();
 	}
 
 	/**

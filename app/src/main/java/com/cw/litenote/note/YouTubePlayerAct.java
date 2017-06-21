@@ -27,6 +27,14 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity {
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
         if (!wasRestored) {
+            // set interface
+            YouTubePlayer.PlayerStyle style = YouTubePlayer.PlayerStyle.DEFAULT;
+//            YouTubePlayer.PlayerStyle style = YouTubePlayer.PlayerStyle.CHROMELESS; // no interface
+//            YouTubePlayer.PlayerStyle style = YouTubePlayer.PlayerStyle.MINIMAL; // only play/pause button
+            youTubePlayer.setPlayerStyle(style);
+            youTubePlayer.setFullscreen(true);
+            youTubePlayer.setShowFullscreenButton(true);
+
             String linkUri = getIntent().getExtras().getString("EXTRA_LINK_URI");
 
             // check Id string first

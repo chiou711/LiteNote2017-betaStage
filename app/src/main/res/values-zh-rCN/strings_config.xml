@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="config_confirm_taken_picture">显示导入的图片:</string>
+    <string name="config_launch_youtube_when_has_youtube_link">当笔记有YouTube连结时，点击笔记项目启动YouTube:</string>
     <string name="config_delete_warning">删除前需要确认</string>
     <string name="config_warning_title">启用项目：</string>
     <string name="config_checkbox_warn_delete_note">一项笔记</string>

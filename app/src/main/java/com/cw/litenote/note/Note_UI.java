@@ -10,7 +10,6 @@ import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.Util;
 
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -231,14 +230,16 @@ public class Note_UI
             // set listener for running YouTube
             mVideoPlayButton.setOnClickListener(new View.OnClickListener()
             {
-                public void onClick(View view)
-                {
+                public void onClick(View view) {
                     System.out.println("Note_UI / _setPictureView_listeners / onClick to play YouTube / linkUri = " + linkUri);
-//                    openLink_YouTube(linkUri);
-                    // apply YouTube DATA API
-                    Intent intent = new Intent(act,YouTubePlayerAct.class);
-                    intent.putExtra("EXTRA_LINK_URI",linkUri);
-                    act.startActivity(intent);
+
+                        // apply native YouTube
+                        Util.openLink_YouTube(act, linkUri);
+
+//                        // apply YouTube DATA API
+//                        Intent intent = new Intent(act, YouTubePlayerAct.class);
+//                        intent.putExtra("EXTRA_LINK_URI", linkUri);
+//                        act.startActivity(intent);
                 }
             });
         }
@@ -671,44 +672,4 @@ public class Note_UI
 	   	}
     }
 
-
-    //
-    // Open link of YouTube
-    //
-    // Due to "AdWords or copyright" server limitation, for some URI,
-    // "video is not available" message could show up.
-    // At this case, one solution is to switch current mobile website to desktop website by browser setting.
-    // So, base on URI key words to decide "YouTube App" or "browser" launch.
-    private void openLink_YouTube(String linkUri)
-    {
-        // by YouTube App
-        if(linkUri.contains("youtu.be"))
-        {
-            // stop audio and video if playing
-            Note.stopAV();
-
-            String id = Util.getYoutubeId(linkUri);
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" + id));
-            act.startActivity(intent);
-        }
-        // by Chrome browser
-        else if(linkUri.contains("youtube.com"))
-        {
-            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(linkUri));
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            i.setPackage("com.android.chrome");
-
-            try
-            {
-                act.startActivity(i);
-            }
-            catch (ActivityNotFoundException e)
-            {
-                // Chrome is probably not installed
-                // Try with the default browser
-                i.setPackage(null);
-                act.startActivity(i);
-            }
-        }
-    }
 }

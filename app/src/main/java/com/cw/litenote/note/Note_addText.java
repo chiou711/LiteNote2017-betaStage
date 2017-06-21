@@ -20,9 +20,9 @@ import android.widget.Toast;
 
 public class Note_addText extends Activity {
 
-    static Long mRowId;
+    Long rowId;
     Note_common note_common;
-    static boolean mEnSaveDb = true;
+    boolean enSaveDb = true;
     Button addButton;
     
     @Override
@@ -40,10 +40,10 @@ public class Note_addText extends Activity {
         note_common.UI_init_text();
 			
         // get row Id from saved instance
-        mRowId = (savedInstanceState == null) ? null :
+        rowId = (savedInstanceState == null) ? null :
             (Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
-        
-        Note_common.populateFields_text(mRowId);
+
+        note_common.populateFields_text(rowId);
         
     	// button: add
         addButton = (Button) findViewById(R.id.note_add_new_add);
@@ -53,9 +53,9 @@ public class Note_addText extends Activity {
         if(!note_common.isTextAdded())
         	addButton.setVisibility(View.GONE);
 
-        Note_common.mLinkEditText = null; //avoid buffer has content
-        Note_common.mTitleEditText.addTextChangedListener(setTextWatcher());
-        Note_common.mBodyEditText.addTextChangedListener(setTextWatcher());
+        note_common.titleEditText.addTextChangedListener(setTextWatcher());
+        note_common.bodyEditText.addTextChangedListener(setTextWatcher());
+        note_common.linkEditText.addTextChangedListener(setTextWatcher());
 
         // listener: add new note
         addButton.setOnClickListener(new View.OnClickListener()
@@ -65,19 +65,19 @@ public class Note_addText extends Activity {
     			//add new note again
        			if(note_common.isTextAdded())
     			{
-       				mEnSaveDb = true;
-       				mRowId = Note_common.saveStateInDB(mRowId,mEnSaveDb,"", "", "");
+       				enSaveDb = true;
+       				rowId = note_common.saveStateInDB(rowId, enSaveDb,"", "", "");
        				
        				if( getIntent().getExtras().getString("extra_ADD_NEW_TO_TOP", "false").equalsIgnoreCase("true") &&
-       				    (Note_common.getCount() > 0) )
+       				    (note_common.getCount() > 0) )
        					Page.swap(Page.mDb_page);
 
        				Toast.makeText(Note_addText.this, R.string.toast_saved , Toast.LENGTH_SHORT).show();
        				
        		        note_common = new Note_common(Note_addText.this);
        		        note_common.UI_init_text();
-       				mRowId = null;
-       		        Note_common.populateFields_text(mRowId);
+       				rowId = null;
+                    note_common.populateFields_text(rowId);
     			}
             }
         });
@@ -98,8 +98,8 @@ public class Note_addText extends Activity {
             	{
         			Toast.makeText(Note_addText.this, R.string.btn_Cancel, Toast.LENGTH_SHORT).show();
         			System.out.println("NoteFragment / Activity.RESULT_CANCELED");
-                    Note_common.deleteNote(mRowId);
-                    mEnSaveDb = false;
+                    note_common.deleteNote(rowId);
+                    enSaveDb = false;
                     setResult(RESULT_CANCELED, getIntent());
                     finish();
             	}
@@ -137,7 +137,7 @@ public class Note_addText extends Activity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) 
 					{
-					    mEnSaveDb = true;
+					    enSaveDb = true;
 		            	setResult(RESULT_OK, getIntent());
 					    finish();
 					}})
@@ -150,8 +150,8 @@ public class Note_addText extends Activity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) 
 					{
-						Note_common.deleteNote(mRowId);
-	                    mEnSaveDb = false;
+                        note_common.deleteNote(rowId);
+	                    enSaveDb = false;
 	                    setResult(RESULT_CANCELED, getIntent());
 	                    finish();
 					}})
@@ -175,7 +175,7 @@ public class Note_addText extends Activity {
     protected void onPause() {
     	System.out.println("Note_addNewText / onPause");
         super.onPause();
-        mRowId = Note_common.saveStateInDB(mRowId,mEnSaveDb,"", "", "");
+        rowId = note_common.saveStateInDB(rowId, enSaveDb,"", "", "");
     }
 
     // for Rotate screen
@@ -183,8 +183,8 @@ public class Note_addText extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
    	 	System.out.println("Note_addNew / onSaveInstanceState");
-        note_common.mNoteId = mRowId;
-        outState.putSerializable(DB_page.KEY_NOTE_ID, mRowId);
+        note_common.noteId = rowId;
+        outState.putSerializable(DB_page.KEY_NOTE_ID, rowId);
     }
 
     @Override
@@ -194,8 +194,8 @@ public class Note_addText extends Activity {
     		confirmUpdateChangeDlg();
     	else
     	{
-            Note_common.deleteNote(mRowId);
-            mEnSaveDb = false;
+            note_common.deleteNote(rowId);
+            enSaveDb = false;
             NavUtils.navigateUpFromSameTask(this);
     	}
     }
@@ -209,8 +209,8 @@ public class Note_addText extends Activity {
                     confirmUpdateChangeDlg();
                 else
                 {
-                    Note_common.deleteNote(mRowId);
-                    mEnSaveDb = false;
+                    note_common.deleteNote(rowId);
+                    enSaveDb = false;
                     NavUtils.navigateUpFromSameTask(this);
                 }
                 return true;

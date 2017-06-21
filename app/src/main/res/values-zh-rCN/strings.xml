@@ -6,6 +6,8 @@
     <string name="btn_Stop">停止</string>
     <string name="title_playing_audio">还在播放音频</string>
     <string name="message_continue_or_stop">继续或是停止播放音频？</string>
+    <string name="message_continue_or_stop_YouTube_title">继续运行YouTube？</string>
+    <string name="message_continue_or_stop_YouTube_message">如果否，请在5秒内按“否”。</string>
     <string name="btn_Finish">完成</string>
     <string name="btn_Select">选择</string>
     <string name="btn_None">无</string>

@@ -30,8 +30,11 @@ import com.cw.litenote.util.OnBackPressedListener;
 import com.cw.litenote.config.MailPagesFragment;
 import com.cw.litenote.util.Util;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -52,6 +55,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainAct extends FragmentActivity implements OnBackStackChangedListener
@@ -80,7 +84,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 	// Main Act onCreate
     @Override
-    protected void onCreate(Bundle savedInstanceState) 
+    protected void onCreate(Bundle savedInstanceState)
     {
     	///
 //    	 StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
@@ -97,7 +101,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 //    	   .build());     	
     	///
         super.onCreate(savedInstanceState);
-        
+
         mAct = this;
         setContentView(R.layout.drawer);
 		mAppTitle = getTitle();
@@ -111,17 +115,17 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		// Release mode: no debug message
         if(Define.CODE_MODE == Define.RELEASE_MODE)
         {
-        	OutputStream nullDev = new OutputStream() 
+        	OutputStream nullDev = new OutputStream()
             {
                 public  void    close() {}
                 public  void    flush() {}
                 public  void    write(byte[] b) {}
                 public  void    write(byte[] b, int off, int len) {}
                 public  void    write(int b) {}
-            }; 
+            };
             System.setOut( new PrintStream(nullDev));
         }
-        
+
         //Log.d below can be disabled by applying proguard
         //1. enable proguard-android-optimize.txt in project.properties
         //2. be sure to use newest version to avoid build error
@@ -135,13 +139,13 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         public static int e(...);
     	}
         */
-        Log.d("test log tag","start app");         
-        
+        Log.d("test log tag","start app");
+
         System.out.println("================start application ==================");
         System.out.println("MainAct / _onCreate");
 
         UtilImage.getDefaultScaleInPercent(MainAct.this);
-        
+
         mFolderTitles = new ArrayList<String>();
 
 		Context context = getApplicationContext();
@@ -220,7 +224,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			if(noisyAudioStreamReceiver == null)
 			{
 				noisyAudioStreamReceiver = new NoisyAudioStreamReceiver();
-				intentFilter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY); 
+				intentFilter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
 				registerReceiver(noisyAudioStreamReceiver, intentFilter);
 			}
 		}
@@ -374,7 +378,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
     // for Rotate screen
     @Override
-    protected void onSaveInstanceState(Bundle outState) 
+    protected void onSaveInstanceState(Bundle outState)
     {
        super.onSaveInstanceState(outState);
   	   System.out.println("MainAct / onSaveInstanceState / mFocus_folderPos = " + mFocus_folderPos);
@@ -388,7 +392,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     	   MainUi.mHandler.removeCallbacks(MainUi.mTabsHostRun);
        MainUi.mHandler = null;
     }
-    
+
     // for After Rotate
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState)
@@ -403,7 +407,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     		AudioPlayer.setPlayState(savedInstanceState.getInt("AudioPlayerState"));
     		Page.mProgress = savedInstanceState.getInt("SeekBarProgress");
     		UtilAudio.mIsCalledWhilePlayingAudio = savedInstanceState.getBoolean("CalledWhilePlayingAudio");
-    	}    
+    	}
     }
 
     @Override
@@ -413,19 +417,19 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     }
 
 	@Override
-    protected void onResume() 
+    protected void onResume()
     {
     	System.out.println("MainAct / _onResume");
 
       	// To Registers a listener object to receive notification when incoming call
      	TelephonyManager telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-     	if(telMgr != null) 
+     	if(telMgr != null)
      	{
      		telMgr.listen(UtilAudio.phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
      	}
         super.onResume();
     }
-	
+
     @Override
     protected void onResumeFragments() {
     	System.out.println("MainAct / _onResumeFragments ");
@@ -438,24 +442,24 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     	MainUi.selectFolder(mFocus_folderPos);
     	setTitle(mFolderTitle);
     }
-    
+
     @Override
-    protected void onDestroy() 
+    protected void onDestroy()
     {
     	System.out.println("MainAct / onDestroy");
-    	
-    	//unregister TelephonyManager listener 
+
+    	//unregister TelephonyManager listener
         TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         if(mgr != null) {
             mgr.listen(UtilAudio.phoneStateListener, PhoneStateListener.LISTEN_NONE);
         }
-        
+
 		// unregister an audio stream receiver
 		if(noisyAudioStreamReceiver != null)
 		{
 			try
 			{
-				unregisterReceiver(noisyAudioStreamReceiver);//??? unregister here? 
+				unregisterReceiver(noisyAudioStreamReceiver);//??? unregister here?
 			}
 			catch (Exception e)
 			{
@@ -469,7 +473,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 		super.onDestroy();
     }
-    
+
     /**
      * When using the ActionBarDrawerToggle, you must call it during
      * onPostCreate() and onConfigurationChanged()...
@@ -489,8 +493,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         // Pass any configuration change to the drawer toggles
         mDrawer.drawerToggle.onConfigurationChanged(newConfig);
     }
-    
-    
+
+
     /* Called whenever we call invalidateOptionsMenu() */
     @Override
     public boolean onPrepareOptionsMenu(android.view.Menu menu) {
@@ -530,11 +534,11 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         }
         System.out.println("MainAct / _setFolderTitle / title = " + title);
         mAct.getActionBar().setTitle(title);
-    }	    
-    
+    }
+
 	/******************************************************
 	 * Menu
-	 * 
+	 *
 	 */
     // Menu identifiers
 	/*
@@ -592,7 +596,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	/*
 	 * on options item selected
 	 * 
@@ -628,7 +632,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			}
     	}
 
-    	
+
     	// The action bar home/up action should open or close the drawer.
     	// ActionBarDrawerToggle will take care of this.
     	if (mDrawer.drawerToggle.onOptionsItemSelected(item))
@@ -636,14 +640,14 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     		System.out.println("MainAct / _onOptionsItemSelected / drawerToggle.onOptionsItemSelected(item) == true ");
     		return true;
     	}
-    	
+
         switch (item.getItemId())
         {
 	    	case MenuId.ADD_NEW_FOLDER:
 	    		MainUi.renewFirstAndLast_folderId();
 	    		MainUi.addNewFolder(mAct, MainUi.mLastExist_folderTableId +1);
 				return true;
-				
+
 	    	case MenuId.ENABLE_FOLDER_DRAG_AND_DROP:
             	if(mPref_show_note_attribute.getString("KEY_ENABLE_FOLDER_DRAGGABLE", "no")
             			                    .equalsIgnoreCase("yes"))
@@ -669,7 +673,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         	case MenuId.OPEN_PLAY_SUBMENU:
         		// new play instance: stop button is off
-        	    if( (AudioPlayer.mMediaPlayer != null) && 
+        	    if( (AudioPlayer.mMediaPlayer != null) &&
         	    	(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP))
         		{
        		    	// show Stop
@@ -680,10 +684,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         	    {
        		    	// show Play
            			playOrStopMusicButton.setTitle(R.string.menu_button_play_audio);
-           			playOrStopMusicButton.setIcon(R.drawable.ic_media_play);        	    	
+           			playOrStopMusicButton.setIcon(R.drawable.ic_media_play);
         	    }
         		return true;
-        	
+
         	case MenuId.PLAY_OR_STOP_AUDIO:
         		if( (AudioPlayer.mMediaPlayer != null) &&
         			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP))
@@ -699,12 +703,12 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         			AudioPlayer.setPlayMode(AudioPlayer.CONTINUE_MODE);
         			AudioPlayer.mAudioIndex = 0;
        				AudioPlayer.prepareAudioInfo();
-        			
+
         			AudioPlayer.runAudioState(this);
-        			
+
 					Page.mItemAdapter.notifyDataSetChanged();
 	        		Page.showFooter();
-	        		
+
 					// update page table Id
 					mPlaying_pageTableId = TabsHost.mNow_pageTableId;
 					// update playing tab index
@@ -716,10 +720,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         	case MenuId.SLIDE_SHOW:
         		slideshowInfo = new SlideshowInfo();
-    			
+
         		int pageTableId = Util.getPref_lastTimeView_page_tableId(this);
     			DB_page.setFocusPage_tableId(pageTableId);
-    			
+
         		// add images for slide show
     			mDb_page.open();
         		for(int position = 0; position < mDb_page.getNotesCount(false) ; position++)
@@ -741,31 +745,31 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         			}
         		}
         		mDb_page.close();
-        		          		
+
         		if(slideshowInfo.showItemsSize() > 0)
         		{
 					// create new Intent to launch the slideShow player Activity
 					Intent playSlideshow = new Intent(this, SlideshowPlayer.class);
-					startActivity(playSlideshow);  
+					startActivity(playSlideshow);
         		}
         		else
         			Toast.makeText(mContext,R.string.file_not_found,Toast.LENGTH_SHORT).show();
         		return true;
-				
+
             case MenuId.ADD_NEW_PAGE:
             	System.out.println("--- MainUi.Constant.ADD_NEW_PAGE / TabsHost.mLastExist_pageTableId = " + TabsHost.mLastExist_pageTableId);
                 MainUi.addNewPage(mAct, TabsHost.mLastExist_pageTableId + 1);
-                
+
                 return true;
-                
+
             case MenuId.CHANGE_PAGE_COLOR:
             	MainUi.changePageColor(mAct);
-                return true;    
-                
+                return true;
+
             case MenuId.SHIFT_PAGE:
             	MainUi.shiftPage(mAct);
-                return true;  
-                
+                return true;
+
             case MenuId.SHOW_BODY:
             	mPref_show_note_attribute = mContext.getSharedPreferences("show_note_attribute", 0);
             	if(mPref_show_note_attribute.getString("KEY_SHOW_BODY", "yes").equalsIgnoreCase("yes"))
@@ -773,7 +777,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             	else
             		mPref_show_note_attribute.edit().putString("KEY_SHOW_BODY","yes").apply();
             	TabsHost.updateTabChange(this);
-                return true; 
+                return true;
 
             case MenuId.ENABLE_NOTE_DRAG_AND_DROP:
             	mPref_show_note_attribute = mContext.getSharedPreferences("show_note_attribute", 0);
@@ -828,25 +832,25 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             case MenuId.GALLERY:
 				Intent i_browsePic = new Intent(this, GalleryGridAct.class);
 				startActivity(i_browsePic);
-            	return true; 	
+            	return true;
 
             case MenuId.CONFIG_PREFERENCE:
             	mMenu.setGroupVisible(R.id.group0, false); //hide the menu
         		setTitle(R.string.settings);
         		bEnableConfig = true;
-        		
+
             	mConfigFragment = new Config();
             	mFragmentTransaction = fragmentManager.beginTransaction();
 				mFragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
                 mFragmentTransaction.replace(R.id.content_frame, mConfigFragment).addToBackStack("config").commit();
                 return true;
-                
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    
+
     /**
      *  on Back button pressed
      *
@@ -908,23 +912,144 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		this.onBackPressedListener = onBackPressedListener;
 	}
 
+    AlertDialog.Builder builder;
+    AlertDialog alertDlg;
+    Handler handler;
+    int count;
+    String countStr;
+
+	/**
+	 * onActivityRusult
+	 * @param requestCode
+	 * @param resultCode
+	 * @param data
+	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		System.out.println("MainAct / _onActivityResult ");
 		String stringFileName = null;
 
-		if(requestCode== MailNotes.EMAIL)
-			stringFileName = MailNotes.mAttachmentFileName;
-		else if(requestCode== MailPagesFragment.EMAIL_PAGES)
-			stringFileName = MailPagesFragment.mAttachmentFileName;
+		// mail
+		if((requestCode== MailNotes.EMAIL) ||(requestCode== MailPagesFragment.EMAIL_PAGES)) {
+			if (requestCode == MailNotes.EMAIL)
+				stringFileName = MailNotes.mAttachmentFileName;
+			else if (requestCode == MailPagesFragment.EMAIL_PAGES)
+				stringFileName = MailPagesFragment.mAttachmentFileName;
 
-		Toast.makeText(mAct,R.string.mail_exit,Toast.LENGTH_SHORT).show();
+			Toast.makeText(mAct, R.string.mail_exit, Toast.LENGTH_SHORT).show();
 
-		// note: result code is always 0 (cancel), so it is not used
-		new DeleteFileAlarmReceiver(mAct,
+			// note: result code is always 0 (cancel), so it is not used
+			new DeleteFileAlarmReceiver(mAct,
 					System.currentTimeMillis() + 1000 * 60 * 5, // formal: 300 seconds
 //					System.currentTimeMillis() + 1000 * 10, // test: 10 seconds
 					stringFileName);
+		}
+
+		// YouTube
+		if(requestCode == Util.YOUTUBE_LINK_INTENT)
+		{
+            count = 10;
+			builder = new AlertDialog.Builder(this);
+			countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
+            countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
+			builder.setTitle(R.string.message_continue_or_stop_YouTube_title)
+                   .setMessage(countStr)
+                   .setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
+                   {
+                       @Override
+                       public void onClick(DialogInterface dialog1, int which1)
+                       {
+                           alertDlg.dismiss();
+						   cancelYouTubeHandler();
+                       }
+                   })
+                   .setPositiveButton(R.string.confirm_dialog_button_yes, new DialogInterface.OnClickListener()
+                   {
+                       @Override
+                       public void onClick(DialogInterface dialog1, int which1) {
+                           alertDlg.dismiss();
+						   cancelYouTubeHandler();
+                           launchNextYouTubeIntent();
+                       }
+                   });
+
+            alertDlg = builder.create();
+            // set listener for selection
+            alertDlg.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dlgInterface) {
+                    handler = new Handler();
+                    handler.postDelayed(runCountDown,1000);
+                }
+            });
+            alertDlg.show();
+		}
+	}
+
+	/**
+	 * runnable for counting down
+	 */
+    Runnable runCountDown = new Runnable() {
+        public void run() {
+            // show count down
+            TextView messageView = (TextView) alertDlg.findViewById(android.R.id.message);
+            count--;
+			countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
+            countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
+            messageView.setText(countStr);
+
+            if(count>0)
+                handler.postDelayed(runCountDown,1000);
+            else
+            {
+                // launch next intent
+                alertDlg.dismiss();
+				cancelYouTubeHandler();
+                launchNextYouTubeIntent();
+            }
+        }
+    };
+
+    /**
+     *  launch YouTube intent
+     */
+    void launchNextYouTubeIntent()
+    {
+        Page.currPlayPosition++;
+        int pos = Page.currPlayPosition;
+
+        mDb_page.open();
+        int count = mDb_page.getNotesCount(false);
+        mDb_page.close();
+
+        if(pos >= count)
+        {
+            pos = 0;
+            Page.currPlayPosition = 0;
+        }
+
+        if(pos < count) {
+            String linkStr = mDb_page.getNoteLinkUri(pos,true);
+            SharedPreferences pref_open_youtube;
+            pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
+
+            if( Util.isYouTubeLink(linkStr) &&
+                    pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
+            {
+                Util.openLink_YouTube(mAct, linkStr);
+            }
+        }
+    }
+
+	/**
+	 *  cancel YouTube Handler
+	 */
+	void cancelYouTubeHandler()
+	{
+		if(handler != null) {
+			handler.removeCallbacks(runCountDown);
+			handler = null;
+		}
 	}
 }
