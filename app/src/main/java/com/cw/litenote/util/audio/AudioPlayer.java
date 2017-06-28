@@ -533,12 +533,17 @@ public class AudioPlayer
 		if(mMediaPlayer != null)
 			mMediaPlayer.release();
 		mMediaPlayer = null;
-		mAudioHandler.removeCallbacks(mRunOneTimeMode); 
-		mAudioHandler.removeCallbacks(mRunContinueMode);
+
+		if(mAudioHandler != null) {
+			mAudioHandler.removeCallbacks(mRunOneTimeMode);
+			mAudioHandler.removeCallbacks(mRunContinueMode);
+			mAudioHandler = null;
+		}
+
 		setPlayState(PLAYER_AT_STOP);
 		
 		// make sure progress dialog will disappear
-	 	if( !mAudioUrlVerifyTask.isCancelled() )
+	 	if( (mAudioUrlVerifyTask!= null) && (!mAudioUrlVerifyTask.isCancelled()) )
 	 	{
 	 		mAudioUrlVerifyTask.cancel(true);
 	 		

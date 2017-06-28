@@ -1609,6 +1609,8 @@ public class Util
 			int id = res.getIdentifier("config_showNavigationBar", "bool", "android");
 			boolean hasNavBar = ( id > 0 && res.getBoolean(id));
 
+//			System.out.println("Util / _setFullScreen / hasNavBar = " + hasNavBar);
+
             // flags
             int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE//??? add bottom offset
                            |View.SYSTEM_UI_FLAG_FULLSCREEN

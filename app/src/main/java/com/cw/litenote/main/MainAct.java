@@ -1035,7 +1035,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
 
             if( Util.isYouTubeLink(linkStr) &&
-                    pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
+                pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
             {
                 Util.openLink_YouTube(mAct, linkStr);
             }

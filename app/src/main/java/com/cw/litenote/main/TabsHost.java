@@ -153,8 +153,11 @@ public class TabsHost extends Fragment
         super.onConfigurationChanged(newConfig);
         System.out.println("TabsHost / _onConfigurationChanged");
 
-		//for layout configuration change
-        MainUi.selectFolder(MainAct.mFocus_folderPos);
+		//for audio layout configuration change
+		if( (AudioPlayer.mMediaPlayer != null) &&
+			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)) {
+			MainUi.selectFolder(MainAct.mFocus_folderPos);
+		}
     }
 
     /**

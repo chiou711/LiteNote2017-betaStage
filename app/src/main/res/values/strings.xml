@@ -6,8 +6,8 @@
     <string name="btn_Stop">Stop</string>
     <string name="title_playing_audio">Still playing audio.</string>
     <string name="message_continue_or_stop">Continue or stop audio playing?</string>
-    <string name="message_continue_or_stop_YouTube_title">Continue running YouTube?</string>
-    <string name="message_continue_or_stop_YouTube_message">If no, please press No within 5 seconds.</string>
+    <string name="message_continue_or_stop_YouTube_title">Will continue running next link</string>
+    <string name="message_continue_or_stop_YouTube_message">If not running, please press No within 5 seconds.</string>
     <string name="btn_Finish">Finish</string>
     <string name="btn_Select">Select</string>
     <string name="btn_None">None</string>

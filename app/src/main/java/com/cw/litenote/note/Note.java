@@ -334,6 +334,9 @@ public class Note extends FragmentActivity
 					                    MailNotes.mAttachmentFileName);
 		}
 
+		// show current item
+		if(requestCode == Util.YOUTUBE_LINK_INTENT)
+        	mPager.setCurrentItem(mPager.getCurrentItem());
 
 	    // check if there is one note at least in the pager
 		if( mPager.getAdapter().getCount() > 0 )

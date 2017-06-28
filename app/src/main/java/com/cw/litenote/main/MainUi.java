@@ -1277,7 +1277,7 @@ public class MainUi
         	System.out.println("MainUi / mTabsHostRun");
             Fragment fragment = new TabsHost();
         	FragmentTransaction fragmentTransaction = MainAct.fragmentManager.beginTransaction();
-        	fragmentTransaction.replace(R.id.content_frame, fragment).commit();
+        	fragmentTransaction.replace(R.id.content_frame, fragment).commit();//???  Can not perform this action after onSaveInstanceState
         	MainAct.fragmentManager.executePendingTransactions();
         } 
     };    

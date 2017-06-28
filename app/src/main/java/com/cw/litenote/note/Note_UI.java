@@ -233,13 +233,12 @@ public class Note_UI
                 public void onClick(View view) {
                     System.out.println("Note_UI / _setPictureView_listeners / onClick to play YouTube / linkUri = " + linkUri);
 
-                        // apply native YouTube
-                        Util.openLink_YouTube(act, linkUri);
+                    // apply native YouTube
+//                    Util.openLink_YouTube(act, linkUri);
 
-//                        // apply YouTube DATA API
-//                        Intent intent = new Intent(act, YouTubePlayerAct.class);
-//                        intent.putExtra("EXTRA_LINK_URI", linkUri);
-//                        act.startActivity(intent);
+                    // apply YouTube DATA API for note view
+                    Intent intent = new Intent(act, YouTubePlayerAct.class);
+                    act.startActivityForResult(intent, Util.YOUTUBE_LINK_INTENT);
                 }
             });
         }

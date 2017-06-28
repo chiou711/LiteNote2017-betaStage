@@ -141,6 +141,7 @@ public class Page extends UilListViewBaseFragment
 					if( Util.isYouTubeLink(linkStr) &&
 					    pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
 					{
+						AudioPlayer.stopAudio();
 						Util.openLink_YouTube(mAct, linkStr);
 					}
 					else
