@@ -17,12 +17,16 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
     YouTubeFailureRecoveryActivity act;
     Button previous_btn,next_btn;
     View btn_group;
+    boolean bShow_landscape_prev_next_control;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.youtube_player);
         act = this;
+
+        // initial: control is seen
+        bShow_landscape_prev_next_control = true;
 
         if(getActionBar() != null)
            getActionBar().hide();
@@ -34,7 +38,8 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         btn_group = findViewById(R.id.youtube_control);
         // image: previous button
         previous_btn = (Button) findViewById(R.id.btn_previous);
-        previous_btn.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_previous, 0, 0, 0);
+        previous_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_media_previous, 0, 0, 0);
+
         // click to previous
         previous_btn.setOnClickListener(new View.OnClickListener()
         {
@@ -52,7 +57,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
 
         // image: next button
         next_btn = (Button) findViewById(R.id.btn_next);
-        next_btn.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_next, 0, 0, 0);
+        next_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_media_next, 0, 0, 0);
         // click to next
         next_btn.setOnClickListener(new View.OnClickListener()
         {
@@ -72,6 +77,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        bShow_landscape_prev_next_control = false;
         setLayout();
     }
 
@@ -79,6 +85,30 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
         youTube_player = youTubePlayer;
+
+        youTube_player.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener() {
+            @Override
+            public void onFullscreen(boolean isFullScreen) {
+                System.out.println("YouTubePlayerAct / _onInitializationSuccess / setOnFullscreenListener / isFullScreen =" + isFullScreen);
+
+                bShow_landscape_prev_next_control = !isFullScreen;
+
+                if (!isFullScreen && Util.isLandscapeOrientation(act)) {
+                    Util.setNotFullScreen(act);
+                    youTube_player.setFullscreen(false);
+                    btn_group.setVisibility(View.VISIBLE);
+
+                    previous_btn.setVisibility(View.VISIBLE);
+                    previous_btn.setAlpha(Note.mCurrentPosition == 0?0.3f:1.0f);
+
+                    next_btn.setVisibility(View.VISIBLE);
+                    next_btn.setAlpha(Note.mCurrentPosition == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+
+                    bShow_landscape_prev_next_control = true;
+                }
+            }
+        });
+
         if (!wasRestored) {
             prepare_play_YouTube(youTube_player);
         }
@@ -89,21 +119,6 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         return (YouTubePlayerView) findViewById(R.id.youtube_view);
     }
 
-
-    boolean bShowControl;
-    @Override
-    public void onBackPressed() {
-        if(bShowControl)
-            super.onBackPressed();
-        else if (Util.isLandscapeOrientation(act)) {
-                Util.setFullScreen(this);
-                youTube_player.setFullscreen(false);
-                btn_group.setVisibility(View.VISIBLE);
-                previous_btn.setVisibility(View.VISIBLE);
-                next_btn.setVisibility(View.VISIBLE);
-                bShowControl = true;
-        }
-    }
 
     /**
      *  Prepare to play YouTube
@@ -121,7 +136,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
 
         DB_page db_page = new DB_page(act,Util.getPref_lastTimeView_page_tableId(act));
         String linkUri = db_page.getNoteLinkUri(Note.mCurrentPosition,true);
-        System.out.println("YouTubePlayerAct / _onInitializationSuccess / linkUri = " + linkUri);
+        System.out.println("YouTubePlayerAct / _prepare_play_YouTube / linkUri = " + linkUri);
 
         // check Id string first
         String idStr = Util.getYoutubeId(linkUri);
@@ -164,21 +179,39 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
     {
         // full screen
         if(Util.isLandscapeOrientation(act)) {
-            Util.setFullScreen(this);
-            youTube_player.setFullscreen(true);
-            btn_group.setVisibility(View.GONE);
-            previous_btn.setVisibility(View.GONE);
-            next_btn.setVisibility(View.GONE);
-            bShowControl = false;
+            if(!bShow_landscape_prev_next_control) {
+
+                Util.setFullScreen(this);
+                youTube_player.setFullscreen(true);
+
+                btn_group.setVisibility(View.GONE);
+                previous_btn.setVisibility(View.GONE);
+                next_btn.setVisibility(View.GONE);
+            }
+            else
+            {
+                Util.setNotFullScreen(this);
+                youTube_player.setFullscreen(false);
+                btn_group.setVisibility(View.VISIBLE);
+
+                previous_btn.setVisibility(View.VISIBLE);
+                previous_btn.setAlpha(Note.mCurrentPosition == 0?0.3f:1.0f);
+
+                next_btn.setVisibility(View.VISIBLE);
+                next_btn.setAlpha(Note.mCurrentPosition == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+            }
         }
         // not full screen
         else {
             Util.setNotFullScreen(this);
             youTube_player.setFullscreen(false);
             btn_group.setVisibility(View.VISIBLE);
+
             previous_btn.setVisibility(View.VISIBLE);
+            previous_btn.setAlpha(Note.mCurrentPosition == 0?0.3f:1.0f);
+
             next_btn.setVisibility(View.VISIBLE);
-            bShowControl = true;
+            next_btn.setAlpha(Note.mCurrentPosition == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
         }
     }
 }

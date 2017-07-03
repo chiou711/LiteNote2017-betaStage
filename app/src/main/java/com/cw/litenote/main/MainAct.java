@@ -275,7 +275,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			// YouTube
             if( Util.isYouTubeLink(path))
             {
-                title = Util.getYoutubeTitle(path);
+                title = Util.getYouTubeTitle(path);
 
                 if(pref_show_note_attribute
                         .getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
@@ -917,6 +917,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     Handler handler;
     int count;
     String countStr;
+	String nextLinkTitle;
 
 	/**
 	 * onActivityRusult
@@ -951,10 +952,17 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		{
             count = 10;
 			builder = new AlertDialog.Builder(this);
+
+			Page.currPlayPosition++;
+
+			String link = getYouTubeLink(Page.currPlayPosition);
+			nextLinkTitle =  Util.getYouTubeTitle(link);
+
 			countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
             countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
+
 			builder.setTitle(R.string.message_continue_or_stop_YouTube_title)
-                   .setMessage(countStr)
+                   .setMessage(nextLinkTitle +"\n\n" + countStr)
                    .setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
                    {
                        @Override
@@ -975,6 +983,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                    });
 
             alertDlg = builder.create();
+
             // set listener for selection
             alertDlg.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
@@ -985,6 +994,27 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             });
             alertDlg.show();
 		}
+	}
+	/**
+	 *  get YouTube link
+	 */
+	String getYouTubeLink(int pos)
+	{
+		mDb_page.open();
+		int count = mDb_page.getNotesCount(false);
+		mDb_page.close();
+
+		if(pos >= count)
+		{
+			pos = 0;
+			Page.currPlayPosition = 0;
+		}
+
+		String linkStr="";
+		if(pos < count)
+			linkStr =mDb_page.getNoteLinkUri(pos,true);
+
+		return linkStr;
 	}
 
 	/**
@@ -997,7 +1027,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             count--;
 			countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
             countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
-            messageView.setText(countStr);
+            messageView.setText(nextLinkTitle + "\n\n" +countStr);
 
             if(count>0)
                 handler.postDelayed(runCountDown,1000);
@@ -1016,30 +1046,16 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
      */
     void launchNextYouTubeIntent()
     {
-        Page.currPlayPosition++;
-        int pos = Page.currPlayPosition;
+        SharedPreferences pref_open_youtube;
+        pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
 
-        mDb_page.open();
-        int count = mDb_page.getNotesCount(false);
-        mDb_page.close();
-
-        if(pos >= count)
-        {
-            pos = 0;
-            Page.currPlayPosition = 0;
-        }
-
-        if(pos < count) {
-            String linkStr = mDb_page.getNoteLinkUri(pos,true);
-            SharedPreferences pref_open_youtube;
-            pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
-
-            if( Util.isYouTubeLink(linkStr) &&
-                pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
-            {
-                Util.openLink_YouTube(mAct, linkStr);
-            }
-        }
+		String link = getYouTubeLink(Page.currPlayPosition);
+		if( Util.isYouTubeLink(link) &&
+            pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
+		{
+			Util.openLink_YouTube(mAct, link);
+			cancelYouTubeHandler();
+		}
     }
 
 	/**

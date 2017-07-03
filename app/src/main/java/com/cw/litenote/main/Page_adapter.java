@@ -171,7 +171,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		{
 
 			if(Util.isYouTubeLink(linkUri)) {
-				strTitle = Util.getYoutubeTitle(linkUri);
+				strTitle = Util.getYouTubeTitle(linkUri);
 				holder.textTitleBlock.setVisibility(View.VISIBLE);
 				holder.textTitle.setText(strTitle);
 				holder.textTitle.setTextColor(Color.GRAY);

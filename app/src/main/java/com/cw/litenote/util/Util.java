@@ -1451,7 +1451,7 @@ public class Util
 
     static JsonAsync jsonAsyncTask;
 	// Get YouTube title
-	public static String getYoutubeTitle(String youtubeUrl) 
+	public static String getYouTubeTitle(String youtubeUrl)
 	{
     		URL embeddedURL = null;
     		if (youtubeUrl != null) 

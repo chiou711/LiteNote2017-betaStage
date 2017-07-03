@@ -421,7 +421,7 @@ class Note_common {
 			{
 				if(Util.isYouTubeLink(curLinkStr) )
 				{
-					final String hint = Util.getYoutubeTitle(curLinkStr);
+					final String hint = Util.getYouTubeTitle(curLinkStr);
 
 					titleEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
                         @Override

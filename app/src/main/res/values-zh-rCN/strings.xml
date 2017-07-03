@@ -6,7 +6,7 @@
     <string name="btn_Stop">停止</string>
     <string name="title_playing_audio">还在播放音频</string>
     <string name="message_continue_or_stop">继续或是停止播放音频？</string>
-    <string name="message_continue_or_stop_YouTube_title">将继续运行下一个连结</string>
+    <string name="message_continue_or_stop_YouTube_title">继续运行下一个连结？</string>
     <string name="message_continue_or_stop_YouTube_message">如果不运行，请在5秒内按“否”。</string>
     <string name="btn_Finish">完成</string>
     <string name="btn_Select">选择</string>
@@ -18,7 +18,7 @@
     <string name="confirm_dialog_message">您要删除这个笔记？</string>
     <string name="confirm_dialog_message_page">您要删除这个页面？</string>
     <string name="confirm_dialog_message_drawer">您要删除这个文件夹？</string>
-    <string name="confirm_dialog_message_file">您想删除这个文件?</string>
+    <string name="confirm_dialog_message_file">您想删除这个文件？</string>
     <string name="confirm_dialog_button_no">否</string>
     <string name="confirm_dialog_button_yes">是</string>
     <string name="footer_checked">勾选</string>

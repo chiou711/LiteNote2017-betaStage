@@ -530,7 +530,7 @@ public class Note extends FragmentActivity
     public boolean onCreateOptionsMenu(Menu menu) 
     {
         super.onCreateOptionsMenu(menu);
-
+//		System.out.println("Note / _onCreateOptionsMenu");
 		// inflate menu
 		getMenuInflater().inflate(R.menu.pager_menu, menu);
 		mMenu = menu;
@@ -552,6 +552,8 @@ public class Note extends FragmentActivity
 		MenuItem itemPrev = menu.findItem(R.id.ACTION_PREVIOUS);
 		itemPrev.setEnabled(mPager.getCurrentItem() > 0);
 		itemPrev.getIcon().setAlpha(mPager.getCurrentItem() > 0?255:30);
+		//??? on api19, why does this affect YouTubePlayerAct (R.id.btn_previous) alpha?
+		//workaround: apply different Id, same icon
 		
 		// menu item: Next or Finish
 		MenuItem itemNext = menu.findItem(R.id.ACTION_NEXT);

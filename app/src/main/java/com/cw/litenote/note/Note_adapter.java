@@ -640,7 +640,7 @@ class Note_adapter extends FragmentStatePagerAdapter
 		{
 			if(Util.isYouTubeLink(linkUri))
 			{
-				strTitle = Util.getYoutubeTitle(linkUri);
+				strTitle = Util.getYouTubeTitle(linkUri);
 				bSetGray = true;
 			}
 			else if(linkUri.startsWith("http"))
