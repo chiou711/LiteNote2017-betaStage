@@ -244,6 +244,7 @@ public class Note_UI
         }
         else if(Util.isEmptyString(strPicture) &&
                 linkUri.startsWith("http")     &&
+                !UtilImage.hasImageExtension(linkUri,act) && //filter: some link has image extension
             	Note.isViewAllMode()              )
         {
             // set listener for running browser

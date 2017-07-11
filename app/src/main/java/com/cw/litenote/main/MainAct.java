@@ -588,11 +588,11 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     								.equalsIgnoreCase("yes"))
 			menu.findItem(R.id.ENABLE_FOLDER_DRAG_AND_DROP)
 				.setIcon(R.drawable.ic_dragger_off)
-				.setTitle(R.string.draggable_no) ;
+				.setTitle(R.string.folder_draggable_no) ;
     	else
 			menu.findItem(R.id.ENABLE_FOLDER_DRAG_AND_DROP)
 				.setIcon(R.drawable.ic_dragger_on)
-				.setTitle(R.string.draggable_yes) ;
+				.setTitle(R.string.folder_draggable_yes) ;
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -726,21 +726,29 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         		// add images for slide show
     			mDb_page.open();
+                int count = mDb_page.getNotesCount(false);
         		for(int position = 0; position < mDb_page.getNotesCount(false) ; position++)
         		{
         			if(mDb_page.getNoteMarking(position,false) == 1)
         			{
 						String pictureUri = mDb_page.getNotePictureUri(position,false);
+						String linkUri = mDb_page.getNoteLinkUri(position,false);
+
+                        // replace picture path
+						if(Util.isEmptyString(pictureUri) && UtilImage.hasImageExtension(linkUri,this))
+                            pictureUri = linkUri;
+
+                        String title = mDb_folder.getCurrentPageTitle();
+                        title = title.concat(" " + "(" + (position+1) + "/" + count + ")");
 						String text = mDb_page.getNoteTitle(position,false);
 
 						if(!Util.isEmptyString(mDb_page.getNoteBody(position,false)))
 							text += " : " + mDb_page.getNoteBody(position,false);
 
-//						if(!Util.isEmptyString(pictureUri) && UtilImage.hasImageExtension(pictureUri,this)) // skip empty
 						if( (!Util.isEmptyString(pictureUri) && UtilImage.hasImageExtension(pictureUri,this)) ||
                             !(Util.isEmptyString(text)) 														) // skip empty
 						{
-							slideshowInfo.addShowItem(pictureUri,text,position);
+							slideshowInfo.addShowItem(title,pictureUri,text,position);
 						}
         			}
         		}
@@ -994,6 +1002,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             });
             alertDlg.show();
 		}
+
+		// make sure main activity is still executing
+		if(requestCode == Util.YOUTUBE_ADD_NEW_LINK_INTENT)
+            recreate();
 	}
 	/**
 	 *  get YouTube link

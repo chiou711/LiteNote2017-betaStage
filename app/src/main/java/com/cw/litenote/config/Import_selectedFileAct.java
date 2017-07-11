@@ -27,6 +27,7 @@ import com.cw.litenote.util.Util;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -45,8 +46,8 @@ public class Import_selectedFileAct extends Activity
     FileInputStream fileInputStream = null;
     View mViewFile,mViewFileProgressBar;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) 
+	@Override
+    protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
     	System.out.println("Import_selectedFileAct / onCreate");
@@ -54,27 +55,33 @@ public class Import_selectedFileAct extends Activity
         setContentView(R.layout.view_file);
         mViewFile = findViewById(R.id.view_file);
         mViewFileProgressBar = findViewById(R.id.view_file_progress_bar);
-        
+
         mTitleViewText = (TextView) findViewById(R.id.view_title);
         mBodyViewText = (TextView) findViewById(R.id.view_body);
-        
-	    getActionBar().setDisplayShowHomeEnabled(false);
-        
-		ProgressBar progressBar = (ProgressBar) findViewById(R.id.import_progress);
-		ImportAsyncTask task = new ImportAsyncTask();
-        task.setProgressBar(progressBar);
-        task.enableSaveDB(false);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);//mFile is created inside ImportAsyncTask / _insertSelectedFileContentToDB
 
+	    getActionBar().setDisplayShowHomeEnabled(false);
+
+		ProgressBar progressBar = (ProgressBar) findViewById(R.id.import_progress);
+		if(savedInstanceState == null) {
+			ImportAsyncTask task = new ImportAsyncTask();
+			task.setProgressBar(progressBar);
+			task.enableSaveDB(false);
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);//mFile is created inside ImportAsyncTask / _insertSelectedFileContentToDB
+		}
+		else
+		{
+			mTitleViewText.setText(mFile.getName());
+			mBodyViewText.setText(importObject.fileBody);
+		}
 
 		int style = 2;
         //set title color
 		mTitleViewText.setTextColor(ColorSet.mText_ColorArray[style]);
 		mTitleViewText.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
-		//set body color 
+		//set body color
 		mBodyViewText.setTextColor(ColorSet.mText_ColorArray[style]);
 		mBodyViewText.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
-		
+
         // back button
         Button backButton = (Button) findViewById(R.id.view_back);
         backButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
@@ -93,7 +100,7 @@ public class Import_selectedFileAct extends Activity
                 finish();
             }
         });
-        
+
 		// delete the file whose content is showing
 		deleteButton.setOnClickListener(new View.OnClickListener() {
 
@@ -204,7 +211,8 @@ public class Import_selectedFileAct extends Activity
 		ProgressBar bar;
 		boolean enableSaveDB;
 		public void setProgressBar(ProgressBar bar) {
-		    this.bar = bar;
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			this.bar = bar;
 		    mViewFile.setVisibility(View.GONE);
 		    mViewFileProgressBar.setVisibility(View.VISIBLE);
 		    bar.setVisibility(View.VISIBLE);
@@ -239,6 +247,7 @@ public class Import_selectedFileAct extends Activity
 			if(enableSaveDB)
 			{
 				finish();
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 				Toast.makeText(Import_selectedFileAct.this,R.string.toast_import_finished,Toast.LENGTH_SHORT).show();
 			}
 			else

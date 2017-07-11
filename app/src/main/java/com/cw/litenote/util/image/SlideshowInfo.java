@@ -8,6 +8,7 @@ public class SlideshowInfo
    private List<ViewHolder> showList;
 
    public class ViewHolder {
+       String title;
        String imagePath;
        String text;
        Integer position;
@@ -19,9 +20,10 @@ public class SlideshowInfo
        showList = new ArrayList<>();
    }
 
-   public void addShowItem(String path,String text,Integer position)
+   public void addShowItem(String title, String path,String text,Integer position)
    {
        ViewHolder holder = new ViewHolder();
+       holder.title =  title;
        holder.imagePath = path;
        holder.text = text;
        holder.position = position;

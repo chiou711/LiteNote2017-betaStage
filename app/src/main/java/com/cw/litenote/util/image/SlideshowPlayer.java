@@ -26,6 +26,7 @@ public class SlideshowPlayer extends FragmentActivity
 	private static int switch_time;
 	private ImageView imageView; // displays the current image
 	View itemView;
+	TextView titleView; // displays the current title
 	TextView textView; // displays the current text
 
 	private SlideshowInfo showInfo; // slide show being played
@@ -299,6 +300,14 @@ public class SlideshowPlayer extends FragmentActivity
         // image
 		SlideshowInfo.ViewHolder holder = showInfo.getShowItem(slideIndex);
 		String path = holder.imagePath;
+
+		// title
+		titleView = (TextView) findViewById(R.id.show_title);
+		if (!Util.isEmptyString(holder.title)) {
+			titleView.setVisibility(View.VISIBLE);
+			titleView.setText(holder.title);
+		} else
+			titleView.setVisibility(View.GONE);
 
 		// image
 		if(Util.isEmptyString(path))

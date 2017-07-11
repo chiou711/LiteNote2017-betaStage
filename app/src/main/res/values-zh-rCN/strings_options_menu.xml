@@ -25,4 +25,6 @@
     <string name="preview_note_body_no">无本文预览</string>
     <string name="draggable_yes">笔记可拖放</string>
     <string name="draggable_no">笔记不可拖放</string>
+    <string name="folder_draggable_yes">文件夹可拖放</string>
+    <string name="folder_draggable_no">文件夹不可拖放</string>
 </resources>

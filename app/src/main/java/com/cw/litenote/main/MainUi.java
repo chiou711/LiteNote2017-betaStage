@@ -295,7 +295,7 @@ public class MainUi
 			case ID_NEW_YOUTUBE_LINK:
 			{
 				Intent	intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com"));
-				act.startActivity(intent);
+                act.startActivityForResult(intent,Util.YOUTUBE_ADD_NEW_LINK_INTENT);
 			}
 			break;
 

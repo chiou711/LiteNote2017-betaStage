@@ -25,4 +25,6 @@
     <string name="preview_note_body_no">No body preview</string>
     <string name="draggable_yes">Note is draggable</string>
     <string name="draggable_no">Note is not draggable</string>
+    <string name="folder_draggable_yes">Folder is draggable</string>
+    <string name="folder_draggable_no">Folder is not draggable</string>
 </resources>

@@ -1763,6 +1763,7 @@ public class Util
 	}
 
 	final public static int YOUTUBE_LINK_INTENT = 99;
+	final public static int YOUTUBE_ADD_NEW_LINK_INTENT = 100;
 	//
 	// Open link of YouTube
 	//
