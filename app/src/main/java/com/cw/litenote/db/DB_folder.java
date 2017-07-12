@@ -87,7 +87,7 @@ public class DB_folder
         }
         catch (Exception e)
         {
-            System.out.println("open folder table NG! / table id = " + getFocusFolder_tableId());
+            System.out.println("DB_folder / open folder table NG! / table id = " + getFocusFolder_tableId());
             DB_drawer db_drawer = new DB_drawer(mContext);
             int folderId =  (int) db_drawer.getFolderId(MainAct.mFocus_folderPos);
             // since the folder table does not exist, delete the folder Id in drawer table

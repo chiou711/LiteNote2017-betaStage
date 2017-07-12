@@ -70,6 +70,8 @@ public class Import_selectedFileAct extends Activity
 		}
 		else
 		{
+			extras = getIntent().getExtras();
+			mFile = new File(extras.getString("FILE_PATH"));
 			mTitleViewText.setText(mFile.getName());
 			mBodyViewText.setText(importObject.fileBody);
 		}
@@ -211,7 +213,8 @@ public class Import_selectedFileAct extends Activity
 		ProgressBar bar;
 		boolean enableSaveDB;
 		public void setProgressBar(ProgressBar bar) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			Util.lockOrientation(Import_selectedFileAct.this);
 			this.bar = bar;
 		    mViewFile.setVisibility(View.GONE);
 		    mViewFileProgressBar.setVisibility(View.VISIBLE);
@@ -247,7 +250,8 @@ public class Import_selectedFileAct extends Activity
 			if(enableSaveDB)
 			{
 				finish();
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+//				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+				Util.unlockOrientation(Import_selectedFileAct.this);
 				Toast.makeText(Import_selectedFileAct.this,R.string.toast_import_finished,Toast.LENGTH_SHORT).show();
 			}
 			else

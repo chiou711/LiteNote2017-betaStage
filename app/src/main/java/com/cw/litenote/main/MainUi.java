@@ -967,11 +967,11 @@ public class MainUi
              return;
 		}
 
-		// get drawer folder table Id
+		// get folder table Id
 		int folderTableId = db_drawer.getFolderTableId(position);
 
-		// get drawer Id
-		int drawerId =  (int) db_drawer.getFolderId(position);
+		// get folder Id
+		int folderId =  (int) db_drawer.getFolderId(position);
 
 		// 1) delete related page table
         DB_folder dbFolder = new DB_folder(TabsHost.mAct, folderTableId);
@@ -981,21 +981,21 @@ public class MainUi
 			dbFolder.dropPageTable(folderTableId, pageTableId);
 		}
 
-		// 2) delete folder table
+		// 2) delete folder table Id
 		db_drawer.dropFolderTable(folderTableId);
 		
-		// 3) delete folder row in drawer table
-        db_drawer.deleteFolderId(drawerId);
-		
+		// 3) delete folder Id in drawer table
+        db_drawer.deleteFolderId(folderId);
+
 		renewFirstAndLast_folderId();
 
 		// After Delete
         // - update mFocus_folderPos
-        // - select first existing drawer item 
+        // - select first existing drawer item
 		foldersCount = db_drawer.getFoldersCount();
 
 		// get new focus position
-		// if focus item is deleted, set focus to new first existing drawer
+		// if focus item is deleted, set focus to new first existing folder
         if(MainAct.mFocus_folderPos == position)
         {
 	        for(int item = 0; item < foldersCount; item++)
@@ -1007,13 +1007,17 @@ public class MainUi
         else if(position < MainAct.mFocus_folderPos)
         	MainAct.mFocus_folderPos--;
 
+//		System.out.println("MainUi / MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
+
         // set new focus position
         MainAct.mFolder.listView.setItemChecked(MainAct.mFocus_folderPos, true);
-        
-        // update folder table Id of last time view
-        Util.setPref_lastTimeView_folder_tableId(act,
-        										 db_drawer.getFolderTableId(MainAct.mFocus_folderPos) );
-        
+
+		int focusFolderTableId =  db_drawer.getFolderTableId(MainAct.mFocus_folderPos);
+		// update folder table Id of last time view
+        Util.setPref_lastTimeView_folder_tableId(act, focusFolderTableId );
+		// update folder table Id of new focus (error will cause first folder been deleted)
+		DB_folder.setFocusFolder_tableId(focusFolderTableId);
+
         // update audio playing highlight if needed
         if(AudioPlayer.mMediaPlayer != null)
         {
@@ -1028,10 +1032,10 @@ public class MainUi
 			   MainAct.setFolderTitle(MainAct.mFolderTitle);
            }
         }
-		
+
         // refresh drawer list view
 		MainAct.mFolder.adapter.notifyDataSetChanged();
-        
+
         // clear folder
         if(TabsHost.mTabsHost != null)
         	TabsHost.mTabsHost.clearAllTabs();

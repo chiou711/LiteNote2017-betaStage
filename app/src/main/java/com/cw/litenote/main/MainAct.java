@@ -489,9 +489,11 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        System.out.println("MainAct / onConfigurationChanged");
+        System.out.println("MainAct / _onConfigurationChanged");
         // Pass any configuration change to the drawer toggles
         mDrawer.drawerToggle.onConfigurationChanged(newConfig);
+
+		mDrawer.drawerToggle.syncState();
     }
 
 

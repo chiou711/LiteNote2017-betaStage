@@ -142,10 +142,12 @@ public class Page extends UilListViewBaseFragment
 					    pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
 					{
 						AudioPlayer.stopAudio();
+						// apply native YouTube
 						Util.openLink_YouTube(mAct, linkStr);
 					}
 					else
 					{
+						// apply Note class
 						Intent intent;
 						intent = new Intent(getActivity(), Note.class);
 						intent.putExtra("POSITION", position);

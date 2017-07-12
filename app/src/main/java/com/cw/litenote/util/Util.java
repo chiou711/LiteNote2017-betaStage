@@ -1781,7 +1781,7 @@ public class Util
 
 			String id = Util.getYoutubeId(linkUri);
 			// option 1
-			Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(act, id, true, true);
+			Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(act, id, true/*fullscreen*/, true/*finishOnEnd*/);
 
 			// option 2
 //			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" + id));
