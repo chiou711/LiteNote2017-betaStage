@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cw.litenote.config;
+package com.cw.litenote.operation;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +27,6 @@ import com.cw.litenote.util.Util;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;

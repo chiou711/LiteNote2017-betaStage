@@ -1,4 +1,4 @@
-package com.cw.litenote.main;
+package com.cw.litenote.page;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cw.litenote.R;
+import com.cw.litenote.main.MainUi;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.AsyncTaskAudioBitmap;
@@ -212,7 +213,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			holder.audioName.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
 
 		// show audio highlight if audio is not at Stop
-		if( MainUi.isSamePageTable() &&
+		if( PageUi.isSamePageTable() &&
 			(position == AudioPlayer.mAudioIndex)  &&
 			(AudioPlayer.mMediaPlayer != null) &&
 			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) &&

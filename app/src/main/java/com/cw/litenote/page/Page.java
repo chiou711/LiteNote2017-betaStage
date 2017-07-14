@@ -1,4 +1,4 @@
-package com.cw.litenote.main;
+package com.cw.litenote.page;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import java.util.Locale;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.main.MainAct;
+import com.cw.litenote.main.MainUi;
 import com.cw.litenote.note.Note;
 import com.cw.litenote.util.audio.AudioInfo;
 import com.cw.litenote.util.audio.AudioPlayer;
@@ -76,7 +78,7 @@ public class Page extends UilListViewBaseFragment
 	public static SeekBar seekBarProgress;
 	public static int media_file_length; // this value contains the song duration in milliseconds. Look at getDuration() method in MediaPlayer class
 	static ProgressBar mSpinner;
-    static int currPlayPosition;
+    public static int currPlayPosition;
 
     public Page(){}
 
@@ -264,7 +266,7 @@ public class Page extends UilListViewBaseFragment
 					endPosition--;
 			}
 			
-			if( MainUi.isSamePageTable() &&
+			if( PageUi.isSamePageTable() &&
 	     		(AudioPlayer.mMediaPlayer != null)				   )
 			{
 				if( (mHighlightPosition == oriEndPos)  && (oriStartPos > oriEndPos))      
@@ -615,7 +617,7 @@ public class Page extends UilListViewBaseFragment
             showFooter();
 
 			// update audio info
-            if(MainUi.isSamePageTable())
+            if(PageUi.isSamePageTable())
             	AudioPlayer.prepareAudioInfo();
         }
     };    
@@ -724,7 +726,7 @@ public class Page extends UilListViewBaseFragment
     static TextView mFooterMessage;
 
 	// set footer
-    static void showFooter()
+    public static void showFooter()
     {
     	System.out.println("Page / _showFooter ");
 
@@ -1122,7 +1124,7 @@ public class Page extends UilListViewBaseFragment
 			UtilAudio.stopAudioIfNeeded();	
 		
 		// update audio play list
-        if(MainUi.isSamePageTable())
+        if(PageUi.isSamePageTable())
         	AudioPlayer.prepareAudioInfo();
         
 		mItemAdapter.notifyDataSetChanged();
@@ -1157,7 +1159,7 @@ public class Page extends UilListViewBaseFragment
 			UtilAudio.stopAudioIfNeeded();	
 		
 		// update audio play list
-        if(MainUi.isSamePageTable())
+        if(PageUi.isSamePageTable())
         	AudioPlayer.prepareAudioInfo();
 		
 		mItemAdapter.notifyDataSetChanged();

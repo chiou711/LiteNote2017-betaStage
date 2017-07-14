@@ -3,9 +3,10 @@ package com.cw.litenote.note;
 import java.io.File;
 
 import com.cw.litenote.main.MainUi;
-import com.cw.litenote.main.Page;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.Util;
 
@@ -242,7 +243,7 @@ public class Note_addAudio extends FragmentActivity {
 	        	chooseAudioMedia();	
 	        	
 	        	// to avoid exception due to playing tab is different with focus tab
-	        	if(MainUi.isSamePageTable())
+	        	if(PageUi.isSamePageTable())
 	        	{
 		        	AudioPlayer.prepareAudioInfo();
 		        	Page.mItemAdapter.notifyDataSetChanged();

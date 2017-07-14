@@ -1,10 +1,13 @@
-package com.cw.litenote.main;
+package com.cw.litenote.page;
 
 import java.util.ArrayList;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.main.MainAct;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
@@ -40,8 +43,8 @@ import android.widget.TabHost.OnTabChangeListener;
 
 public class TabsHost extends Fragment
 {
-    static FragmentTabHost mTabsHost;
-    static int mPagesCount;
+    public static FragmentTabHost mTabsHost;
+    public static int mPagesCount;
 	static String TAB_SPEC_PREFIX = "tab";
 	static String TAB_SPEC;
 	static String mClassName;
@@ -55,10 +58,10 @@ public class TabsHost extends Fragment
 	public static int mNow_pageId;
 	public static int mNow_pageTableId;
 	static ArrayList<String> mTabIndicator_ArrayList = new ArrayList<>();
-	static int mFirstExist_PageId =0;
+	public static int mFirstExist_PageId =0;
 	static int mLastExist_pageId =0;
-	static int mLastExist_pageTableId;
-	static HorizontalScrollView mHorScrollView;
+	public static int mLastExist_pageTableId;
+	public static HorizontalScrollView mHorScrollView;
     public static Activity mAct;
 
     public TabsHost(){}
@@ -156,7 +159,7 @@ public class TabsHost extends Fragment
 		//for audio layout configuration change
 		if( (AudioPlayer.mMediaPlayer != null) &&
 			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)) {
-			MainUi.selectFolder(MainAct.mFocus_folderPos);
+			FolderUi.selectFolder(MainAct.mFocus_folderPos);
 		}
     }
 
@@ -710,7 +713,7 @@ public class TabsHost extends Fragment
 	/**
 	 * update tab change 
 	 */
-	static void updateTabChange(Activity act)
+	public static void updateTabChange(Activity act)
 	{
 //		System.out.println("TabsHost / _updateChange ");
 		mTabsHost.clearAllTabs(); //must add this in order to clear onTanChange event

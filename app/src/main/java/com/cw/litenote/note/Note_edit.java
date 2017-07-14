@@ -1,9 +1,10 @@
 package com.cw.litenote.note;
 
 import com.cw.litenote.main.MainUi;
-import com.cw.litenote.main.Page;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.TouchImageView;
@@ -153,7 +154,7 @@ public class Note_edit extends Activity
                                 note_common.deleteNote(noteId);
                         		
                         		
-                        		if(MainUi.isSamePageTable())
+                        		if(PageUi.isSamePageTable())
                                 	AudioPlayer.prepareAudioInfo();
                         		
                         		// Stop Play/Pause if current edit item is played and is not at Stop state

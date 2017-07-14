@@ -2,7 +2,7 @@ package com.cw.litenote.note;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
-import com.cw.litenote.main.Page;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.util.UilCommon;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;

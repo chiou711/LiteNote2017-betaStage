@@ -2,9 +2,9 @@ package com.cw.litenote.note;
 
 import java.util.Date;
 
-import com.cw.litenote.main.Page;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
-import com.cw.litenote.main.TabsHost;
+import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.image.TouchImageView;
 import com.cw.litenote.util.image.UtilImage_bitmapLoader;

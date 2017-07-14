@@ -3,7 +3,7 @@ package com.cw.litenote.util.audio;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.cw.litenote.main.Page;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.Util;
 

@@ -1,4 +1,4 @@
-package com.cw.litenote.main;
+package com.cw.litenote.drawer;
 
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
@@ -7,18 +7,21 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 
 import com.cw.litenote.R;
+import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.main.MainAct;
+import com.cw.litenote.page.TabsHost;
 
 /**
  * Created by CW on 2016/8/24.
  */
-class Drawer {
+public class Drawer {
 
 
-    DrawerLayout drawerLayout;
+    public DrawerLayout drawerLayout;
     private FragmentActivity act;
-    ActionBarDrawerToggle drawerToggle;
+    public ActionBarDrawerToggle drawerToggle;
 
-    Drawer(FragmentActivity activity)
+    public Drawer(FragmentActivity activity)
     {
         drawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
         act = activity;
@@ -50,7 +53,7 @@ class Drawer {
 
                         // add for deleting folder condition
                         if(TabsHost.mTabsHost == null)
-                            MainUi.selectFolder(MainAct.mFocus_folderPos);
+                            FolderUi.selectFolder(MainAct.mFocus_folderPos);
                     }
 
 
@@ -58,20 +61,20 @@ class Drawer {
 
     }
 
-    void initDrawer()
+    public void initDrawer()
     {
         // set a custom shadow that overlays the main content when the drawer opens
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerLayout.setDrawerListener(drawerToggle);
     }
 
-    void closeDrawer()
+    public void closeDrawer()
     {
         drawerLayout.closeDrawer(MainAct.mFolder.listView);
     }
 
 
-    boolean isDrawerOpen()
+    public boolean isDrawerOpen()
     {
         return drawerLayout.isDrawerOpen(MainAct.mFolder.listView);
     }

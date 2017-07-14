@@ -1,4 +1,4 @@
-package com.cw.litenote.config;
+package com.cw.litenote.operation;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.main.TabsHost;
+import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.Util;

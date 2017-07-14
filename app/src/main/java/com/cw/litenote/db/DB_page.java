@@ -7,12 +7,12 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.main.TabsHost;
+import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.util.Util;
 
 import java.util.Date;
 
-import static com.cw.litenote.main.TabsHost.deletePage;
+import static com.cw.litenote.page.TabsHost.deletePage;
 import static com.cw.litenote.db.DB_folder.getFocusFolder_tableName;
 
 /**

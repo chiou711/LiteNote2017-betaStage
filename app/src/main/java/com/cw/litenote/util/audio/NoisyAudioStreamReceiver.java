@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 
-import com.cw.litenote.main.Page;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.note.Note;
 

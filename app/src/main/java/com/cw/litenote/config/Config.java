@@ -8,7 +8,7 @@ import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.R;
-import com.cw.litenote.main.TabsHost;
+import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;

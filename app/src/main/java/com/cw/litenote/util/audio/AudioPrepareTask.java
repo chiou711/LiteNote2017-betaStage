@@ -1,7 +1,5 @@
 package com.cw.litenote.util.audio;
 
-import com.cw.litenote.main.MainUi;
-import com.cw.litenote.main.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.note.Note;
 import com.cw.litenote.util.Util;

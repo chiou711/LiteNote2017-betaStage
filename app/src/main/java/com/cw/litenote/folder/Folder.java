@@ -1,6 +1,7 @@
-package com.cw.litenote.main;
+package com.cw.litenote.folder;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +15,8 @@ import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.main.MainAct;
+import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.preference.Define;
 import com.cw.litenote.util.ColorSet;
@@ -22,24 +25,26 @@ import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
 
+import static com.cw.litenote.folder.FolderUi.addFolderListeners;
+
 /**
  * Created by CW on 2016/8/23.
  */
 public class Folder
 {
     public DragSortListView listView;
-    Adapter adapter;
+    SimpleDragSortCursorAdapter adapter;
     DragSortController controller;
     FragmentActivity act;
 
-    Folder(FragmentActivity act)
+    public Folder(FragmentActivity act)
     {
         this.act = act;
         listView = (DragSortListView) act.findViewById(R.id.left_drawer);
     }
 
     // initialize folder list view
-    void initFolder()
+    public SimpleDragSortCursorAdapter initFolder()
     {
 
         // set Folder title
@@ -87,18 +92,18 @@ public class Folder
         listView.setAdapter(adapter);
 
         // set up click listener
-        MainUi.addFolderListeners();//??? move to resume?
-        listView.setOnItemClickListener(MainUi.folderClick);
+        addFolderListeners();//??? move to resume?
+        listView.setOnItemClickListener(FolderUi.folderClick);
         // set up long click listener
-        listView.setOnItemLongClickListener(MainUi.folderLongClick);
+        listView.setOnItemLongClickListener(FolderUi.folderLongClick);
 
         controller = buildController(listView);
         listView.setFloatViewManager(controller);
         listView.setOnTouchListener(controller);
 
         // init folder dragger
-        MainAct.mPref_show_note_attribute = act.getSharedPreferences("show_note_attribute", 0);
-        if(MainAct.mPref_show_note_attribute.getString("KEY_ENABLE_FOLDER_DRAGGABLE", "no")
+        SharedPreferences pref = act.getSharedPreferences("show_note_attribute", 0);
+        if(pref.getString("KEY_ENABLE_FOLDER_DRAGGABLE", "no")
                 .equalsIgnoreCase("yes"))
             listView.setDragEnabled(true);
         else
@@ -106,6 +111,8 @@ public class Folder
 
         listView.setDragListener(onDrag);
         listView.setDropListener(onDrop);
+
+        return adapter;
     }
 
     // list view listener: on drag
@@ -125,7 +132,7 @@ public class Folder
             int loop = Math.abs(startPosition-endPosition);
             for(int i=0;i< loop;i++)
             {
-                MainUi.swapFolderRows(startPosition,endPosition);
+                FolderUi.swapFolderRows(startPosition,endPosition);
                 if((startPosition-endPosition) >0)
                     endPosition++;
                 else
@@ -141,12 +148,12 @@ public class Folder
                     MainAct.mPlaying_folderPos = i;
             }
             adapter.notifyDataSetChanged();
-            MainUi.updateFocus_folderPosition();
+            FolderUi.updateFocus_folderPosition();
         }
     };
 
     // List all folder tables
-    static void listAllFolderTables(FragmentActivity act)
+    public static void listAllFolderTables(FragmentActivity act)
     {
         // list all folder tables
         int foldersCount = MainAct.mDb_drawer.getFoldersCount();
@@ -257,12 +264,12 @@ public class Folder
             DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
             viewHolder.drawerTitle.setText(db_drawer.getFolderTitle(position));
 
-              // dragger
-              if(MainAct.mPref_show_note_attribute.getString("KEY_ENABLE_FOLDER_DRAGGABLE", "no")
-                                                         .equalsIgnoreCase("yes"))
-                  viewHolder.imageDragger.setVisibility(View.VISIBLE);
-              else
-                  viewHolder.imageDragger.setVisibility(View.GONE);
+            // dragger
+            SharedPreferences pref = MainAct.mAct.getSharedPreferences("show_note_attribute", 0);;
+            if(pref.getString("KEY_ENABLE_FOLDER_DRAGGABLE", "no").equalsIgnoreCase("yes"))
+                viewHolder.imageDragger.setVisibility(View.VISIBLE);
+            else
+                viewHolder.imageDragger.setVisibility(View.GONE);
 
             return convertView;
         }
@@ -279,7 +286,7 @@ public class Folder
      *
      */
     // click
-    static class FolderListener_click implements AdapterView.OnItemClickListener
+    public static class FolderListener_click implements AdapterView.OnItemClickListener
     {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
@@ -290,18 +297,18 @@ public class Folder
             DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
             Util.setPref_lastTimeView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position) );
 
-            MainUi.selectFolder(position);
+            FolderUi.selectFolder(position);
             MainAct.setFolderTitle(MainAct.mFolderTitle);
         }
     }
 
     // long click
-    static class FolderListener_longClick implements DragSortListView.OnItemLongClickListener
+    public static class FolderListener_longClick implements DragSortListView.OnItemLongClickListener
     {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
         {
-            MainUi.editFolder(position);
+            FolderUi.editFolder(position);
             return true;
         }
     }

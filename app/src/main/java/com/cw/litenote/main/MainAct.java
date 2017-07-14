@@ -10,11 +10,17 @@ import com.cw.litenote.R;
 import com.cw.litenote.config.Config;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.drawer.Drawer;
+import com.cw.litenote.folder.Folder;
+import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.page.PageUi;
+import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.page.Page;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
-import com.cw.litenote.config.Export_toSDCardFragment;
-import com.cw.litenote.config.Import_fromSDCardFragment;
+import com.cw.litenote.operation.Export_toSDCardFragment;
+import com.cw.litenote.operation.Import_fromSDCardFragment;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.NoisyAudioStreamReceiver;
@@ -27,8 +33,9 @@ import com.cw.litenote.preference.Define;
 import com.cw.litenote.util.EULA_dlg;
 import com.cw.litenote.util.MailNotes;
 import com.cw.litenote.util.OnBackPressedListener;
-import com.cw.litenote.config.MailPagesFragment;
+import com.cw.litenote.operation.MailPagesFragment;
 import com.cw.litenote.util.Util;
+import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -60,8 +67,8 @@ import android.widget.Toast;
 
 public class MainAct extends FragmentActivity implements OnBackStackChangedListener
 {
-    static CharSequence mFolderTitle;
-    static CharSequence mAppTitle;
+    public static CharSequence mFolderTitle;
+    public static CharSequence mAppTitle;
     public Context mContext;
     public Config mConfigFragment;
 	public static boolean bEnableConfig;
@@ -69,7 +76,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public static DB_drawer mDb_drawer;
     public static DB_folder mDb_folder;
     public DB_page mDb_page;
-    static List<String> mFolderTitles;
+    public static List<String> mFolderTitles;
     public static int mFocus_folderPos;
 	static NoisyAudioStreamReceiver noisyAudioStreamReceiver;
 	static IntentFilter intentFilter;
@@ -79,8 +86,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	public static int mLastOkTabId = 1;
 	static SharedPreferences mPref_show_note_attribute;
 	OnBackPressedListener onBackPressedListener;
-    static Drawer mDrawer;
+    public static Drawer mDrawer;
 	public static Folder mFolder;
+    public static SimpleDragSortCursorAdapter folderAdapter;
 
 	// Main Act onCreate
     @Override
@@ -205,7 +213,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
             // new folder
             mFolder = new Folder(mAct);
-			mFolder.initFolder();
+            folderAdapter = mFolder.initFolder();
 
 	        // enable ActionBar app icon to behave as action to toggle nav drawer
 	        getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -388,9 +396,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
        outState.putInt("SeekBarProgress", Page.mProgress);
        outState.putInt("AudioPlayerState",AudioPlayer.getPlayState());
        outState.putBoolean("CalledWhilePlayingAudio", UtilAudio.mIsCalledWhilePlayingAudio);
-       if(MainUi.mHandler != null)
-    	   MainUi.mHandler.removeCallbacks(MainUi.mTabsHostRun);
-       MainUi.mHandler = null;
+       if(FolderUi.mHandler != null)
+    	   FolderUi.mHandler.removeCallbacks(FolderUi.mTabsHostRun);
+       FolderUi.mHandler = null;
     }
 
     // for After Rotate
@@ -439,7 +447,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		fragmentManager.popBackStack();
 
         System.out.println("MainAct / _onResumeFragments / mFocus_folderPos = " + mFocus_folderPos);
-    	MainUi.selectFolder(mFocus_folderPos);
+    	FolderUi.selectFolder(mFocus_folderPos);
     	setTitle(mFolderTitle);
     }
 
@@ -658,8 +666,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         switch (item.getItemId())
         {
 	    	case MenuId.ADD_NEW_FOLDER:
-	    		MainUi.renewFirstAndLast_folderId();
-	    		MainUi.addNewFolder(mAct, MainUi.mLastExist_folderTableId +1);
+	    		FolderUi.renewFirstAndLast_folderId();
+                FolderUi.addNewFolder(mAct, FolderUi.mLastExist_folderTableId +1);
 				return true;
 
 	    	case MenuId.ENABLE_FOLDER_DRAG_AND_DROP:
@@ -684,7 +692,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                                         getResources().getString(R.string.set_enable),
                                    Toast.LENGTH_SHORT).show();
             	}
-				mFolder.adapter.notifyDataSetChanged();
+                folderAdapter.notifyDataSetChanged();
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 
                 return true;
@@ -788,16 +796,16 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
             case MenuId.ADD_NEW_PAGE:
             	System.out.println("--- MainUi.Constant.ADD_NEW_PAGE / TabsHost.mLastExist_pageTableId = " + TabsHost.mLastExist_pageTableId);
-                MainUi.addNewPage(mAct, TabsHost.mLastExist_pageTableId + 1);
+                PageUi.addNewPage(mAct, TabsHost.mLastExist_pageTableId + 1);
 
                 return true;
 
             case MenuId.CHANGE_PAGE_COLOR:
-            	MainUi.changePageColor(mAct);
+            	PageUi.changePageColor(mAct);
                 return true;
 
             case MenuId.SHIFT_PAGE:
-            	MainUi.shiftPage(mAct);
+            	PageUi.shiftPage(mAct);
                 return true;
 
 			case MenuId.ENABLE_NOTE_DRAG_AND_DROP:
