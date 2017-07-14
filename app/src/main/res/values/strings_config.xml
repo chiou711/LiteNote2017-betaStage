@@ -8,6 +8,7 @@
     <string name="config_checkbox_warn_delete_page">A page of notes</string>
     <string name="config_checkbox_warn_delete_drawer">A folder of notes</string>
     <string name="config_checkbox_warn_delete_checked">The selected notes in current page</string>
+    <string name="config_set_youtube_launch_delay">Set YouTube launch delay:</string>
     <string name="config_set_slideshow_sw_time">Set slideshow switch time:</string>
     <string name="config_set_slideshow_dlg_title">Set switch time:</string>
     <string name="config_set_slideshow_dlg_message">Count in seconds:</string>

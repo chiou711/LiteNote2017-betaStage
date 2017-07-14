@@ -8,6 +8,7 @@
     <string name="config_checkbox_warn_delete_page">整頁記事</string>
     <string name="config_checkbox_warn_delete_drawer">整個文件夾記事</string>
     <string name="config_checkbox_warn_delete_checked">目前頁面所勾選的記事</string>
+    <string name="config_set_youtube_launch_delay">設置YouTube啟動延遲:</string>
     <string name="config_set_slideshow_sw_time">設置幻燈片切換時間:</string>
     <string name="config_set_slideshow_dlg_title">設置切換時間</string>
     <string name="config_set_slideshow_dlg_message">以秒為單位:</string>

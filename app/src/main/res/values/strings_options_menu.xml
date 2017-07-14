@@ -21,10 +21,8 @@
     <string name="add_new_drawer">Add new folder</string>
     <string name="gallery">Gallery</string>
     <string name="gallery_toast_no_file">No file yet, please create one first</string>
-    <string name="preview_note_body_yes">With body preview</string>
-    <string name="preview_note_body_no">No body preview</string>
-    <string name="draggable_yes">Note is draggable</string>
-    <string name="draggable_no">Note is not draggable</string>
-    <string name="folder_draggable_yes">Folder is draggable</string>
-    <string name="folder_draggable_no">Folder is not draggable</string>
+    <string name="drag_note">Drag note</string>
+    <string name="preview_note_body">Preview body</string>
+    <string name="click_launch_youtube">Click to launch YouTube</string>
+    <string name="drag_folder">Drag folder</string>
 </resources>

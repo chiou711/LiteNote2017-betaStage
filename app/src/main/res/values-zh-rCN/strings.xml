@@ -43,4 +43,6 @@
     <string name="note_operation">笔记操作 ></string>
     <string name="backup_operation">备份操作 ></string>
     <string name="settings_operation">设置 ></string>
+    <string name="set_enable">启用</string>
+    <string name="set_disable">停用</string>
 </resources>

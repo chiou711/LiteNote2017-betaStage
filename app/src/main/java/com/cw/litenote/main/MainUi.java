@@ -1307,7 +1307,8 @@ class MenuId {
     static final int ADD_NEW_PAGE = R.id.ADD_NEW_PAGE;
     static final int CHANGE_PAGE_COLOR = R.id.CHANGE_PAGE_COLOR;
     static final int SHIFT_PAGE = R.id.SHIFT_PAGE;
-    static final int SHOW_BODY = R.id.SHOW_BODY;
+	static final int SHOW_BODY = R.id.SHOW_BODY;
+	static final int CLICK_LAUNCH_YOUTUBE = R.id.CLICK_LAUNCH_YOUTUBE;
     static final int ENABLE_NOTE_DRAG_AND_DROP = R.id.ENABLE_NOTE_DRAG_AND_DROP;
     static final int SEND_PAGES = R.id.SEND_PAGES;
     static final int EXPORT_TO_SD_CARD = R.id.EXPORT_TO_SD_CARD;

@@ -43,4 +43,6 @@
     <string name="note_operation">Note operation ></string>
     <string name="backup_operation">Backup operation ></string>
     <string name="settings_operation">Settings ></string>
+    <string name="set_enable">Enable</string>
+    <string name="set_disable">Disable</string>
 </resources>

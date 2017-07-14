@@ -37,6 +37,6 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginRight="0dp"
-        android:src="@drawable/ic_dragger_off"
+        android:src="@drawable/ic_dragger_on"
         android:contentDescription="@string/drag_handler"/>
 </LinearLayout>

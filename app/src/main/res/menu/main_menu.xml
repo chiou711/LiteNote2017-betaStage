@@ -151,14 +151,20 @@
                 android:id="@+id/ENABLE_NOTE_DRAG_AND_DROP"
                 android:orderInCategory="1"
                 android:showAsAction="never"
-                android:title="@string/draggable_no"
-                android:icon="@drawable/ic_dragger_off"/>
+                android:title="@string/drag_note"
+                android:icon="@drawable/btn_check_off_holo_light"/>
             <item
                 android:id="@+id/SHOW_BODY"
                 android:orderInCategory="2"
                 android:showAsAction="never"
-                android:title="@string/preview_note_body_no"
-                android:icon="@drawable/ic_menu_collapse"/>
+                android:title="@string/preview_note_body"
+                android:icon="@drawable/btn_check_off_holo_light"/>
+            <item
+                android:id="@+id/CLICK_LAUNCH_YOUTUBE"
+                android:orderInCategory="3"
+                android:showAsAction="never"
+                android:title="@string/click_launch_youtube"
+                android:icon="@drawable/btn_check_off_holo_light"/>
         </menu>
         </item>
 
@@ -227,7 +233,7 @@
             android:id="@+id/ENABLE_FOLDER_DRAG_AND_DROP"
             android:orderInCategory="1"
             android:showAsAction="never"
-            android:title="@string/draggable_yes"
+            android:title="@string/drag_folder"
             android:icon="@drawable/ic_dragger_on"/>
     </menu>
     </item>

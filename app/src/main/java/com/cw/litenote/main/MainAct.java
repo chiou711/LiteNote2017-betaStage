@@ -559,42 +559,54 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 		playOrStopMusicButton = menu.findItem(R.id.PLAY_OR_STOP_MUSIC);
 
-	    // show body
+		// enable drag note
+		mPref_show_note_attribute = getSharedPreferences("show_note_attribute", 0);
+		if(mPref_show_note_attribute.getString("KEY_ENABLE_DRAGGABLE", "no").equalsIgnoreCase("yes"))
+			menu.findItem(R.id.ENABLE_NOTE_DRAG_AND_DROP)
+					.setIcon(R.drawable.btn_check_on_holo_light)
+					.setTitle(R.string.drag_note) ;
+		else
+			menu.findItem(R.id.ENABLE_NOTE_DRAG_AND_DROP)
+					.setIcon(R.drawable.btn_check_off_holo_light)
+					.setTitle(R.string.drag_note) ;
+
+	    // enable show body
 	    mPref_show_note_attribute = getSharedPreferences("show_note_attribute", 0);
     	if(mPref_show_note_attribute.getString("KEY_SHOW_BODY", "yes").equalsIgnoreCase("yes"))
 			menu.findItem(R.id.SHOW_BODY)
-     	   		.setIcon(R.drawable.ic_menu_collapse)
-				.setTitle(R.string.preview_note_body_no) ;
+					.setIcon(R.drawable.btn_check_on_holo_light)
+					.setTitle(R.string.preview_note_body) ;
     	else
 			menu.findItem(R.id.SHOW_BODY)
-				.setIcon(R.drawable.ic_menu_expand)
-				.setTitle(R.string.preview_note_body_yes) ;
+				.setIcon(R.drawable.btn_check_off_holo_light)
+				.setTitle(R.string.preview_note_body) ;
 
-    	// show draggable
-	    mPref_show_note_attribute = getSharedPreferences("show_note_attribute", 0);
-    	if(mPref_show_note_attribute.getString("KEY_ENABLE_DRAGGABLE", "no").equalsIgnoreCase("yes"))
-			menu.findItem(R.id.ENABLE_NOTE_DRAG_AND_DROP)
-				.setIcon(R.drawable.ic_dragger_off)
-				.setTitle(R.string.draggable_no) ;
+
+		// enable click launch YouTube
+		mPref_show_note_attribute = getSharedPreferences("show_note_attribute", 0);
+		if(mPref_show_note_attribute.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes"))
+			menu.findItem(R.id.CLICK_LAUNCH_YOUTUBE)
+					.setIcon(R.drawable.btn_check_on_holo_light)
+					.setTitle(R.string.click_launch_youtube);
 		else
-			menu.findItem(R.id.ENABLE_NOTE_DRAG_AND_DROP)
-				.setIcon(R.drawable.ic_dragger_on)
-				.setTitle(R.string.draggable_yes) ;
+			menu.findItem(R.id.CLICK_LAUNCH_YOUTUBE)
+					.setIcon(R.drawable.btn_check_off_holo_light)
+					.setTitle(R.string.click_launch_youtube) ;
 
 		//
 	    // Group 1 sub_menu for drawer operation
 		//
 
-	    // add sub_menu item: add drawer dragger setting
+	    // add sub_menu item: add folder drag setting
     	if(mPref_show_note_attribute.getString("KEY_ENABLE_FOLDER_DRAGGABLE", "no")
     								.equalsIgnoreCase("yes"))
 			menu.findItem(R.id.ENABLE_FOLDER_DRAG_AND_DROP)
-				.setIcon(R.drawable.ic_dragger_off)
-				.setTitle(R.string.folder_draggable_no) ;
+				.setIcon(R.drawable.btn_check_on_holo_light)
+				.setTitle(R.string.drag_folder) ;
     	else
 			menu.findItem(R.id.ENABLE_FOLDER_DRAG_AND_DROP)
-				.setIcon(R.drawable.ic_dragger_on)
-				.setTitle(R.string.folder_draggable_yes) ;
+				.setIcon(R.drawable.btn_check_off_holo_light)
+				.setTitle(R.string.drag_folder) ;
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -657,12 +669,20 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             		mPref_show_note_attribute.edit().putString("KEY_ENABLE_FOLDER_DRAGGABLE","no")
             								 .apply();
 					mFolder.listView.setDragEnabled(false);
+                    Toast.makeText(mAct,getResources().getString(R.string.drag_folder)+
+                                        ": " +
+                                        getResources().getString(R.string.set_disable),
+                                   Toast.LENGTH_SHORT).show();
             	}
             	else
             	{
             		mPref_show_note_attribute.edit().putString("KEY_ENABLE_FOLDER_DRAGGABLE","yes")
             								 .apply();
 					mFolder.listView.setDragEnabled(true);
+                    Toast.makeText(mAct,getResources().getString(R.string.drag_folder) +
+                                        ": " +
+                                        getResources().getString(R.string.set_enable),
+                                   Toast.LENGTH_SHORT).show();
             	}
 				mFolder.adapter.notifyDataSetChanged();
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
@@ -780,23 +800,62 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             	MainUi.shiftPage(mAct);
                 return true;
 
-            case MenuId.SHOW_BODY:
+			case MenuId.ENABLE_NOTE_DRAG_AND_DROP:
+				mPref_show_note_attribute = mContext.getSharedPreferences("show_note_attribute", 0);
+				if(mPref_show_note_attribute.getString("KEY_ENABLE_DRAGGABLE", "no").equalsIgnoreCase("yes")) {
+                    mPref_show_note_attribute.edit().putString("KEY_ENABLE_DRAGGABLE", "no").apply();
+                    Toast.makeText(mAct,getResources().getString(R.string.drag_note)+
+                                        ": " +
+                                        getResources().getString(R.string.set_disable),
+                                   Toast.LENGTH_SHORT).show();
+                }
+				else {
+                    mPref_show_note_attribute.edit().putString("KEY_ENABLE_DRAGGABLE", "yes").apply();
+                    Toast.makeText(mAct,getResources().getString(R.string.drag_note) +
+                                        ": " +
+                                        getResources().getString(R.string.set_enable),
+                                   Toast.LENGTH_SHORT).show();
+                }
+				TabsHost.updateTabChange(this);
+				return true;
+
+			case MenuId.SHOW_BODY:
             	mPref_show_note_attribute = mContext.getSharedPreferences("show_note_attribute", 0);
-            	if(mPref_show_note_attribute.getString("KEY_SHOW_BODY", "yes").equalsIgnoreCase("yes"))
-            		mPref_show_note_attribute.edit().putString("KEY_SHOW_BODY","no").apply();
-            	else
-            		mPref_show_note_attribute.edit().putString("KEY_SHOW_BODY","yes").apply();
+            	if(mPref_show_note_attribute.getString("KEY_SHOW_BODY", "yes").equalsIgnoreCase("yes")) {
+                    mPref_show_note_attribute.edit().putString("KEY_SHOW_BODY", "no").apply();
+                    Toast.makeText(mAct,getResources().getString(R.string.preview_note_body) +
+										": " +
+										getResources().getString(R.string.set_disable),
+									Toast.LENGTH_SHORT).show();
+                }
+            	else {
+                    mPref_show_note_attribute.edit().putString("KEY_SHOW_BODY", "yes").apply();
+                    Toast.makeText(mAct,getResources().getString(R.string.preview_note_body) +
+										": " +
+										getResources().getString(R.string.set_enable),
+								   Toast.LENGTH_SHORT).show();
+                }
             	TabsHost.updateTabChange(this);
                 return true;
 
-            case MenuId.ENABLE_NOTE_DRAG_AND_DROP:
-            	mPref_show_note_attribute = mContext.getSharedPreferences("show_note_attribute", 0);
-            	if(mPref_show_note_attribute.getString("KEY_ENABLE_DRAGGABLE", "no").equalsIgnoreCase("yes"))
-            		mPref_show_note_attribute.edit().putString("KEY_ENABLE_DRAGGABLE","no").apply();
-            	else
-            		mPref_show_note_attribute.edit().putString("KEY_ENABLE_DRAGGABLE","yes").apply();
-            	TabsHost.updateTabChange(this);
-                return true;
+			case MenuId.CLICK_LAUNCH_YOUTUBE:
+				mPref_show_note_attribute = mContext.getSharedPreferences("show_note_attribute", 0);
+				if(mPref_show_note_attribute.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes")) {
+					mPref_show_note_attribute.edit().putString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").apply();
+					Toast.makeText(mAct,getResources().getString(R.string.click_launch_youtube) +
+                                        ": " +
+                                        getResources().getString(R.string.set_disable),
+                                   Toast.LENGTH_SHORT).show();
+				}
+				else {
+					mPref_show_note_attribute.edit().putString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "yes").apply();
+					Toast.makeText(mAct,getResources().getString(R.string.click_launch_youtube) +
+                                        ": " +
+                                        getResources().getString(R.string.set_enable),
+                                   Toast.LENGTH_SHORT).show();
+				}
+				invalidateOptionsMenu();
+				return true;
 
 			case MenuId.EXPORT_TO_SD_CARD:
 				mMenu.setGroupVisible(R.id.group0, false); //hide the menu
@@ -960,7 +1019,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		// YouTube
 		if(requestCode == Util.YOUTUBE_LINK_INTENT)
 		{
-            count = 10;
+			// preference of delay
+			SharedPreferences pref_delay = getSharedPreferences("youtube_launch_delay", 0);
+			count = Integer.valueOf(pref_delay.getString("KEY_YOUTUBE_LAUNCH_DELAY","10"));
+
 			builder = new AlertDialog.Builder(this);
 
 			Page.currPlayPosition++;
@@ -1056,7 +1118,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     };
 
     /**
-     *  launch YouTube intent
+     *  launch next YouTube intent
      */
     void launchNextYouTubeIntent()
     {

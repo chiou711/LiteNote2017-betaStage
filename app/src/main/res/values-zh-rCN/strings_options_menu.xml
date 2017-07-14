@@ -21,10 +21,8 @@
     <string name="add_new_drawer">新增文件夹</string>
     <string name="gallery">图库</string>
     <string name="gallery_toast_no_file">还没有文件，请您先建立一个</string>
-    <string name="preview_note_body_yes">有本文预览</string>
-    <string name="preview_note_body_no">无本文预览</string>
-    <string name="draggable_yes">笔记可拖放</string>
-    <string name="draggable_no">笔记不可拖放</string>
-    <string name="folder_draggable_yes">文件夹可拖放</string>
-    <string name="folder_draggable_no">文件夹不可拖放</string>
+    <string name="drag_note">拖放笔记</string>
+    <string name="preview_note_body">预览本文</string>
+    <string name="click_launch_youtube">点击启动YouTube</string>
+    <string name="drag_folder">拖放文件夹</string>
 </resources>

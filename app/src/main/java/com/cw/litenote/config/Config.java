@@ -65,8 +65,8 @@ public class Config extends Fragment
 		//Set Take Picture Option
 		setTakeImageOption();
 
-		//Select launch YouTube option
-		selectLaunchYouTubeOption();
+		//Set YouTube launch delay
+		setYouTubeLaunchDelay();
 
 		//Set deleting warning 
 		setDeleteWarn();
@@ -164,77 +164,6 @@ public class Config extends Fragment
 	}
 
 	/**
-	 *  set launch YouTube option
-	 *
-	 */
-	SharedPreferences pref_open_youtube;
-	TextView textViewLaunchYouTube;
-	void selectLaunchYouTubeOption()
-	{
-		//  set current
-		pref_open_youtube = getActivity().getSharedPreferences("show_note_attribute", 0);
-		View viewOption = mRootView.findViewById(R.id.SelectLaunchYouTubeOption);
-		textViewLaunchYouTube = (TextView)mRootView.findViewById(R.id.SelectLaunchYouTubeSetting);
-
-		if(pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","no").equalsIgnoreCase("yes"))
-			textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_yes).toString());
-		else
-			textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_no).toString());
-
-		// Select
-		viewOption.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-
-				selectLaunchYouTubeOptionDialog();
-			}
-		});
-	}
-
-	void selectLaunchYouTubeOptionDialog()
-	{
-		final String[] items = new String[]{
-				getResources().getText(R.string.confirm_dialog_button_yes).toString(),
-				getResources().getText(R.string.confirm_dialog_button_no).toString()   };
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-		String strLaunchYouTube = pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","no");
-
-		// add current selection
-		for(int i=0;i< items.length;i++)
-		{
-			if(strLaunchYouTube.equalsIgnoreCase("yes"))
-				items[0] = getResources().getText(R.string.confirm_dialog_button_yes).toString() + " *";
-			else if(strLaunchYouTube.equalsIgnoreCase("no"))
-				items[1] = getResources().getText(R.string.confirm_dialog_button_no).toString() + " *";
-		}
-
-		DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if(which == 0)
-				{
-					pref_open_youtube.edit().putString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","yes").apply();
-					textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_yes).toString());
-				}
-				else if(which == 1)
-				{
-					pref_open_youtube.edit().putString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE","no").apply();
-					textViewLaunchYouTube.setText(getResources().getText(R.string.confirm_dialog_button_no).toString());
-				}
-
-				//end
-				dialog.dismiss();
-			}
-		};
-		builder.setTitle(R.string.config_launch_youtube_when_has_youtube_link)
-				.setSingleChoiceItems(items, -1, listener)
-				.setNegativeButton(R.string.btn_Cancel, null)
-				.show();
-	}
-
-	/**
 	 *  select style
 	 *  
 	 */
@@ -325,6 +254,29 @@ public class Config extends Fragment
 			dialog.dismiss();
 		}
    };
+
+	/**
+	 *  set YouTube launch delay
+	 *
+	 */
+	void setYouTubeLaunchDelay()
+	{
+		//  set current
+		SharedPreferences pref_sw_time = getActivity().getSharedPreferences("youtube_launch_delay", 0);
+		View swTimeView = mRootView.findViewById(R.id.youtube_launch_delay);
+		TextView slideshow_text_view = (TextView)mRootView.findViewById(R.id.youtube_launch_delay_setting);
+		String strSwTime = pref_sw_time.getString("KEY_YOUTUBE_LAUNCH_DELAY","10");
+		slideshow_text_view.setText(strSwTime +"s");
+
+		// switch time picker
+		swTimeView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				youtubeLaunchDelayPickerDialog();
+			}
+		});
+	}
+
 	
 	/**
 	 *  set deleting warning 
@@ -389,6 +341,52 @@ public class Config extends Fragment
 			}
 		});
 	}
+
+
+	/**
+	 * Dialog for setting youtube launch delay
+	 */
+	void youtubeLaunchDelayPickerDialog()
+	{
+		final AlertDialog.Builder d = new AlertDialog.Builder(getActivity());
+		LayoutInflater inflater = getActivity().getLayoutInflater();
+		View dialogView = inflater.inflate(R.layout.config_slideshow_sw_time_picker, null);
+		d.setTitle(R.string.config_set_slideshow_dlg_title);
+		d.setMessage(R.string.config_set_slideshow_dlg_message);
+		d.setView(dialogView);
+
+		final SharedPreferences pref_sw_time = getActivity().getSharedPreferences("youtube_launch_delay", 0);
+		final String strSwitchTime = pref_sw_time.getString("KEY_YOUTUBE_LAUNCH_DELAY","10");
+
+		final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.dialog_number_picker);
+		numberPicker.setMaxValue(20);
+		numberPicker.setMinValue(1);
+		numberPicker.setValue(Integer.valueOf(strSwitchTime));
+		numberPicker.setWrapSelectorWheel(true);
+		numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+			@Override
+			public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+			}
+		});
+		d.setPositiveButton(R.string.btn_OK, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i) {
+				int len = numberPicker.getValue();
+				pref_sw_time.edit().putString("KEY_YOUTUBE_LAUNCH_DELAY",String.valueOf(len)).apply();
+				TextView slideshow_text_view = (TextView)mRootView.findViewById(R.id.youtube_launch_delay_setting);
+				slideshow_text_view.setText(len + "s");
+			}
+		});
+		d.setNegativeButton(R.string.btn_Cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i) {
+			}
+		});
+		AlertDialog alertDialog = d.create();
+		alertDialog.show();
+	}
+
+
 
 	/**
 	 * Dialog for setting slideshow switch time

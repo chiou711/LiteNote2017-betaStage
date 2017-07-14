@@ -90,9 +90,9 @@
 	</LinearLayout>
 	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
 
-	<!-- select launch YouTube option-->
+	<!-- set YouTube launch delay -->
 	<LinearLayout
-		android:id="@+id/SelectLaunchYouTubeOption"
+		android:id="@+id/youtube_launch_delay"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingLeft="5dp"
@@ -102,20 +102,21 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginRight="0dp"
-			android:src="@android:drawable/ic_media_play"/>
+			android:src="@drawable/btn_check_off_holo_light"
+			android:contentDescription="style"/>
 		<TextView
-			android:id="@+id/SelectLaunchYouTubeOptionTitle"
+			android:id="@+id/youtube_launch_delay_title"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:minHeight="50dp"
-			android:layout_weight="2"
 			android:gravity="center_vertical"
-			android:text="@string/config_launch_youtube_when_has_youtube_link"
+			android:layout_weight="2"
+			android:text="@string/config_set_youtube_launch_delay"
 			android:textStyle="normal"
 			android:paddingLeft="5dp"
 			android:textSize="18sp"/>
 		<TextView
-			android:id="@+id/SelectLaunchYouTubeSetting"
+			android:id="@+id/youtube_launch_delay_setting"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:minHeight="50dp"
@@ -123,6 +124,7 @@
 			android:layout_weight="1"
 			android:textStyle="normal"
 			android:textSize="18sp"
+			android:text="5sec"
 			android:padding="5dp" />
 	</LinearLayout>
 	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
