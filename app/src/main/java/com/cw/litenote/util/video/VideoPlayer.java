@@ -3,7 +3,7 @@ package com.cw.litenote.util.video;
 import java.io.IOException;
 
 import com.cw.litenote.note.Note;
-import com.cw.litenote.note.Note_UI;
+import com.cw.litenote.note.NoteUi;
 import com.cw.litenote.util.Util;
 
 import android.app.Activity;
@@ -121,7 +121,7 @@ public class VideoPlayer
 			{	
 				try 
 				{
-					if(Util.isEmptyString(path) || (Note_UI.videoFileLength_inMilliSeconds ==0))
+					if(Util.isEmptyString(path) || (NoteUi.videoFileLength_inMilliSeconds ==0))
 						Toast.makeText(mAct, "Video file URL/path is empty or video file is not playable",Toast.LENGTH_LONG).show();
 					else 
 					{
@@ -142,11 +142,11 @@ public class VideoPlayer
 						//
 						if(!UtilVideo.hasMediaControlWidget)
 						{
-							if( Note_UI.showSeekBarProgress )
-								Note_UI.primaryVideoSeekBarProgressUpdater(pager,Note.mCurrentPosition,UtilVideo.mPlayVideoPosition,mCurrentPicStr);
+							if( NoteUi.showSeekBarProgress )
+								NoteUi.primaryVideoSeekBarProgressUpdater(pager,Note.mCurrentPosition,UtilVideo.mPlayVideoPosition,mCurrentPicStr);
 
 							// final play
-							int diff = Math.abs(UtilVideo.mPlayVideoPosition - Note_UI.videoFileLength_inMilliSeconds);
+							int diff = Math.abs(UtilVideo.mPlayVideoPosition - NoteUi.videoFileLength_inMilliSeconds);
 							if( diff  <= 1000)
 							{	
 								System.out.println("VideoPlayer / mRunPlayVideo/ final play");
@@ -216,7 +216,7 @@ public class VideoPlayer
 				UtilVideo.mVideoView.requestFocus();
 
 				if(!UtilVideo.hasMediaControlWidget)
-					Note_UI.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+					NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
 			}
 			// from Pause to Play
 			else if((UtilVideo.mPlayVideoPosition > 0) &&
@@ -228,7 +228,7 @@ public class VideoPlayer
 				UtilVideo.mVideoView.requestFocus();
 
 				if(!UtilVideo.hasMediaControlWidget)
-					Note_UI.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+					NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
 			}
 		}
 		
@@ -255,7 +255,7 @@ public class VideoPlayer
 				UtilVideo.mVideoView.pause();
 				UtilVideo.mVideoView.requestFocus();
 				if(!UtilVideo.hasMediaControlWidget)
-					Note_UI.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+					NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
 			}
 			// keep pausing
 			else if(!UtilVideo.mVideoView.isPlaying())

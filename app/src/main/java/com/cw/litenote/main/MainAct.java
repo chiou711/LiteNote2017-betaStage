@@ -31,7 +31,7 @@ import com.cw.litenote.util.image.SlideshowPlayer;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.preference.Define;
 import com.cw.litenote.util.EULA_dlg;
-import com.cw.litenote.util.MailNotes;
+import com.cw.litenote.operation.MailNotes;
 import com.cw.litenote.util.OnBackPressedListener;
 import com.cw.litenote.operation.MailPagesFragment;
 import com.cw.litenote.util.Util;

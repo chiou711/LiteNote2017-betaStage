@@ -19,7 +19,7 @@ import com.cw.litenote.util.video.AsyncTaskVideoBitmapPager;
 import com.cw.litenote.util.video.UtilVideo;
 import com.cw.litenote.util.video.VideoPlayer;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.util.MailNotes;
+import com.cw.litenote.operation.MailNotes;
 import com.cw.litenote.util.UilCommon;
 import com.cw.litenote.util.Util;
 
@@ -146,7 +146,7 @@ public class Note extends FragmentActivity
 
 		// Instantiate a ViewPager and a PagerAdapter.
 		mPager = (ViewPager) findViewById(R.id.pager);
-		mPagerAdapter = new Note_adapter(mPager,this);
+		mPagerAdapter = new NoteAdapter(mPager,this);
 		mPager.setAdapter(mPagerAdapter);
 		mPager.setCurrentItem(mCurrentPosition);
 
@@ -301,7 +301,7 @@ public class Note extends FragmentActivity
 			String pictureUriInDB = mDb_page.getNotePictureUri_byId(mNoteId);
 			if(UtilVideo.hasVideoExtension(pictureUriInDB,act)) {
 				VideoPlayer.stopVideo();
-				Note_UI.cancel_UI_callbacks();
+				NoteUi.cancel_UI_callbacks();
 			}
 
             setOutline(act);
@@ -415,13 +415,13 @@ public class Note extends FragmentActivity
 	    System.out.println("Note / _onConfigurationChanged");
 
 		// dismiss popup menu we
-		if(Note_UI.popup != null)
+		if(NoteUi.popup != null)
 		{
-			Note_UI.popup.dismiss();
-			Note_UI.popup = null;
+			NoteUi.popup.dismiss();
+			NoteUi.popup = null;
 		}
 
-		Note_UI.cancel_UI_callbacks();
+		NoteUi.cancel_UI_callbacks();
 
         setLayoutView();
 
@@ -489,7 +489,7 @@ public class Note extends FragmentActivity
     	CustomWebView.pauseWebView(linkWebView);
     	CustomWebView.blankWebView(linkWebView);
 
-		Note_UI.cancel_UI_callbacks();
+		NoteUi.cancel_UI_callbacks();
 	}
 	
 	@Override
@@ -744,8 +744,8 @@ public class Note extends FragmentActivity
                 picView_back_button.performClick();
             }
 
-			if(Note_adapter.mIntentView != null)
-				Note_adapter.mIntentView = null;
+			if(NoteAdapter.mIntentView != null)
+				NoteAdapter.mIntentView = null;
 		}
 	};
     
@@ -1009,11 +1009,11 @@ public class Note extends FragmentActivity
 	   					VideoPlayer.cancelMediaController();
 	   			}
 	   		}
-   			Note_adapter.mLastPosition = -1;
+   			NoteAdapter.mLastPosition = -1;
    		}
 
     	if(mPagerAdapter != null)
-    		mPagerAdapter.notifyDataSetChanged(); // will call Note_adapter / _setPrimaryItem
+    		mPagerAdapter.notifyDataSetChanged(); // will call NoteAdapter / _setPrimaryItem
     }
     
     public static int mPositionOfChangeView;
@@ -1059,7 +1059,7 @@ public class Note extends FragmentActivity
 										.equalsIgnoreCase("TEXT_ONLY");
     }
 
-	static Note_UI picUI_touch;
+	static NoteUi picUI_touch;
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         int maskedAction = event.getActionMasked();
@@ -1069,7 +1069,7 @@ public class Note extends FragmentActivity
     			 System.out.println("Note / _dispatchTouchEvent / MotionEvent.ACTION_UP / mPager.getCurrentItem() =" + mPager.getCurrentItem());
 				 //1st touch to turn on UI
 				 if(picUI_touch == null) {
-				 	picUI_touch = new Note_UI(act,mPager, mPager.getCurrentItem());
+				 	picUI_touch = new NoteUi(act,mPager, mPager.getCurrentItem());
 				 	picUI_touch.tempShow_picViewUI(5000,getCurrentPictureString());
 				 }
 				 //2nd touch to turn off UI
@@ -1077,7 +1077,7 @@ public class Note extends FragmentActivity
 					 setTransientPicViewUI();
 
 				 //1st touch to turn off UI (primary)
-				 if(Note_adapter.picUI_primary != null)
+				 if(NoteAdapter.picUI_primary != null)
 					 setTransientPicViewUI();
     	  	  	 break;
 
@@ -1097,8 +1097,8 @@ public class Note extends FragmentActivity
 	 */
     void setTransientPicViewUI()
     {
-        Note_UI.cancel_UI_callbacks();
-        picUI_touch = new Note_UI(act,mPager, mPager.getCurrentItem());
+        NoteUi.cancel_UI_callbacks();
+        picUI_touch = new NoteUi(act,mPager, mPager.getCurrentItem());
 
         // for video
         String pictureUriInDB = mDb_page.getNotePictureUri_byId(mNoteId);
@@ -1106,7 +1106,7 @@ public class Note extends FragmentActivity
                 (UtilVideo.mVideoView != null) &&
                 (UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_STOP) )
         {
-            if (!Note_UI.showSeekBarProgress)
+            if (!NoteUi.showSeekBarProgress)
                 picUI_touch.tempShow_picViewUI(110, getCurrentPictureString());
             else
                 picUI_touch.tempShow_picViewUI(1110, getCurrentPictureString());

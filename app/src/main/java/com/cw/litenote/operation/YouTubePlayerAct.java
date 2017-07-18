@@ -1,4 +1,4 @@
-package com.cw.litenote.note;
+package com.cw.litenote.operation;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.note.Note;
 import com.cw.litenote.util.Util;
 import com.google.android.youtube.player.YouTubePlayerView;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -33,7 +34,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
 
         // initialize YouTubeView
         YouTubePlayerView youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
-        youTubeView.initialize(DeveloperKey.DEVELOPER_KEY, this);
+        youTubeView.initialize(YouTubeDeveloperKey.DEVELOPER_KEY, this);
 
         btn_group = findViewById(R.id.youtube_control);
         // image: previous button

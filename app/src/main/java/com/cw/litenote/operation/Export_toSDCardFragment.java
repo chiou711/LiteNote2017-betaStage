@@ -24,7 +24,6 @@ import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.R;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.util.SelectPageList;
 import com.cw.litenote.util.Util;
 
 public class Export_toSDCardFragment extends Fragment {
@@ -32,7 +31,7 @@ public class Export_toSDCardFragment extends Fragment {
 	CheckedTextView mCheckTvSelAll;
     ListView mListView;
     int mStyle;
-	SelectPageList mSelectPageList;
+	MailPagesFragment.SelectPageList mSelectPageList;
 	public static View mSelPageDlg,mProgressBar;
 	public Export_toSDCardFragment(){}
 	public static View rootView;
@@ -94,7 +93,7 @@ public class Export_toSDCardFragment extends Fragment {
 		});
 
 		// step 1: show list for Select
-		mSelectPageList = new SelectPageList(getActivity(),rootView,mListView);
+		mSelectPageList = new MailPagesFragment.SelectPageList(getActivity(),rootView,mListView);
 
 		((MainAct)getActivity()).setOnBackPressedListener(new BaseBackPressedListener(getActivity()));
 

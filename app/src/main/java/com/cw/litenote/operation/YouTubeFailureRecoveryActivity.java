@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cw.litenote.note;
+package com.cw.litenote.operation;
 
 import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -47,7 +47,7 @@ public abstract class YouTubeFailureRecoveryActivity extends YouTubeBaseActivity
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == RECOVERY_DIALOG_REQUEST) {
       // Retry initialization if user performed a recovery action
-      getYouTubePlayerProvider().initialize(DeveloperKey.DEVELOPER_KEY, this);
+      getYouTubePlayerProvider().initialize(YouTubeDeveloperKey.DEVELOPER_KEY, this);
     }
   }
 

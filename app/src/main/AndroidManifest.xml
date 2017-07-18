@@ -69,7 +69,7 @@
              onPause/onSaveInstanceState/onStop/onDestroy/
                                                 onCreate/onStart/onRestoreInstanceState/onResume    -->
 
-        <activity android:name=".note.YouTubePlayerAct"
+        <activity android:name=".operation.YouTubePlayerAct"
                   android:configChanges="orientation|screenSize|keyboardHidden"/>
         <activity android:name=".operation.Import_selectedFileAct" />
         <activity android:name=".util.image.GalleryGridAct" />

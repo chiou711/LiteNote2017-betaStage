@@ -1,11 +1,11 @@
 // Copyright 2014 Google Inc. All Rights Reserved.
 
-package com.cw.litenote.note;
+package com.cw.litenote.operation;
 
 /**
  * Static container class for holding a reference to your YouTube Developer Key.
  */
-public class DeveloperKey {
+public class YouTubeDeveloperKey {
 
   /**
    * Please replace this with a valid API key which is enabled for the

@@ -8,7 +8,7 @@ import com.cw.litenote.R;
  * Created by CW on 2016/6/16.
  *
  * build apk file size:
- * 1) perfer w/ assets files: 15,483 KB
+ * 1) prefer w/ assets files: 15,483 KB
  *
  * 2) default w/ assets files: 15,483 KB
  *

@@ -1,4 +1,4 @@
-package com.cw.litenote.util;
+package com.cw.litenote.operation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cw.litenote.R;
+import com.cw.litenote.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;

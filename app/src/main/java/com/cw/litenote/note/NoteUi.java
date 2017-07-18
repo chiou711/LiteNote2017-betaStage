@@ -2,6 +2,7 @@ package com.cw.litenote.note;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.operation.YouTubePlayerAct;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.video.UtilVideo;
@@ -28,7 +29,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-public class Note_UI
+public class NoteUi
 {
     public static boolean showSeekBarProgress;
     public static int videoFileLength_inMilliSeconds;
@@ -37,10 +38,10 @@ public class Note_UI
     private ViewPager pager;
     private FragmentActivity act;
 
-    public Note_UI(FragmentActivity activity, ViewPager viewPager, int position)
+    public NoteUi(FragmentActivity activity, ViewPager viewPager, int position)
     {
 
-        System.out.println("Note_UI / constructor");
+        System.out.println("NoteUi / constructor");
         pager = viewPager;
         act = activity;
         mPosition = position;
@@ -104,7 +105,7 @@ public class Note_UI
             if(UtilVideo.hasVideoExtension(pictureUri, act))
             {
                 if(!UtilVideo.hasMediaControlWidget)
-                    Note_UI.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+                    NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
                 else
                     show_picViewUI_previous_next(false,0);
             }
@@ -118,13 +119,13 @@ public class Note_UI
                 if(UtilVideo.hasVideoExtension(pictureUri, act) &&
                    !UtilVideo.hasMediaControlWidget                 ) // for video
                 {
-                    System.out.println("Note_UI / constructor / for video");
+                    System.out.println("NoteUi / constructor / for video");
                     show_picViewUI_previous_next(true, position);
                 }
                 else if(UtilImage.hasImageExtension(pictureUri,act) &&
                         (UtilVideo.mVideoView == null)                  )// for image
                 {
-                    System.out.println("Note_UI / constructor / for image");
+                    System.out.println("NoteUi / constructor / for image");
                     show_picViewUI_previous_next(true,position);
                 }
             }
@@ -173,7 +174,7 @@ public class Note_UI
 	private void setPictureView_listeners(final FragmentActivity act,final ViewPager pager,
                                          final String strPicture, final String linkUri, ViewGroup viewGroup)
 	{
-        System.out.println("Note_UI / setPictureView_listeners");
+        System.out.println("NoteUi / setPictureView_listeners");
         Button picView_back_button = (Button) (viewGroup.findViewById(R.id.image_view_back));
         Button picView_viewMode_button = (Button) (viewGroup.findViewById(R.id.image_view_mode));
         Button picView_previous_button = (Button) (viewGroup.findViewById(R.id.image_view_previous));
@@ -188,7 +189,7 @@ public class Note_UI
         {
             mVideoPlayButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
-                    System.out.println("Note_UI / setPictureView_listeners / mVideoPlayButton / getVideoState() = " + UtilVideo.getVideoState());
+                    System.out.println("NoteUi / setPictureView_listeners / mVideoPlayButton / getVideoState() = " + UtilVideo.getVideoState());
 
                     if( (AudioPlayer.mMediaPlayer != null) &&
 						AudioPlayer.mMediaPlayer.isPlaying() &&
@@ -231,7 +232,7 @@ public class Note_UI
             mVideoPlayButton.setOnClickListener(new View.OnClickListener()
             {
                 public void onClick(View view) {
-                    System.out.println("Note_UI / _setPictureView_listeners / onClick to play YouTube / linkUri = " + linkUri);
+                    System.out.println("NoteUi / _setPictureView_listeners / onClick to play YouTube / linkUri = " + linkUri);
 
                     // apply native YouTube
 //                    Util.openLink_YouTube(act, linkUri);
@@ -356,8 +357,8 @@ public class Note_UI
 
                     // for transient popup
                     cancel_UI_callbacks();
-                    Note_adapter.picUI_primary = new Note_UI(act,pager, pager.getCurrentItem());
-                    Note_adapter.picUI_primary.tempShow_picViewUI(5005,strPicture);
+                    NoteAdapter.picUI_primary = new NoteUi(act,pager, pager.getCurrentItem());
+                    NoteAdapter.picUI_primary.tempShow_picViewUI(5005,strPicture);
 	            }
 	        });
 
@@ -396,7 +397,7 @@ public class Note_UI
 					@Override
 					public void onStartTrackingTouch(SeekBar seekBar)
                     {
-						System.out.println("Note_UI / _onStartTrackingTouch");
+						System.out.println("NoteUi / _onStartTrackingTouch");
 						if( (UtilVideo.mVideoPlayer == null)  && (UtilVideo.mVideoView != null))
 						{
 							if(Build.VERSION.SDK_INT >= 16)
@@ -414,7 +415,7 @@ public class Note_UI
 					@Override
 					public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 					{
-						System.out.println("Note_UI / _onProgressChanged");
+						System.out.println("NoteUi / _onProgressChanged");
 						if(fromUser)
 						{
 							// show progress change
@@ -436,7 +437,7 @@ public class Note_UI
 					@Override
 					public void onStopTrackingTouch(SeekBar seekBar)
 					{
-						System.out.println("Note_UI / _onStopTrackingTouch");
+						System.out.println("NoteUi / _onStopTrackingTouch");
 						if( UtilVideo.mVideoView != null  )
 						{
 							int mPlayVideoPosition = (int) (((float)(videoFileLength_inMilliSeconds / 100)) * seekBar.getProgress());
@@ -454,7 +455,7 @@ public class Note_UI
 
 	public void tempShow_picViewUI(long delayTime, String pictureStr)
 	{
-		System.out.println("Note_UI / _tempShow_picViewUI / delayTime = " + delayTime);
+		System.out.println("NoteUi / _tempShow_picViewUI / delayTime = " + delayTime);
         mPictureString = pictureStr;
         handler = new Handler();
         handler.postDelayed(runnableHideUi,delayTime);
@@ -466,12 +467,12 @@ public class Note_UI
     {
         public void run()
         {
-            System.out.println("Note_UI / _runnableHideUi ");
+            System.out.println("NoteUi / _runnableHideUi ");
             if(pager != null)
             {
                 int position =  pager.getCurrentItem();
                 String tagImageStr = "current"+ position +"pictureView";
-                System.out.println("Note_UI / _runnableHideUi / position = " + position);
+                System.out.println("NoteUi / _runnableHideUi / position = " + position);
                 ViewGroup imageGroup = (ViewGroup) pager.findViewWithTag(tagImageStr);
 
                 if(imageGroup != null)
@@ -491,7 +492,7 @@ public class Note_UI
         String tagStr = "current"+ pager.getCurrentItem() +"pictureView";
         ViewGroup pictureGroup = (ViewGroup) pager.findViewWithTag(tagStr);
 
-        System.out.println("Note_UI / _hide_picViewUI / tagStr = " + tagStr);
+        System.out.println("NoteUi / _hide_picViewUI / tagStr = " + tagStr);
 
         if((pictureGroup != null))
         {
@@ -554,17 +555,17 @@ public class Note_UI
             Note.picUI_touch = null;
         }
 
-        if(Note_adapter.picUI_primary != null) {
-            if(Note_adapter.picUI_primary.handler != null)
-                Note_adapter.picUI_primary.handler.removeCallbacks(Note_adapter.picUI_primary.runnableHideUi);
-            Note_adapter.picUI_primary = null;
+        if(NoteAdapter.picUI_primary != null) {
+            if(NoteAdapter.picUI_primary.handler != null)
+                NoteAdapter.picUI_primary.handler.removeCallbacks(NoteAdapter.picUI_primary.runnableHideUi);
+            NoteAdapter.picUI_primary = null;
         }
     }
 
     private void show_picViewUI_previous_next(boolean show, int position) {
         String tagStr = "current" + position + "pictureView";
         ViewGroup pictureGroup = (ViewGroup) pager.findViewWithTag(tagStr);
-//        System.out.println("Note_UI / _show_PicViewUI_previous_next / tagStr = " + tagStr);
+//        System.out.println("NoteUi / _show_PicViewUI_previous_next / tagStr = " + tagStr);
 
         Button picView_previous_button;
         Button picView_next_button;
@@ -596,7 +597,7 @@ public class Note_UI
     {
         String tagStr = "current"+ position +"pictureView";
         ViewGroup viewGroup = (ViewGroup) pager.findViewWithTag(tagStr);//??? how to remove static of mPager
-        System.out.println("Note_UI / _getPictureGroup / tagStr = " + tagStr);
+        System.out.println("NoteUi / _getPictureGroup / tagStr = " + tagStr);
         return  viewGroup;
     }
 
@@ -627,7 +628,7 @@ public class Note_UI
 
 	public static void primaryVideoSeekBarProgressUpdater(ViewPager pager,int curNotePos,int curVideoPos,String pictureUri)
    	{
-//        System.out.println("Note_UI / _primaryVideoSeekBarProgressUpdater / curNotePos = " + curNotePos);
+//        System.out.println("NoteUi / _primaryVideoSeekBarProgressUpdater / curNotePos = " + curNotePos);
 	   	if( (UtilVideo.mVideoView == null))
 	   		return;
 

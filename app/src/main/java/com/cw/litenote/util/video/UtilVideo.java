@@ -10,8 +10,8 @@ import java.util.Locale;
 
 import com.cw.litenote.R;
 import com.cw.litenote.note.Note;
+import com.cw.litenote.note.NoteUi;
 import com.cw.litenote.util.image.UtilImage;
-import com.cw.litenote.note.Note_UI;
 import com.cw.litenote.util.Util;
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -77,8 +77,8 @@ public class UtilVideo
         	setVideoViewLayout(mPictureString);
 
         	if(!hasMediaControlWidget) {
-				Note_UI ui = new Note_UI(act,viewPager,position);
-                Note_UI.updateVideoPlayButtonState(viewPager, Note.mCurrentPosition);
+				NoteUi ui = new NoteUi(act,viewPager,position);
+                NoteUi.updateVideoPlayButtonState(viewPager, Note.mCurrentPosition);
 				ui.tempShow_picViewUI(5006,strPicture);
 			}
         	else
@@ -477,7 +477,7 @@ public class UtilVideo
 				setVideoState(VIDEO_AT_PAUSE);
 				
 				if(!hasMediaControlWidget)
-					Note_UI.updateVideoPlayButtonState(pager,mPlayVideoPosition);
+					NoteUi.updateVideoPlayButtonState(pager,mPlayVideoPosition);
 			}
 		});					
 		
@@ -491,8 +491,8 @@ public class UtilVideo
 				
 				if(!hasMediaControlWidget)
 				{
-					Note_UI.updateVideoPlayButtonState(pager,mPlayVideoPosition);
-					Note_UI.primaryVideoSeekBarProgressUpdater(pager,Note.mCurrentPosition,UtilVideo.mPlayVideoPosition,picString);
+					NoteUi.updateVideoPlayButtonState(pager,mPlayVideoPosition);
+					NoteUi.primaryVideoSeekBarProgressUpdater(pager,Note.mCurrentPosition,UtilVideo.mPlayVideoPosition,picString);
 					mp.setOnSeekCompleteListener(new OnSeekCompleteListener()
 					{
 						@Override
