@@ -147,7 +147,8 @@ class NoteAdapter extends FragmentStatePagerAdapter
 
 	  	    if( Util.isYouTubeLink(linkUri) ||
 	 	  	   !Util.isEmptyString(strTitle)||
-	 	  	   !Util.isEmptyString(strBody)   )
+	 	  	   !Util.isEmptyString(strBody) ||
+				linkUri.startsWith("http")      )
 	  	    {
 	  	    	showTextWebView(position,textWebView);
 	  	    }
@@ -167,7 +168,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 			// text
 	  	    if( !Util.isEmptyString(strTitle)||
 	  	       	!Util.isEmptyString(strBody) ||
-				Util.isYouTubeLink(linkUri) ||
+				Util.isYouTubeLink(linkUri)  ||
 				linkUri.startsWith("http")      )
 	  	    {
 	  	    	showTextWebView(position,textWebView);
@@ -626,10 +627,9 @@ class NoteAdapter extends FragmentStatePagerAdapter
     {
     	int mStyle = Note.mStyle;
     	
-    	System.out.println("NoteAdapter / _getHTMLstringWithViewPort");
+    	System.out.println("NoteAdapter / _getHtmlStringWithViewPort");
     	String strTitle = db_page.getNoteTitle(position,true);
     	String strBody = db_page.getNoteBody(position,true);
-    	String audioUri = db_page.getNoteAudioUri(position,true);
     	String linkUri = db_page.getNoteLinkUri(position,true);
 
     	// replace note title
@@ -682,9 +682,9 @@ class NoteAdapter extends FragmentStatePagerAdapter
        	{
        		Spannable spanTitle = new SpannableString(strTitle);
        		Linkify.addLinks(spanTitle, Linkify.ALL);
-       		spanTitle.setSpan(new AlignmentSpan.Standard(Alignment.ALIGN_CENTER), 
+       		spanTitle.setSpan(new AlignmentSpan.Standard(Alignment.ALIGN_CENTER),
        							0,
-       							spanTitle.length(), 
+       							spanTitle.length(),
        							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 			//ref http://stackoverflow.com/questions/3282940/set-color-of-textview-span-in-android
@@ -716,8 +716,9 @@ class NoteAdapter extends FragmentStatePagerAdapter
     	bgColorStr = bgColorStr.substring(2);
     	
     	return   head + "<body color=\"" + bgColorStr + "\">" +
-		         "<p align=\"center\"><b>" + 
-				 "<font color=\"" + colorStr + "\">" + strTitle + "</font>" + 
+				 "<br>" + //TODO ??? text mode needs this, otherwise title is overlaid
+		         "<p align=\"center\"><b>" +
+		         "<font color=\"" + colorStr + "\">" + strTitle + "</font>" +
          		 "</b></p>" + separatedLineTitle +
 		         "<p>" + 
 				 "<font color=\"" + colorStr + "\">" + strBody + "</font>" +
