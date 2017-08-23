@@ -13,7 +13,7 @@ import com.cw.litenote.util.Util;
 
 import android.content.Context;
 
-class Import_handleXmlFile {
+class ParseXmlToDB {
 
    private String pageName,title,body,picture,audio,link;
    private DB_folder mDb_folder;
@@ -27,7 +27,7 @@ class Import_handleXmlFile {
    private String strSplitter;
    private boolean mEnableInsertDB = true;
    
-   Import_handleXmlFile(FileInputStream fileInputStream,Context context)
+   ParseXmlToDB(FileInputStream fileInputStream, Context context)
    {
 	   mContext = context;
 	   this.fileInputStream = fileInputStream;
@@ -76,7 +76,7 @@ class Import_handleXmlFile {
          while (event != XmlPullParser.END_DOCUMENT) 
          {
         	 String name = myParser.getName(); //name: null, link, item, title, description
-//        	 System.out.println("Import_handleXmlFile / _parseXMLAndInsertDB / name = " + name);
+//        	 System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / name = " + name);
         	 switch (event)
 	         {
 	            case XmlPullParser.START_TAG:

@@ -20,7 +20,7 @@ import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
 import com.cw.litenote.operation.Export_toSDCardFragment;
-import com.cw.litenote.operation.Import_fromSDCardFragment;
+import com.cw.litenote.operation.Import_filesList;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.NoisyAudioStreamReceiver;
@@ -883,7 +883,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 			case MenuId.IMPORT_FROM_SD_CARD:
 				mMenu.setGroupVisible(R.id.group0, false); //hide the menu
-				Import_fromSDCardFragment importFragment = new Import_fromSDCardFragment();
+				Import_filesList importFragment = new Import_filesList();
 				FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 				transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
 				transaction.replace(R.id.content_frame, importFragment,"import").addToBackStack(null).commit();
@@ -964,6 +964,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	public void onBackStackChanged() {
 		int backStackEntryCount = fragmentManager.getBackStackEntryCount();
 		System.out.println("MainAct / _onBackStackChanged / backStackEntryCount = " + backStackEntryCount);
+
 
         if(backStackEntryCount == 1) // Config fragment
 		{

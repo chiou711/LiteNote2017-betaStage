@@ -29,38 +29,41 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Import_selectedFileAct extends Activity 
+
+public class Import_fileView extends Fragment
 {
 
     private TextView mTitleViewText;
     private TextView mBodyViewText;
-    Bundle extras ;
+    String filePath;
     static File mFile;
     FileInputStream fileInputStream = null;
     View mViewFile,mViewFileProgressBar;
+    View rootView;
 
 	@Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-    	System.out.println("Import_selectedFileAct / onCreate");
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		rootView = inflater.inflate(R.layout.sd_file_view,container, false);
+		System.out.println("Import_fileView / onCreate");
 
-        setContentView(R.layout.view_file);
-        mViewFile = findViewById(R.id.view_file);
-        mViewFileProgressBar = findViewById(R.id.view_file_progress_bar);
+		mViewFile = rootView.findViewById(R.id.view_file);
+		mViewFileProgressBar = rootView.findViewById(R.id.view_file_progress_bar);
 
-        mTitleViewText = (TextView) findViewById(R.id.view_title);
-        mBodyViewText = (TextView) findViewById(R.id.view_body);
+		mTitleViewText = (TextView) rootView.findViewById(R.id.view_title);
+		mBodyViewText = (TextView) rootView.findViewById(R.id.view_body);
 
-	    getActionBar().setDisplayShowHomeEnabled(false);
+		getActivity().getActionBar().setDisplayShowHomeEnabled(false);
 
-		ProgressBar progressBar = (ProgressBar) findViewById(R.id.import_progress);
+		ProgressBar progressBar = (ProgressBar) rootView.findViewById(R.id.import_progress);
 		if(savedInstanceState == null) {
 			ImportAsyncTask task = new ImportAsyncTask();
 			task.setProgressBar(progressBar);
@@ -69,51 +72,50 @@ public class Import_selectedFileAct extends Activity
 		}
 		else
 		{
-			extras = getIntent().getExtras();
-			mFile = new File(extras.getString("FILE_PATH"));
+			mFile = new File(filePath);
 			mTitleViewText.setText(mFile.getName());
 			mBodyViewText.setText(importObject.fileBody);
 		}
 
 		int style = 2;
-        //set title color
+		//set title color
 		mTitleViewText.setTextColor(ColorSet.mText_ColorArray[style]);
 		mTitleViewText.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
 		//set body color
 		mBodyViewText.setTextColor(ColorSet.mText_ColorArray[style]);
 		mBodyViewText.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
 
-        // back button
-        Button backButton = (Button) findViewById(R.id.view_back);
-        backButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
+		// back button
+		Button backButton = (Button) rootView.findViewById(R.id.view_back);
+		backButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
 
 		// confirm button
-		Button confirmButton = (Button) findViewById(R.id.view_confirm);
+		Button confirmButton = (Button) rootView.findViewById(R.id.view_confirm);
 
 		// delete button
-		Button deleteButton = (Button) findViewById(R.id.view_delete);
+		Button deleteButton = (Button) rootView.findViewById(R.id.view_delete);
 		deleteButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_delete , 0, 0, 0);
 
-        // do cancel
-        backButton.setOnClickListener(new View.OnClickListener() {
+		// do cancel
+		backButton.setOnClickListener(new View.OnClickListener() {
 
-            public void onClick(View view) {
-                finish();
-            }
-        });
+			public void onClick(View view) {
+                backToListFragment();
+			}
+		});
 
 		// delete the file whose content is showing
 		deleteButton.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View view)
 			{
-				Util util = new Util(Import_selectedFileAct.this);
+				Util util = new Util(getActivity());
 				util.vibrate();
 
-				AlertDialog.Builder builder1 = new AlertDialog.Builder(Import_selectedFileAct.this);
+				AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
 				builder1.setTitle(R.string.confirm_dialog_title)
 						.setMessage(getResources().getString(R.string.confirm_dialog_message_file) +
-									" (" + mFile.getName() +")" )
+								" (" + mFile.getName() +")" )
 						.setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
 						{
 							@Override
@@ -125,7 +127,13 @@ public class Import_selectedFileAct extends Activity
 							public void onClick(DialogInterface dialog1, int which1)
 							{
 								mFile.delete();
-								finish();
+
+                                // refresh directory list
+                                backToListFragment();
+								String dirString = new File(filePath).getParent();
+								File dir = new File(dirString);
+                                Import_filesList fragment = ((Import_filesList)getActivity().getSupportFragmentManager().findFragmentByTag("import"));
+                                fragment.getFiles(dir.listFiles());
 							}
 						})
 						.show();
@@ -138,20 +146,40 @@ public class Import_selectedFileAct extends Activity
 
 			public void onClick(View view)
 			{
-				ProgressBar progressBar = (ProgressBar) findViewById(R.id.import_progress);
+				ProgressBar progressBar = (ProgressBar) rootView.findViewById(R.id.import_progress);
 				ImportAsyncTask task = new ImportAsyncTask();
 				task.setProgressBar(progressBar);
 				task.enableSaveDB(true);
 				task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			}
 		});
+
+
+		return rootView;
+	}
+
+	void backToListFragment()
+    {
+        getActivity().getSupportFragmentManager().popBackStack();
+        View view1 = getActivity().findViewById(R.id.view_back_btn_bg);
+        view1.setVisibility(View.VISIBLE);
+        View view2 = getActivity().findViewById(R.id.file_list_title);
+        view2.setVisibility(View.VISIBLE);
     }
 
-    static Import_handleXmlFile importObject;
+	@Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        
+        Bundle arguments = getArguments();
+        filePath = arguments.getString("KEY_FILE_PATH");
+    }
+
+    static ParseXmlToDB importObject;
     private void insertSelectedFileContentToDB(boolean enableInsertDB) 
     {
-		extras = getIntent().getExtras();
-    	mFile = new File(extras.getString("FILE_PATH"));
+    	mFile = new File(filePath);
     	
     	try 
     	{
@@ -163,7 +191,7 @@ public class Import_selectedFileAct extends Activity
     	}
 		 
     	// import data by HandleXmlByFile class
-    	importObject = new Import_handleXmlFile(fileInputStream,this);
+    	importObject = new ParseXmlToDB(fileInputStream,getActivity());
     	importObject.enableInsertDB(enableInsertDB);
     	importObject.handleXML();
     	while(importObject.parsingComplete);
@@ -171,7 +199,7 @@ public class Import_selectedFileAct extends Activity
     
     public static void createDefaultTables(Activity act,String fileName)
     {
-		System.out.println("Import_selectedFileAct / _createDefaultTables / fileName = " + fileName);
+		System.out.println("Import_fileView / _createDefaultTables / fileName = " + fileName);
 
         FileInputStream fileInputStream = null;
         File assetsFile = Util.createAssetsFile(act,fileName);
@@ -185,24 +213,24 @@ public class Import_selectedFileAct extends Activity
         }
 
         // import data by HandleXmlByFile class
-        importObject = new Import_handleXmlFile(fileInputStream,act);
+        importObject = new ParseXmlToDB(fileInputStream,act);
         importObject.enableInsertDB(true);
         importObject.handleXML();
         while(importObject.parsingComplete);
 	}
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
     }
     
@@ -213,7 +241,7 @@ public class Import_selectedFileAct extends Activity
 		boolean enableSaveDB;
 		public void setProgressBar(ProgressBar bar) {
 //			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-			Util.lockOrientation(Import_selectedFileAct.this);
+			Util.lockOrientation(getActivity());
 			this.bar = bar;
 		    mViewFile.setVisibility(View.GONE);
 		    mViewFileProgressBar.setVisibility(View.VISIBLE);
@@ -248,10 +276,10 @@ public class Import_selectedFileAct extends Activity
 			
 			if(enableSaveDB)
 			{
-				finish();
+                backToListFragment();
 //				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-				Util.unlockOrientation(Import_selectedFileAct.this);
-				Toast.makeText(Import_selectedFileAct.this,R.string.toast_import_finished,Toast.LENGTH_SHORT).show();
+				Util.unlockOrientation(getActivity());
+				Toast.makeText(getActivity(),R.string.toast_import_finished,Toast.LENGTH_SHORT).show();
 			}
 			else
 			{

@@ -1,8 +1,8 @@
 package com.cw.litenote.operation;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,15 +22,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Import_fromSDCardFragment extends ListFragment
+public class Import_filesList extends ListFragment
 {
     private List<String> filePathArray = null;
     List<String> fileNames = null;
-    public static View rootView;
+    public View rootView;
+    ListView listView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.sd_file_list, container, false);
+        rootView = inflater.inflate(R.layout.sd_files_list, container, false);
 
         View view = rootView.findViewById(R.id.view_back_btn_bg);
         view.setBackgroundColor(ColorSet.getBarColor(getActivity()));
@@ -60,17 +61,20 @@ public class Import_fromSDCardFragment extends ListFragment
     @Override
     public void onResume() {
         super.onResume();
+        listView = getListView();
         String dirString = Environment.getExternalStorageDirectory().toString() +
                 "/" +
                 Util.getStorageDirName(getActivity());
         getFiles(new File(dirString).listFiles());
     }
 
+    int selectedRow;
+    String currFilePath;
     // on list item click
     @Override
     public void onListItemClick(ListView l, View v, int position, long rowId)
     {
-        int selectedRow = (int)rowId;
+        selectedRow = (int)rowId;
         if(selectedRow == 0)
         {
         	//root
@@ -78,8 +82,8 @@ public class Import_fromSDCardFragment extends ListFragment
         }
         else
         {
-            final String filePath = filePathArray.get(selectedRow);
-            final File file = new File(filePath);
+            currFilePath = filePathArray.get(selectedRow);
+            final File file = new File(currFilePath);
             if(file.isDirectory())
             {
             	//directory
@@ -92,23 +96,32 @@ public class Import_fromSDCardFragment extends ListFragment
                    (file.getName().contains("XML") ||
                     file.getName().contains("xml")     ))
             	{
-		           	Intent i = new Intent(getActivity(), Import_selectedFileAct.class);
-		           	i.putExtra("FILE_PATH", filePath);
-		           	startActivity(i);
+                    View view1 = getActivity().findViewById(R.id.view_back_btn_bg);
+                    view1.setVisibility(View.GONE);
+                    View view2 = getActivity().findViewById(R.id.file_list_title);
+                    view2.setVisibility(View.GONE);
+
+                    Import_fileView fragment = new Import_fileView();
+                    final Bundle args = new Bundle();
+                    args.putString("KEY_FILE_PATH", currFilePath);
+                    fragment.setArguments(args);
+                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
+                    transaction.replace(R.id.file_list_linear, fragment,"import_view").addToBackStack(null).commit();
             	}
             	else
             	{
             		Toast.makeText(getActivity(),R.string.file_not_found,Toast.LENGTH_SHORT).show();
-            		String dirString = Environment.getExternalStorageDirectory().toString() + 
-					          "/" + 
-					          Util.getStorageDirName(getActivity());
-            		getFiles(new File(dirString).listFiles());            		
+                    String dirString = new File(currFilePath).getParent();
+                    File dir = new File(dirString);
+                    getFiles(dir.listFiles());
             	}
             }
         }
     }
-    
-    private void getFiles(File[] files)
+
+    static ArrayAdapter<String> fileListAdapter;
+    void getFiles(File[] files)
     {
         if(files == null)
         {
@@ -118,8 +131,8 @@ public class Import_fromSDCardFragment extends ListFragment
         else
         {
 //        	System.out.println("files length = " + files.length);
-            filePathArray = new ArrayList<String>();
-            fileNames = new ArrayList<String>();
+            filePathArray = new ArrayList<>();
+            fileNames = new ArrayList<>();
             filePathArray.add("");
             fileNames.add("ROOT");
             
@@ -128,10 +141,11 @@ public class Import_fromSDCardFragment extends ListFragment
                 filePathArray.add(file.getPath());
                 fileNames.add(file.getName());
 	        }
-	        ArrayAdapter<String> fileList = new ArrayAdapter<String>(getActivity(),
-	        														R.layout.sd_file_list_row,
+	        fileListAdapter = new ArrayAdapter<>(getActivity(),
+	        														R.layout.sd_files_list_row,
 	        														fileNames);
-	        setListAdapter(fileList);
+	        setListAdapter(fileListAdapter);
+            fileListAdapter.setNotifyOnChange(false);
         }
     }
 }

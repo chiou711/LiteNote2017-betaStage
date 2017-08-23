@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cw.litenote"
-    android:versionCode="26"
-    android:versionName="1.5.11" >
+    android:versionCode="27"
+    android:versionName="1.5.12" >
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -71,7 +71,6 @@
 
         <activity android:name=".operation.YouTubePlayerAct"
                   android:configChanges="orientation|screenSize|keyboardHidden"/>
-        <activity android:name=".operation.Import_selectedFileAct" />
         <activity android:name=".util.image.GalleryGridAct" />
         <activity android:name=".util.image.GalleryPagerAct" />
       	<activity android:name=".util.image.SlideshowPlayer"

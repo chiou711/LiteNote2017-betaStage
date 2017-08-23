@@ -20,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cw.litenote.R;
-import com.cw.litenote.operation.Import_selectedFileAct;
+import com.cw.litenote.operation.Import_fileView;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.main.MainAct;
@@ -493,7 +493,7 @@ public class FolderUi
 //				DB_drawer.listFolders();
 
 				// import default tables
-				Import_selectedFileAct.createDefaultTables(act,fileName);
+				Import_fileView.createDefaultTables(act,fileName);
 
 				// check DB: after importing
 //				DB_drawer.listFolders();
