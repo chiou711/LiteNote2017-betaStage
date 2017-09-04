@@ -622,8 +622,9 @@ class Note_common {
 	        	if( !pictureUri.isEmpty())
 	        	{
 	        		// insert
+					String name = Util.getDisplayNameByUriString(pictureUri, act);//??? only add for video?
 	        		System.out.println("Note_common / _savePictureStateInDB / insert");
-	        		rowId = dB.insertNote("", pictureUri, audioUri, drawingUri, linkUri, "", 1, (long) 0);// add new note, get return row Id
+	        		rowId = dB.insertNote(name, pictureUri, audioUri, drawingUri, linkUri, "", 1, (long) 0);// add new note, get return row Id
 	        	}
         		currPictureUri = pictureUri; // update file name
 	        } 

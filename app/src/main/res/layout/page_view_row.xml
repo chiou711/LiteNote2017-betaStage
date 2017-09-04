@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--  icons | audio name | [thumb nail..  -->
-<!--  title text........ |  ............] --> <!-- head -->
-				          <!-- left  -->
-<!--  [body text .......................  -->
-<!--   .................................  -->
-<!--   .................................] --> <!-- whole -->
+<!--  id | check | drag-drop | [thumb ......  -->
+<!--  audio name .......     |  nail........] --> <!-- head -->
+				              <!-- left  -->
+<!--  [title text ..........................] -->
+<!--  [body text ...........................  -->
+<!--   .....................................  -->
+<!--   .....................................] --> <!-- whole -->
 
 
 <!-- whole start -->
@@ -23,7 +24,7 @@
         android:baselineAligned="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="110dp"
+        android:minHeight="120dp"
         android:orientation="horizontal">
 
         <!-- left start -->
@@ -68,13 +69,16 @@
                 android:src="@drawable/ic_dragger_on"
                 android:contentDescription="@string/drag_handler"/>
 
+            </LinearLayout>
+            <!-- icons end -->
+
             <!-- audio block -->
             <LinearLayout
                 android:id="@+id/audio_block"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
+                android:layout_height="0dp"
+                android:layout_margin="3dp"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_gray_border" >
                 <!-- audio icon -->
@@ -95,41 +99,19 @@
                     android:layout_gravity="start"
                     android:textSize="10sp"	/>
             </LinearLayout>
+            <!-- audio block end -->
 
-            </LinearLayout>
-            <!-- icons end -->
-
-            <!-- title text -->
-            <LinearLayout
-                android:id="@+id/row_title_block"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_margin="3dp"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/row_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:minHeight="50dp"
-                    android:maxLines="1"
-                    android:layout_gravity="center_vertical"
-                    android:contentDescription="@string/note_text"
-                    android:gravity="center_vertical"
-                    android:textAppearance="?android:attr/textAppearanceListItemSmall" />
-            </LinearLayout>
-
-           </LinearLayout>
+        </LinearLayout>
         <!-- left end -->
+
 
         <!-- thumb nail start -->
         <LinearLayout
             android:id="@+id/image_view_block"
             android:orientation="horizontal"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="160dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
             android:layout_margin="3dp" >
             <ImageView
                 android:id="@+id/image_view_thumb_picture"
@@ -161,8 +143,32 @@
         </LinearLayout>
         <!-- thumb nail end -->
 
-        </LinearLayout>
+    </LinearLayout>
     <!-- head end -->
+
+    <!--title block-->
+    <LinearLayout
+        android:id="@+id/row_title_block"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+        android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/row_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:minHeight="30dp"
+        android:maxLines="2"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="@string/note_text"
+        android:gravity="center_vertical"
+        android:textSize="12sp"
+        />
+    </LinearLayout>
+    <!--title block end -->
 
     <!-- line -->
     <View

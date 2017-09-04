@@ -1,5 +1,7 @@
 package com.cw.litenote.operation;
 
+import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentTransaction;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cw.litenote.main.MainAct;
@@ -20,7 +23,10 @@ import com.cw.litenote.util.Util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class Import_filesList extends ListFragment
 {
@@ -71,8 +77,9 @@ public class Import_filesList extends ListFragment
     int selectedRow;
     String currFilePath;
     // on list item click
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long rowId)
+//    @Override
+//    public void onListItemClick(ListView l, View v, int position, long rowId)
+    public void onListItemClick(long rowId)
     {
         selectedRow = (int)rowId;
         if(selectedRow == 0)
@@ -120,7 +127,6 @@ public class Import_filesList extends ListFragment
         }
     }
 
-    static ArrayAdapter<String> fileListAdapter;
     void getFiles(File[] files)
     {
         if(files == null)
@@ -135,17 +141,80 @@ public class Import_filesList extends ListFragment
             fileNames = new ArrayList<>();
             filePathArray.add("");
             fileNames.add("ROOT");
-            
+
+            // sort by alphabetic
+            Arrays.sort(files, new FileNameComparator());
+
 	        for(File file : files)
 	        {
                 filePathArray.add(file.getPath());
                 fileNames.add(file.getName());
 	        }
-	        fileListAdapter = new ArrayAdapter<>(getActivity(),
-	        														R.layout.sd_files_list_row,
-	        														fileNames);
+//	        fileListAdapter = new ArrayAdapter<>(getActivity(),
+//	        									 R.layout.sd_files_list_row,
+//	        									 fileNames);
+            FileNameAdapter fileListAdapter = new FileNameAdapter(getActivity(),
+                                                                  R.layout.sd_files_list_row,
+                                                                  fileNames);
 	        setListAdapter(fileListAdapter);
-            fileListAdapter.setNotifyOnChange(false);
+        }
+    }
+
+    // Directory group and file group, both directory and file are sorted alphabetically
+    // cf. https://stackoverflow.com/questions/24404055/sort-filelist-folders-then-files-both-alphabetically-in-android
+    private class FileNameComparator implements Comparator<File> {
+        public int compare(File lhsS, File rhsS){
+            File lhs = new File(lhsS.toString().toLowerCase(Locale.US));
+            File rhs= new File(rhsS.toString().toLowerCase(Locale.US));
+            if (lhs.isDirectory() && !rhs.isDirectory()){
+                // Directory before File
+                return -1;
+            } else if (!lhs.isDirectory() && rhs.isDirectory()){
+                // File after directory
+                return 1;
+            } else {
+                // Otherwise in Alphabetic order...
+                return lhs.getName().compareTo(rhs.getName());
+            }
+        }
+    }
+
+    // File name array for setting focus and file name
+    class FileNameAdapter extends ArrayAdapter
+    {
+        public FileNameAdapter(Context context, int resource, List objects) {
+            super(context, resource, objects);
+        }
+
+        @Override
+        public View getView(int position, View convertView,ViewGroup parent) {
+            if(convertView == null)
+            {
+                convertView = getActivity().getLayoutInflater().inflate(R.layout.sd_files_list_row, parent, false);
+            }
+
+            convertView.setFocusable(true);
+            convertView.setClickable(true);
+
+            TextView tv = (TextView)convertView.findViewById(R.id.text1);
+            String appName = getString(R.string.app_name);
+            tv.setText(fileNames.get(position));
+            if(fileNames.get(position).equalsIgnoreCase("sdcard")   ||
+               fileNames.get(position).equalsIgnoreCase(appName)    ||
+               fileNames.get(position).equalsIgnoreCase("LiteNote") ||
+               fileNames.get(position).equalsIgnoreCase("Download")   )
+                tv.setTypeface(null, Typeface.BOLD);
+            else
+                tv.setTypeface(null, Typeface.NORMAL);
+
+            final int item = position;
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onListItemClick(item);
+                }
+            });
+            return convertView;
         }
     }
 }
