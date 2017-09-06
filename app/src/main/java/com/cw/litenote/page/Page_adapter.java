@@ -22,7 +22,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cw.litenote.R;
-import com.cw.litenote.main.MainUi;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.AsyncTaskAudioBitmap;
@@ -51,7 +50,6 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		View audioBlock;
 		ImageView imageAudio;
 		TextView audioName;
-		View textTitleBlock;
 		TextView textTitle;
 		View rowDivider;
 		View textBodyBlock;
@@ -138,13 +136,12 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			holder.imageAudio = (ImageView) view.findViewById(R.id.img_audio);
 			holder.audioName = (TextView) view.findViewById(R.id.row_audio_name);
 			holder.imageCheck= (ImageView) view.findViewById(R.id.img_check);
-			holder.thumbBlock = view.findViewById(R.id.image_view_block);
-			holder.thumbPicture = (ImageView) view.findViewById(R.id.image_view_thumb_picture);
-			holder.thumbAudio = (ImageView) view.findViewById(R.id.image_view_thumb_audio);
-			holder.thumbWeb = (CustomWebView) view.findViewById(R.id.image_view_thumb_web);
+			holder.thumbBlock = view.findViewById(R.id.row_thumb_nail);
+			holder.thumbPicture = (ImageView) view.findViewById(R.id.thumb_picture);
+			holder.thumbAudio = (ImageView) view.findViewById(R.id.thumb_audio);
+			holder.thumbWeb = (CustomWebView) view.findViewById(R.id.thumb_web);
 			holder.imageDragger = (ImageView) view.findViewById(R.id.img_dragger);
-			holder.progressBar = (ProgressBar) view.findViewById(R.id.img_progress);
-			holder.textTitleBlock = view.findViewById(R.id.row_title_block);
+			holder.progressBar = (ProgressBar) view.findViewById(R.id.thumb_progress);
 			holder.textTitle = (TextView) view.findViewById(R.id.row_title);
 			holder.rowDivider = view.findViewById(R.id.row_divider);
 			holder.textBodyBlock = view.findViewById(R.id.row_body);
@@ -173,25 +170,25 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 
 			if(Util.isYouTubeLink(linkUri)) {
 				strTitle = Util.getYouTubeTitle(linkUri);
-				holder.textTitleBlock.setVisibility(View.VISIBLE);
+				holder.textTitle.setVisibility(View.VISIBLE);
 				holder.textTitle.setText(strTitle);
 				holder.textTitle.setTextColor(Color.GRAY);
 			}
 			else if(linkUri.startsWith("http"))
 			{
-				holder.textTitleBlock.setVisibility(View.VISIBLE);
+				holder.textTitle.setVisibility(View.VISIBLE);
 				Util.setHttpTitle(linkUri,Page.mAct,holder.textTitle);
 			}
 			else
 			{
 				// make sure empty title is empty after scrolling
-				holder.textTitleBlock.setVisibility(View.VISIBLE);
+				holder.textTitle.setVisibility(View.VISIBLE);
 				holder.textTitle.setText("");
 			}
 		}
 		else
 		{
-			holder.textTitleBlock.setVisibility(View.VISIBLE);
+			holder.textTitle.setVisibility(View.VISIBLE);
 			holder.textTitle.setText(strTitle);
 			holder.textTitle.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
 		}
@@ -377,7 +374,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 						super.onReceivedTitle(view, title);
 						if (!TextUtils.isEmpty(title) &&
 								!title.equalsIgnoreCase("about:blank")) {
-							holder.textTitleBlock.setVisibility(View.VISIBLE);
+							holder.textTitle.setVisibility(View.VISIBLE);
 							holder.rowId.setText(String.valueOf(position + 1));
 							holder.rowId.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
 

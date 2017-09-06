@@ -455,7 +455,7 @@ public class Page extends UilListViewBaseFragment
         
         // set adapter
         String[] from = new String[] { DB_page.KEY_NOTE_TITLE};
-        int[] to = new int[] { R.id.whole_row};
+        int[] to = new int[] { R.id.row_whole};
         mItemAdapter = new Page_adapter(
 				getActivity(),
 				R.layout.page_view_row,
