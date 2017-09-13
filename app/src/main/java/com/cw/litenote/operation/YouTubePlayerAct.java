@@ -144,15 +144,15 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         String listIdStr = Util.getYoutubeListId(linkUri);
         String playListIdStr = Util.getYoutubePlaylistId(linkUri);
 
-        // only one Id, no list
+        // only v
         if(!Util.isEmptyString(idStr) &&
-            Util.isEmptyString(listIdStr) &&
-            Util.isEmptyString(playListIdStr) )
+           Util.isEmptyString(listIdStr) &&
+           Util.isEmptyString(playListIdStr) )
         {
             // auto start playing
             youTubePlayer.loadVideo(idStr);// cf. _cueVideo for manual start
         }
-        // random playlist (YouTube list)
+        // v and list
         else if(!Util.isEmptyString(idStr) &&
                 !Util.isEmptyString(listIdStr) &&
                 Util.isEmptyString(playListIdStr) )
@@ -160,8 +160,8 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
             // auto start playing
             youTubePlayer.loadPlaylist(listIdStr); // cf. _cuePlaylist for manual start
         }
-        // ordered playlist (personal list)
-        else if( Util.isEmptyString(idStr) &&
+        // playlist
+        else if(Util.isEmptyString(idStr) &&
                 Util.isEmptyString(listIdStr) &&
                 !Util.isEmptyString(playListIdStr) )
         {

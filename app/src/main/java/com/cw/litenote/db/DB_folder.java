@@ -146,13 +146,13 @@ public class DB_folder
         this.close();
     }   
     
-    //delete page table by drawer folder table Id
-    public void dropPageTable(int drawerFolderTableId, int id)
+    //delete page table by folder table Id
+    public void dropPageTable(int folderTableId, int id)
     {   
     	this.open();
 
         //format "Page1_2"
-    	DB_PAGE_TABLE_NAME = DB_PAGE_TABLE_PREFIX.concat(String.valueOf(drawerFolderTableId)+"_"+String.valueOf(id));
+    	DB_PAGE_TABLE_NAME = DB_PAGE_TABLE_PREFIX.concat(String.valueOf(folderTableId)+"_"+String.valueOf(id));
         String dB_drop_table = "DROP TABLE IF EXISTS " + DB_PAGE_TABLE_NAME + ";";
         mSqlDb.execSQL(dB_drop_table);         
 

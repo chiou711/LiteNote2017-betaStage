@@ -184,7 +184,7 @@ public class DB_page
     // Insert note
     // createTime: 0 will update time
     public long insertNote(String title,String pictureUri, String audioUri, String drawingUri, String linkUri, String body, int marking, Long createTime)
-    { 
+    {
     	this.open();
 
         Date now = new Date();  

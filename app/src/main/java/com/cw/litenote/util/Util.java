@@ -491,24 +491,24 @@ public class Util
 	{
 		return ColorSet.mBG_ColorArray.length;
 	}
-	
-	// set page table id of last time view
-	public static void setPref_lastTimeView_folder_tableId(Activity act, int folderTableId )
-	{
-	  SharedPreferences pref = act.getSharedPreferences("last_time_view", 0);
-	  String keyName = "KEY_LAST_TIME_VIEW_DRAWER_FOLDER_TABLE_ID";
-      pref.edit().putInt(keyName, folderTableId).apply();
-	}
-	
-	// get page table id of last time view
-	public static int getPref_lastTimeView_folder_tableId(Context context)
-	{
-		SharedPreferences pref = context.getSharedPreferences("last_time_view", 0);
-		String keyName = "KEY_LAST_TIME_VIEW_DRAWER_FOLDER_TABLE_ID";
-		return pref.getInt(keyName, 1); // folder table Id: default is 1
-	}	
 
-	// set page table id of last time view
+    // set page table id of last time view
+    public static void setPref_lastTimeView_folder_tableId(Activity act, int folderTableId )
+    {
+        SharedPreferences pref = act.getSharedPreferences("last_time_view", 0);
+        String keyName = "KEY_LAST_TIME_VIEW_DRAWER_FOLDER_TABLE_ID";
+        pref.edit().putInt(keyName, folderTableId).apply();
+    }
+
+    // get page table id of last time view
+    public static int getPref_lastTimeView_folder_tableId(Context context)
+    {
+        SharedPreferences pref = context.getSharedPreferences("last_time_view", 0);
+        String keyName = "KEY_LAST_TIME_VIEW_DRAWER_FOLDER_TABLE_ID";
+        return pref.getInt(keyName, 1); // folder table Id: default is 1
+    }
+
+    // set page table id of last time view
 	public static void setPref_lastTimeView_page_tableId(Activity act, int pageTableId )
 	{
 	  SharedPreferences pref = act.getSharedPreferences("last_time_view", 0);
@@ -1774,20 +1774,54 @@ public class Util
 	public static void openLink_YouTube(Activity act, String linkUri)
 	{
 		// by YouTube App
-		if(linkUri.contains("youtu.be"))
-		{
-			// stop audio and video if playing
-			Note.stopAV();
+		if(linkUri.contains("youtu.be") || linkUri.contains("youtube.com"))
+        {
+            // stop audio and video if playing
+            Note.stopAV();
 
-			String id = Util.getYoutubeId(linkUri);
+//            String id = Util.getYoutubeId(linkUri);
 			// option 1
-			Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(act, id, true/*fullscreen*/, true/*finishOnEnd*/);
+//			  Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(act, id, true/*fullscreen*/, true/*finishOnEnd*/);
 
-			// option 2
-//			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" + id));
-//			intent.putExtra("force_fullscreen",true);
-//			intent.putExtra("finish_on_ended",true);
-//			act.startActivity(intent);
+            // option 2
+//			  Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" + id));
+//			  intent.putExtra("force_fullscreen",true);
+//			  intent.putExtra("finish_on_ended",true);
+//			  act.startActivity(intent);
+
+            // option 3
+            // check Id string first
+            String idStr = Util.getYoutubeId(linkUri);
+            String listIdStr = Util.getYoutubeListId(linkUri);
+            String playListIdStr = Util.getYoutubePlaylistId(linkUri);
+
+            Intent intent = null;
+            // only v
+            if (!Util.isEmptyString(idStr) &&
+                Util.isEmptyString(listIdStr) &&
+                Util.isEmptyString(playListIdStr))
+            {
+                System.out.println("Util / _openLink_YouTube / v= ");
+//                intent = YouTubeIntents.createPlayVideoIntentWithOptions(act, idStr, true/*fullscreen*/, true/*finishOnEnd*/);
+                intent = YouTubeIntents.createPlayVideoIntent(act, idStr);
+            }
+            // v and list
+            else if(!Util.isEmptyString(idStr) &&
+                    !Util.isEmptyString(listIdStr) &&
+                    Util.isEmptyString(playListIdStr) )
+            {
+                System.out.println("Util / _openLink_YouTube / v= list= ");
+                intent = YouTubeIntents.createPlayPlaylistIntent(act, listIdStr);
+            }
+            // only playlist
+            else if( Util.isEmptyString(idStr) &&
+                    Util.isEmptyString(listIdStr) &&
+                    !Util.isEmptyString(playListIdStr) )
+            {
+                System.out.println("Util / _openLink_YouTube / playlist?list= ");
+				intent = YouTubeIntents.createPlayPlaylistIntent(act, playListIdStr);
+//				intent = YouTubeIntents.createOpenPlaylistIntent(act, playListIdStr);
+            }
 
 			act.startActivityForResult(intent,YOUTUBE_LINK_INTENT);
 		}
