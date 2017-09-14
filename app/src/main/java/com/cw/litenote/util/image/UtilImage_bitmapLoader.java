@@ -21,7 +21,8 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-public class UtilImage_bitmapLoader 
+
+public class UtilImage_bitmapLoader
 {
 	Bitmap thumbnail;
 	AsyncTaskVideoBitmap mVideoAsyncTask;
@@ -122,28 +123,49 @@ public class UtilImage_bitmapLoader
         // set image loading listener
         mSimpleUilListener = new SimpleImageLoadingListener() 
         {
-      	  @Override
-      	  public void onLoadingStarted(String imageUri, View view) 
-      	  {
-      		  mPicImageView.setVisibility(View.GONE);
-      		  mProgressBar.setProgress(0);
-      		  mProgressBar.setVisibility(View.VISIBLE);
-      	  }
+      	    @Override
+      	    public void onLoadingStarted(String imageUri, View view)
+      	    {
+      		    mPicImageView.setVisibility(View.GONE);
+      		    mProgressBar.setProgress(0);
+      		    mProgressBar.setVisibility(View.VISIBLE);
+      	    }
 
-      	  @Override
-      	  public void onLoadingFailed(String imageUri, View view, FailReason failReason) 
-      	  {
-      		  mProgressBar.setVisibility(View.GONE);
-      		  mPicImageView.setVisibility(View.VISIBLE);
-      	  }
+      	    @Override
+      	    public void onLoadingFailed(String imageUri, View view, FailReason failReason)
+      	    {
+      		    mProgressBar.setVisibility(View.GONE);
+      		    mPicImageView.setVisibility(View.VISIBLE);
 
-      	  @Override
-      	  public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) 
-      	  {
-      		  super.onLoadingComplete(imageUri, view, loadedImage);
-      		  mProgressBar.setVisibility(View.GONE);
-      		  mPicImageView.setVisibility(View.VISIBLE);
-      	  }
+				String message = null;
+				switch (failReason.getType()) {
+					case IO_ERROR:
+//				        message = "Input/Output error";
+//						message = mAct.getResources().getString(R.string.file_not_found);
+						break;
+					case DECODING_ERROR:
+						message = "Image can't be decoded";
+						break;
+					case NETWORK_DENIED:
+						message = "Downloads are denied";
+						break;
+					case OUT_OF_MEMORY:
+						message = "Out Of Memory error";
+						break;
+					case UNKNOWN:
+						message = "Unknown error";//??? mark this line?
+						break;
+				}
+//				Toast.makeText(mAct, message, Toast.LENGTH_SHORT).show();
+      	    }
+
+      	    @Override
+      	    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage)
+      	    {
+      		    super.onLoadingComplete(imageUri, view, loadedImage);
+      		    mProgressBar.setVisibility(View.GONE);
+      		    mPicImageView.setVisibility(View.VISIBLE);
+      	    }
   		};
 
   		// set image loading listener for video

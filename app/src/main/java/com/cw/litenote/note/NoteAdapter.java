@@ -9,6 +9,7 @@ import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.AsyncTaskAudioBitmap;
 import com.cw.litenote.util.image.TouchImageView;
 import com.cw.litenote.util.image.UtilImage;
+import com.cw.litenote.util.image.UtilImage_bitmapLoader;
 import com.cw.litenote.util.video.UtilVideo;
 import com.cw.litenote.util.video.VideoViewCustom;
 import com.cw.litenote.util.ColorSet;
@@ -37,6 +38,7 @@ import android.text.Layout.Alignment;
 import android.text.style.AlignmentSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -730,7 +732,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
     }
 
     // show image by touch image view
-    private void showImageByTouchImageView(final View spinner, final TouchImageView pictureView, String strPicture,final Integer position)
+    private void showImageByTouchImageView(final ProgressBar spinner, final TouchImageView pictureView, String strPicture,final Integer position)
     {
         if(Util.isEmptyString(strPicture))
         {
@@ -744,60 +746,19 @@ class NoteAdapter extends FragmentStatePagerAdapter
         }
         else
         {
-            Uri imageUri = Uri.parse(strPicture);
-            if(imageUri.isAbsolute())
-                UilCommon.imageLoader.displayImage(imageUri.toString(),
-                        pictureView,
-                        UilCommon.optionsForFadeIn,
-                        new SimpleImageLoadingListener()
-                        {
-                            @Override
-                            public void onLoadingStarted(String imageUri, View view)
-                            {
-                                System.out.println("NoteAdapter / _showImageByTouchImageView / onLoadingStarted");
-                                // make spinner appears at center
-                                spinner.setVisibility(View.VISIBLE);
-                                view.setVisibility(View.GONE);
-                            }
-
-                            @Override
-                            public void onLoadingFailed(String imageUri, View view, FailReason failReason)
-                            {
-                                System.out.println("NoteAdapter / _showImageByTouchImageView / onLoadingFailed");
-                                String message = null;
-                                switch (failReason.getType())
-                                {
-                                    case IO_ERROR:
-//                                        message = "Input/Output error";
-										message = act.getResources().getString(R.string.file_not_found);
-                                        break;
-                                    case DECODING_ERROR:
-                                        message = "Image can't be decoded";
-                                        break;
-                                    case NETWORK_DENIED:
-                                        message = "Downloads are denied";
-                                        break;
-                                    case OUT_OF_MEMORY:
-                                        message = "Out Of Memory error";
-                                        break;
-                                    case UNKNOWN:
-                                        message = "Unknown error";//??? mark this line?
-                                        break;
-                                }
-                                Toast.makeText(act, message, Toast.LENGTH_SHORT).show();
-                                spinner.setVisibility(View.GONE);
-                                view.setVisibility(View.GONE);
-                            }
-
-                            @Override
-                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage)
-                            {
-                                System.out.println("NoteAdapter / _showImageByTouchImageView / onLoadingComplete");
-                                spinner.setVisibility(View.GONE);
-                                view.setVisibility(View.VISIBLE);
-                                pictureView.setImageBitmap(loadedImage);
-                            }
-                        });
+			// load bitmap to image view
+			try
+			{
+				new UtilImage_bitmapLoader(pictureView,
+						strPicture,
+						spinner,
+						UilCommon.optionsForFadeIn,
+						act);
+			}
+			catch(Exception e)
+			{
+				Log.e("NoteAdapter", "UtilImage_bitmapLoader error");
+			}
         }
     }
-}//class Note_view_adapter extends PagerAdapter
+}

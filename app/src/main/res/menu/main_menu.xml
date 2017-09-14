@@ -110,10 +110,40 @@
 
     <!-- more sub menu -->
     <menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <!-- Note operation -->
+        <item
+            android:id="@+id/note_operation"
+            android:orderInCategory="1"
+            android:showAsAction="always|withText"
+            android:title="@string/note_operation"
+            >
+            <menu xmlns:android="http://schemas.android.com/apk/res/android">
+                <item
+                    android:id="@+id/ENABLE_NOTE_DRAG_AND_DROP"
+                    android:orderInCategory="1"
+                    android:showAsAction="never"
+                    android:title="@string/drag_note"
+                    android:icon="@drawable/btn_check_off_holo_light"/>
+                <item
+                    android:id="@+id/SHOW_BODY"
+                    android:orderInCategory="2"
+                    android:showAsAction="never"
+                    android:title="@string/preview_note_body"
+                    android:icon="@drawable/btn_check_off_holo_light"/>
+                <item
+                    android:id="@+id/CLICK_LAUNCH_YOUTUBE"
+                    android:orderInCategory="3"
+                    android:showAsAction="never"
+                    android:title="@string/click_launch_youtube"
+                    android:icon="@drawable/btn_check_off_holo_light"/>
+            </menu>
+        </item>
+
+
         <!-- Page operation -->
         <item
             android:id="@+id/page_operation"
-            android:orderInCategory="1"
+            android:orderInCategory="2"
             android:showAsAction="always|withText"
             android:title="@string/page_operation"
             >
@@ -136,35 +166,6 @@
                 android:showAsAction="never"
                 android:title="@string/rearrange_page"
                 android:icon="@drawable/ic_dragger_horizontal"/>
-        </menu>
-        </item>
-
-        <!-- Note operation -->
-        <item
-            android:id="@+id/note_operation"
-            android:orderInCategory="2"
-            android:showAsAction="always|withText"
-            android:title="@string/note_operation"
-            >
-        <menu xmlns:android="http://schemas.android.com/apk/res/android">
-            <item
-                android:id="@+id/ENABLE_NOTE_DRAG_AND_DROP"
-                android:orderInCategory="1"
-                android:showAsAction="never"
-                android:title="@string/drag_note"
-                android:icon="@drawable/btn_check_off_holo_light"/>
-            <item
-                android:id="@+id/SHOW_BODY"
-                android:orderInCategory="2"
-                android:showAsAction="never"
-                android:title="@string/preview_note_body"
-                android:icon="@drawable/btn_check_off_holo_light"/>
-            <item
-                android:id="@+id/CLICK_LAUNCH_YOUTUBE"
-                android:orderInCategory="3"
-                android:showAsAction="never"
-                android:title="@string/click_launch_youtube"
-                android:icon="@drawable/btn_check_off_holo_light"/>
         </menu>
         </item>
 

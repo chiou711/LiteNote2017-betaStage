@@ -220,6 +220,7 @@ public class NoteUi
                     {
                         UtilVideo.changeVideoState();
                         UtilVideo.playOrPauseVideo(pager,strPicture);
+                        updateVideoPlayButtonState(pager, Note.mCurrentPosition);
                     }
                 }
             });
