@@ -15,14 +15,11 @@ import com.cw.litenote.util.video.VideoViewCustom;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.Util;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -47,7 +44,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 class NoteAdapter extends FragmentStatePagerAdapter
@@ -403,6 +399,8 @@ class NoteAdapter extends FragmentStatePagerAdapter
 							}
 						});
 
+						//cf. https://stackoverflow.com/questions/13576153/how-to-get-text-from-a-webview
+//						linkWebView.addJavascriptInterface(new JavaScriptInterface(act), "Android");
 					}
 					else if(Note.isPictureMode())
 					{

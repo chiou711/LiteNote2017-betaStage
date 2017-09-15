@@ -74,6 +74,7 @@ class ParseXmlToDB {
         try
         {
             event = myParser.getEventType();
+            boolean isEnd = false;
             while (event != XmlPullParser.END_DOCUMENT)
             {
                 String name = myParser.getName(); //name: null, link, item, title, description
@@ -137,6 +138,8 @@ class ParseXmlToDB {
                        }
                        else if(name.equals("link"))
                        {
+                           text = text.replace("&apos;","\'");
+                           text = text.replace("&quot;","\"");
                             System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / name 2 = " + name);
                             link = text.trim();
                             System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / link = " + link);
@@ -159,9 +162,16 @@ class ParseXmlToDB {
                             fileBody = fileBody.concat(Util.NEW_LINE + "link:" + " " + link);
                             fileBody = fileBody.concat(Util.NEW_LINE);
                        }
+                       else if(name.equals("LiteNote"))
+                       {
+                           isEnd = true;
+                       }
                     break;
                 }
-                event = myParser.next();
+                if(!isEnd)
+                    event = myParser.next();
+                else
+                    event = XmlPullParser.END_DOCUMENT;
             }
 
             parsingComplete = false;

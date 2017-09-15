@@ -21,7 +21,10 @@ import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -46,10 +49,50 @@ public class Import_filesList extends ListFragment
         Button backButton = (Button) rootView.findViewById(R.id.view_back);
         backButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
 
+        // update button
+        Button renewButton = (Button) rootView.findViewById(R.id.view_renew);
+        renewButton.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_popup_sync , 0, 0, 0);
+
         // do cancel
         backButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
+
+        // do update
+        renewButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                // source dir
+                String srcDirName = "Download";
+                String srcDirPath = Environment.getExternalStorageDirectory().toString() +
+                        "/" +
+                        srcDirName;
+                System.out.println("srcDirPath = " + srcDirPath);
+
+                // target dir
+                String targetDirPath = Environment.getExternalStorageDirectory().toString() +
+                        "/" +
+                        Util.getStorageDirName(getActivity());
+
+                // copy target files to source directory
+                File srcDir = new File(srcDirPath);
+                for(File srcFile : srcDir.listFiles() )
+                {
+                    File targetFile = new File(targetDirPath+"/"+srcFile.getName());
+                    System.out.println("targetFile.getName() = " + targetFile.getName());
+                    try {
+                        if(srcFile.getName().contains("XML") || srcFile.getName().contains("xml"))
+                            FileUtils.copyFile(srcFile,targetFile );
+                    } catch (IOException e) {
+
+                        e.printStackTrace();
+                    }
+                }
+
+                // refresh list view
+                File dir = new File(targetDirPath);
+                getFiles(dir.listFiles());
             }
         });
 
@@ -147,8 +190,12 @@ public class Import_filesList extends ListFragment
 
 	        for(File file : files)
 	        {
-                filePathArray.add(file.getPath());
-                fileNames.add(file.getName());
+                // add for filtering non-XML file
+                if(file.getName().contains("XML") || file.getName().contains("xml"))
+                {
+                    filePathArray.add(file.getPath());
+                    fileNames.add(file.getName());
+                }
 	        }
 //	        fileListAdapter = new ArrayAdapter<>(getActivity(),
 //	        									 R.layout.sd_files_list_row,

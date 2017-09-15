@@ -4,6 +4,7 @@
     <string name="btn_Cancel">取消</string>
     <string name="btn_Continue">繼續</string>
     <string name="btn_Stop">停止</string>
+    <string name="btn_Renew">更新</string>
     <string name="title_playing_audio">還在播放音頻</string>
     <string name="message_continue_or_stop">繼續或是停止播放音頻？</string>
     <string name="message_continue_or_stop_YouTube_title">繼續運行下一個連結？</string>
