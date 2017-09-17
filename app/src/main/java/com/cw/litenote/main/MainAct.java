@@ -13,6 +13,7 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.folder.Folder;
 import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.operation.Import_webAct;
 import com.cw.litenote.page.PageUi;
 import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.page.Page;
@@ -887,6 +888,12 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 				transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
 				transaction.replace(R.id.content_frame, importFragment,"import").addToBackStack(null).commit();
+				return true;
+
+			case MenuId.IMPORT_FROM_WEB:
+                Intent import_web = new Intent(this,Import_webAct.class);
+                startActivityForResult(import_web,8000);
+
 				return true;
 
 			case MenuId.SEND_PAGES:

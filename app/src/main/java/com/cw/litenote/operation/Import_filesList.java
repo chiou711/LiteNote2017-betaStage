@@ -40,7 +40,7 @@ public class Import_filesList extends ListFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.sd_files_list, container, false);
+        rootView = inflater.inflate(R.layout.import_sd_files_list, container, false);
 
         View view = rootView.findViewById(R.id.view_back_btn_bg);
         view.setBackgroundColor(ColorSet.getBarColor(getActivity()));
@@ -191,17 +191,17 @@ public class Import_filesList extends ListFragment
 	        for(File file : files)
 	        {
                 // add for filtering non-XML file
-                if(file.getName().contains("XML") || file.getName().contains("xml"))
+//                if(file.getName().contains("XML") || file.getName().contains("xml"))
                 {
                     filePathArray.add(file.getPath());
                     fileNames.add(file.getName());
                 }
 	        }
 //	        fileListAdapter = new ArrayAdapter<>(getActivity(),
-//	        									 R.layout.sd_files_list_row,
+//	        									 R.layout.import_sd_files_list_row,
 //	        									 fileNames);
             FileNameAdapter fileListAdapter = new FileNameAdapter(getActivity(),
-                                                                  R.layout.sd_files_list_row,
+                                                                  R.layout.import_sd_files_list_row,
                                                                   fileNames);
 	        setListAdapter(fileListAdapter);
         }
@@ -237,7 +237,7 @@ public class Import_filesList extends ListFragment
         public View getView(int position, View convertView,ViewGroup parent) {
             if(convertView == null)
             {
-                convertView = getActivity().getLayoutInflater().inflate(R.layout.sd_files_list_row, parent, false);
+                convertView = getActivity().getLayoutInflater().inflate(R.layout.import_sd_files_list_row, parent, false);
             }
 
             convertView.setFocusable(true);

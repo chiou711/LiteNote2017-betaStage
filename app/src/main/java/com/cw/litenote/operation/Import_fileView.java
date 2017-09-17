@@ -34,47 +34,39 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class Import_fileView extends Fragment
 {
-
-    private TextView mTitleViewText;
-    private TextView mBodyViewText;
+    TextView mTitleViewText;
+    TextView mBodyViewText;
     String filePath;
     static File mFile;
-    FileInputStream fileInputStream = null;
-    View mViewFile,mViewFileProgressBar;
     View rootView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		rootView = inflater.inflate(R.layout.sd_file_view,container, false);
+		rootView = inflater.inflate(R.layout.import_sd_file_view,container, false);
 		System.out.println("Import_fileView / onCreate");
-
-		mViewFile = rootView.findViewById(R.id.view_file);
-		mViewFileProgressBar = rootView.findViewById(R.id.view_file_progress_bar);
 
 		mTitleViewText = (TextView) rootView.findViewById(R.id.view_title);
 		mBodyViewText = (TextView) rootView.findViewById(R.id.view_body);
 
 		getActivity().getActionBar().setDisplayShowHomeEnabled(false);
 
-		ProgressBar progressBar = (ProgressBar) rootView.findViewById(R.id.import_progress);
+
+        Import_fileView_asyncTask task = null;
 		if(savedInstanceState == null) {
-			ImportAsyncTask task = new ImportAsyncTask();
-			task.setProgressBar(progressBar);
-			task.enableSaveDB(false);
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);//mFile is created inside ImportAsyncTask / _insertSelectedFileContentToDB
+			task = new Import_fileView_asyncTask(getActivity(),rootView,filePath);
+			task.enableSaveDB(false);// view
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else
 		{
 			mFile = new File(filePath);
 			mTitleViewText.setText(mFile.getName());
-			mBodyViewText.setText(importObject.fileBody);
+			mBodyViewText.setText(task.importObject.fileBody);
 		}
 
 		int style = 2;
@@ -146,10 +138,8 @@ public class Import_fileView extends Fragment
 
 			public void onClick(View view)
 			{
-				ProgressBar progressBar = (ProgressBar) rootView.findViewById(R.id.import_progress);
-				ImportAsyncTask task = new ImportAsyncTask();
-				task.setProgressBar(progressBar);
-				task.enableSaveDB(true);
+				Import_fileView_asyncTask task = new Import_fileView_asyncTask(getActivity(),rootView,filePath);
+				task.enableSaveDB(true);//confirm
 				task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			}
 		});
@@ -176,27 +166,6 @@ public class Import_fileView extends Fragment
         filePath = arguments.getString("KEY_FILE_PATH");
     }
 
-    static ParseXmlToDB importObject;
-    private void insertSelectedFileContentToDB(boolean enableInsertDB) 
-    {
-    	mFile = new File(filePath);
-    	
-    	try 
-    	{
-    		fileInputStream = new FileInputStream(mFile);
-    	} 
-    	catch (FileNotFoundException e) 
-    	{
-    		e.printStackTrace();
-    	}
-		 
-    	// import data by HandleXmlByFile class
-    	importObject = new ParseXmlToDB(fileInputStream,getActivity());
-    	importObject.enableInsertDB(enableInsertDB);
-    	importObject.handleXML();
-    	while(importObject.parsingComplete);
-    }
-    
     public static void createDefaultTables(Activity act,String fileName)
     {
 		System.out.println("Import_fileView / _createDefaultTables / fileName = " + fileName);
@@ -213,10 +182,10 @@ public class Import_fileView extends Fragment
         }
 
         // import data by HandleXmlByFile class
-        importObject = new ParseXmlToDB(fileInputStream,act);
+		ParseXmlToDB importObject = new ParseXmlToDB(fileInputStream,act);
         importObject.enableInsertDB(true);
         importObject.handleXML();
-        while(importObject.parsingComplete);
+        while(importObject.isParsing);
 	}
 
     @Override
@@ -233,60 +202,4 @@ public class Import_fileView extends Fragment
     public void onResume() {
         super.onResume();
     }
-    
-	// Show progress bar
-	public class ImportAsyncTask extends AsyncTask<Void, Integer, Void> {
-
-		ProgressBar bar;
-		boolean enableSaveDB;
-		public void setProgressBar(ProgressBar bar) {
-//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-			Util.lockOrientation(getActivity());
-			this.bar = bar;
-		    mViewFile.setVisibility(View.GONE);
-		    mViewFileProgressBar.setVisibility(View.VISIBLE);
-		    bar.setVisibility(View.VISIBLE);
-		}
-		
-		public void enableSaveDB(boolean enable)
-		{
-			enableSaveDB = enable;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-		    super.onProgressUpdate(values);
-		    if (this.bar != null) {
-		        bar.setProgress(values[0]);
-		    }
-		}
-		
-		@Override
-		protected Void doInBackground(Void... params) 
-		{
-			insertSelectedFileContentToDB(enableSaveDB);
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			bar.setVisibility(View.GONE);
-			mViewFile.setVisibility(View.VISIBLE);
-			
-			if(enableSaveDB)
-			{
-                backToListFragment();
-//				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-				Util.unlockOrientation(getActivity());
-				Toast.makeText(getActivity(),R.string.toast_import_finished,Toast.LENGTH_SHORT).show();
-			}
-			else
-			{
-			    // show Import content
-		    	mTitleViewText.setText(mFile.getName());
-		    	mBodyViewText.setText(importObject.fileBody);
-			}
-		}
-	}    
 }

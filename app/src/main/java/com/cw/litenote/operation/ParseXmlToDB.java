@@ -24,7 +24,7 @@ class ParseXmlToDB {
     private Context mContext;
    
     private FileInputStream fileInputStream = null;
-    volatile boolean parsingComplete = true;
+    volatile boolean isParsing;
     String fileBody = "";
     private String strSplitter;
     private boolean mEnableInsertDB = true;
@@ -40,6 +40,7 @@ class ParseXmlToDB {
         int pageTableId = Util.getPref_lastTimeView_page_tableId(mContext);
         mDb_page = new DB_page(MainAct.mAct,pageTableId);
 
+        isParsing = true;
     }
 
     public String getTitle()
@@ -140,6 +141,8 @@ class ParseXmlToDB {
                        {
                            text = text.replace("&apos;","\'");
                            text = text.replace("&quot;","\"");
+                           text = text.replace("&amp;","\\&");
+
                             System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / name 2 = " + name);
                             link = text.trim();
                             System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / link = " + link);
@@ -170,11 +173,14 @@ class ParseXmlToDB {
                 }
                 if(!isEnd)
                     event = myParser.next();
-                else
+                else {
                     event = XmlPullParser.END_DOCUMENT;
+                    System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / isEnd = " + isEnd);
+                }
             }
 
-            parsingComplete = false;
+            isParsing = false;
+            System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / isParsing = " + isParsing);
         }
         catch (Exception e)
         {
@@ -218,7 +224,7 @@ class ParseXmlToDB {
     }
 
     void enableInsertDB(boolean en)
-        {
+    {
         mEnableInsertDB = en;
-        }
+    }
 }

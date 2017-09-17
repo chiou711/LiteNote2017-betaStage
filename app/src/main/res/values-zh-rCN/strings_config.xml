@@ -30,6 +30,7 @@
     <string name="config_SDCard_file_content">档案内容: </string>
     <string name="config_import_SDCard_entry">从SD卡汇入笔记</string>
     <string name="config_import_SDCard_title">选择要汇入的档案：</string>
+    <string name="config_import_Web">从Web汇入笔记</string>
     <string name="config_import_SDCard_confirm_title">确认要汇入所选：</string>
     <string name="config_select_pages_title">选择页面:</string>
     <string name="config_button_back">返回</string>

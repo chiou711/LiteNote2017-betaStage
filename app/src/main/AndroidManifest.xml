@@ -71,6 +71,7 @@
 
         <activity android:name=".operation.YouTubePlayerAct"
                   android:configChanges="orientation|screenSize|keyboardHidden"/>
+        <activity android:name=".operation.Import_webAct"/>
         <activity android:name=".util.image.GalleryGridAct" />
         <activity android:name=".util.image.GalleryPagerAct" />
       	<activity android:name=".util.image.SlideshowPlayer"
