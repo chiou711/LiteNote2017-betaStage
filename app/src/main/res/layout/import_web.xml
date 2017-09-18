@@ -30,9 +30,9 @@
             android:paddingLeft="10dp"
             android:background="@drawable/button"
             android:textColor="@android:color/white"
-            android:drawableLeft="@android:drawable/ic_menu_close_clear_cancel"
-            android:drawableStart="@android:drawable/ic_menu_close_clear_cancel"
-            android:text="@string/edit_note_button_back" />
+            android:drawableLeft="@drawable/ic_menu_back"
+            android:drawableStart="@drawable/ic_menu_back"
+            android:text="@string/view_note_button_back" />
         <Button
             android:id="@+id/import_web_import"
             android:layout_width="0dp"
@@ -45,7 +45,7 @@
             android:textColor="@android:color/white"
             android:drawableLeft="@android:drawable/ic_menu_save"
             android:drawableStart="@android:drawable/ic_menu_save"
-            android:text="@string/edit_note_button_save" />
+            android:text="@string/config_import" />
     </LinearLayout>
     </LinearLayout>
 

@@ -30,6 +30,7 @@
     <string name="config_SDCard_file_content">檔案內容: </string>
     <string name="config_import_SDCard_entry">由SD卡匯入記事</string>
     <string name="config_import_SDCard_title">選擇要匯入的檔案：</string>
+    <string name="config_import">匯入</string>
     <string name="config_import_Web">從Web匯入記事</string>
     <string name="config_import_SDCard_confirm_title">確認要匯入所選：</string>
     <string name="config_select_pages_title">選擇頁面:</string>

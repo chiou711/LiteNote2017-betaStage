@@ -9,6 +9,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.cw.litenote.R;
 
@@ -17,8 +18,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-public class Import_webAct extends FragmentActivity {
-    static String content=null;
+public class Import_webAct extends FragmentActivity
+{
+    String content=null;
+    WebView webView;
+    Button btn_import;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -28,7 +32,7 @@ public class Import_webAct extends FragmentActivity {
         setContentView(R.layout.import_web);
 
         // web view
-        final WebView webView = (WebView) findViewById(R.id.webView);
+        webView = (WebView) findViewById(R.id.webView);
 
         // cancel button
         Button btn_cancel = (Button) findViewById(R.id.import_web_cancel);
@@ -36,17 +40,24 @@ public class Import_webAct extends FragmentActivity {
 
             public void onClick(View view) {
                 setResult(RESULT_CANCELED);
-                finish();
+                if (webView.canGoBack()) {
+                    webView.goBack();
+                    content = null;
+                }
+                else
+                    finish();
             }
         });
 
         // import button
-        Button btn_import = (Button) findViewById(R.id.import_web_import);
+        btn_import = (Button) findViewById(R.id.import_web_import);
+//        btn_import.setVisibility(View.INVISIBLE);
         btn_import.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
                 setResult(RESULT_OK);
+
                 // import
                 // save text in a file
                 String dirName = "Download";
@@ -89,9 +100,9 @@ public class Import_webAct extends FragmentActivity {
 
         // create instance
         final ImportInterface import_interface = new ImportInterface(webView);
-        webView.addJavascriptInterface(import_interface, "INTERFACE");
-//      webView.addJavascriptInterface(new ImportInterface(contentView), "Android");
 
+        // load web content
+        webView.addJavascriptInterface(import_interface, "INTERFACE");
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url)
@@ -100,8 +111,24 @@ public class Import_webAct extends FragmentActivity {
             }
         });
 
+        // show toast
+        webView.addJavascriptInterface(import_interface, "LiteNote");
+//        webView.addJavascriptInterface(import_interface, "INTERFACE");
+
         // load content to web view
         webView.loadUrl("http://litenoteapp.blogspot.tw/2017/09/xml-link.html");
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("Import_webAct / _onBackPressed");
+        // web view can go back
+        if (webView.canGoBack()) {
+            webView.goBack();
+            content = null;
+        }
+        else
+            super.onBackPressed();
     }
 
     /* An instance of this class will be registered as a JavaScript interface */
@@ -115,22 +142,23 @@ public class Import_webAct extends FragmentActivity {
 
         @SuppressWarnings("unused")
         @android.webkit.JavascriptInterface
-        public void processContent(String _content)
+        public void processContent(final String _content)
         {
-            final String content = _content;
             webView.post(new Runnable()
             {
                 public void run()
                 {
-                    Import_webAct.content = content;
-                    System.out.println("Import_webAct.content = "+ Import_webAct.content );
+                    content = _content;
+                    System.out.println("Import_webAct.content = "+ content );
                 }
             });
         }
 
-//        @android.webkit.JavascriptInterface
-//        public void showToast(String toast) {
-//            Toast.makeText(Import_webAct.this, toast, Toast.LENGTH_LONG).show();
-//        }
+        @android.webkit.JavascriptInterface
+        public void showToast(String toastText) {
+            Toast.makeText(Import_webAct.this, toastText, Toast.LENGTH_LONG).show();
+        }
+
+
     }
 }
