@@ -262,7 +262,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
   			try
 			{
 			    AsyncTaskAudioBitmap audioAsyncTask;
-			    audioAsyncTask = new AsyncTaskAudioBitmap(Page.mAct,
+			    audioAsyncTask = new AsyncTaskAudioBitmap(act,
 						    							  audioUri, 
 						    							  imageView,
 						    							  null, //??? set this has unknown bug

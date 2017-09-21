@@ -126,35 +126,7 @@ public class Page extends UilListViewBaseFragment
     	{   @Override
 			public void onItemClick(AdapterView<?> arg0, View view, int position, long id)
 			{
-    			System.out.println("Page / _onItemClick");
-
-                currPlayPosition = position;
-				mDb_page.open();
-				int count = mDb_page.getNotesCount(false);
-				String linkStr = mDb_page.getNoteLinkUri(position,false);
-				mDb_page.close();
-
-				if(position < count) {
-
-					SharedPreferences pref_open_youtube;
-					pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
-
-					if( Util.isYouTubeLink(linkStr) &&
-					    pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
-					{
-						AudioPlayer.stopAudio();
-						// apply native YouTube
-						Util.openLink_YouTube(mAct, linkStr);
-					}
-					else
-					{
-						// apply Note class
-						Intent intent;
-						intent = new Intent(getActivity(), Note.class);
-						intent.putExtra("POSITION", position);
-						startActivity(intent);
-					}
-				}
+                openClickedItem(position);
 			}
         });
 
@@ -163,17 +135,7 @@ public class Page extends UilListViewBaseFragment
     	{
             public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id)
              {
-		        Intent i = new Intent(getActivity(), Note_edit.class);
-				Long rowId = mDb_page.getNoteId(position,true);
-		        i.putExtra("list_view_position", position);
-		        i.putExtra(DB_page.KEY_NOTE_ID, rowId);
-		        i.putExtra(DB_page.KEY_NOTE_TITLE, mDb_page.getNoteTitle_byId(rowId));
-		        i.putExtra(DB_page.KEY_NOTE_PICTURE_URI , mDb_page.getNotePictureUri_byId(rowId));
-		        i.putExtra(DB_page.KEY_NOTE_AUDIO_URI , mDb_page.getNoteAudioUri_byId(rowId));
-		        i.putExtra(DB_page.KEY_NOTE_LINK_URI , mDb_page.getNoteLinkUri_byId(rowId));
-		        i.putExtra(DB_page.KEY_NOTE_BODY, mDb_page.getNoteBody_byId(rowId));
-		        i.putExtra(DB_page.KEY_NOTE_CREATED, mDb_page.getNoteCreatedTime_byId(rowId));
-		        startActivity(i);
+                 openLongClickedItem(position);
             	return true;
              }
 	    });
@@ -199,6 +161,56 @@ public class Page extends UilListViewBaseFragment
 		// Prepare the loader. Either re-connect with an existing one or start a new one.
 		getLoaderManager().initLoader(0, null, this);
 	}
+
+	// Open clicked item of list view
+	static void openClickedItem(int position)
+    {
+		System.out.println("Page / _openClickedItem");
+
+		currPlayPosition = position;
+        mDb_page.open();
+        int count = mDb_page.getNotesCount(false);
+        String linkStr = mDb_page.getNoteLinkUri(position,false);
+        mDb_page.close();
+
+        if(position < count) {
+
+            SharedPreferences pref_open_youtube;
+            pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
+
+            if( Util.isYouTubeLink(linkStr) &&
+                    pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
+            {
+                AudioPlayer.stopAudio();
+                // apply native YouTube
+                Util.openLink_YouTube(mAct, linkStr);
+            }
+            else
+            {
+                // apply Note class
+                Intent intent;
+                intent = new Intent(mAct, Note.class);
+                intent.putExtra("POSITION", position);
+                mAct.startActivity(intent);
+            }
+        }
+    }
+
+    // Open long clicked item of list view
+    void openLongClickedItem(int position)
+    {
+        Intent i = new Intent(getActivity(), Note_edit.class);
+        Long rowId = mDb_page.getNoteId(position,true);
+        i.putExtra("list_view_position", position);
+        i.putExtra(DB_page.KEY_NOTE_ID, rowId);
+        i.putExtra(DB_page.KEY_NOTE_TITLE, mDb_page.getNoteTitle_byId(rowId));
+        i.putExtra(DB_page.KEY_NOTE_PICTURE_URI , mDb_page.getNotePictureUri_byId(rowId));
+        i.putExtra(DB_page.KEY_NOTE_AUDIO_URI , mDb_page.getNoteAudioUri_byId(rowId));
+        i.putExtra(DB_page.KEY_NOTE_LINK_URI , mDb_page.getNoteLinkUri_byId(rowId));
+        i.putExtra(DB_page.KEY_NOTE_BODY, mDb_page.getNoteBody_byId(rowId));
+        i.putExtra(DB_page.KEY_NOTE_CREATED, mDb_page.getNoteCreatedTime_byId(rowId));
+        startActivity(i);
+    }
 
 	private class SpinnerTask extends AsyncTask <Void,Void,Void>{
 	    @Override

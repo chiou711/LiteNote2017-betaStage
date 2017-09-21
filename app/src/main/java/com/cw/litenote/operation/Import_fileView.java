@@ -42,7 +42,7 @@ public class Import_fileView extends Fragment
     TextView mTitleViewText;
     TextView mBodyViewText;
     String filePath;
-    static File mFile;
+    File mFile;
     View rootView;
 
 	@Override
@@ -104,10 +104,13 @@ public class Import_fileView extends Fragment
 				Util util = new Util(getActivity());
 				util.vibrate();
 
+                mFile = new File(filePath);
+				String fileName = mFile.getName();
+
 				AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
 				builder1.setTitle(R.string.confirm_dialog_title)
 						.setMessage(getResources().getString(R.string.confirm_dialog_message_file) +
-								" (" + mFile.getName() +")" )
+								" (" + fileName +")" )
 						.setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
 						{
 							@Override

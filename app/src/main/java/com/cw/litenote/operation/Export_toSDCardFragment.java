@@ -31,7 +31,7 @@ public class Export_toSDCardFragment extends Fragment {
 	CheckedTextView mCheckTvSelAll;
     ListView mListView;
     int mStyle;
-	MailPagesFragment.SelectPageList mSelectPageList;
+	SelectPageList mSelectPageList;
 	public static View mSelPageDlg,mProgressBar;
 	public Export_toSDCardFragment(){}
 	public static View rootView;
@@ -93,7 +93,7 @@ public class Export_toSDCardFragment extends Fragment {
 		});
 
 		// step 1: show list for Select
-		mSelectPageList = new MailPagesFragment.SelectPageList(getActivity(),rootView,mListView);
+		mSelectPageList = new SelectPageList(getActivity(),rootView,mListView);
 
 		((MainAct)getActivity()).setOnBackPressedListener(new BaseBackPressedListener(getActivity()));
 
@@ -129,8 +129,16 @@ public class Export_toSDCardFragment extends Fragment {
 	    							.inflate(R.layout.edit_text_dlg, null);
 		builder1 = new AlertDialog.Builder(getActivity());
 
+		// pages name
+		String pagesName="";
+		for(int i=0;i<mSelectPageList.mListStrArr.size();i++) {
+			if(mSelectPageList.mCheckedArr.get(i) == true) {
+				pagesName = pagesName.concat("_" + mSelectPageList.mListStrArr.get(i) );
+			}
+		}
+
 		// default file name: with tab title
-		mDefaultFileName = mSelectPageList.mXML_default_filename + ".xml";
+		mDefaultFileName = mSelectPageList.mXML_default_filename + pagesName + ".xml";
 
 		editSDCardFileNameText.setText(mDefaultFileName);
 

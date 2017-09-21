@@ -34,6 +34,9 @@ import com.cw.litenote.util.Util;
 import com.cw.litenote.util.ColorSet;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
 
+import static com.cw.litenote.page.Page.mAct;
+import static com.cw.litenote.page.Page.mDb_page;
+
 
 // Pager adapter
 public class Page_adapter extends SimpleDragSortCursorAdapter
@@ -65,7 +68,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 	
 	@Override
 	public int getCount() {
-		return Page.mDb_page.getNotesCount(true);
+		return mDb_page.getNotesCount(true);
 	}
 
 	@Override
@@ -84,11 +87,11 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		View view = convertView;
 		final ViewHolder holder;
 
-		SharedPreferences pref_show_note_attribute = Page.mAct.getSharedPreferences("show_note_attribute", 0);
+		SharedPreferences pref_show_note_attribute = mAct.getSharedPreferences("show_note_attribute", 0);
 
 		if (convertView == null)
 		{
-			view = Page.mAct.getLayoutInflater().inflate(R.layout.page_view_row, parent, false);
+			view = mAct.getLayoutInflater().inflate(R.layout.page_view_row, parent, false);
 
 			// set rectangular background
 //				view.setBackgroundColor(Util.mBG_ColorArray[mStyle]);
@@ -159,10 +162,10 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		holder.rowId.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
 		
 		// show check box, title , picture
-		String strTitle = Page.mDb_page.getNoteTitle(position,true);
-		String pictureUri = Page.mDb_page.getNotePictureUri(position,true);
-		String audioUri = Page.mDb_page.getNoteAudioUri(position,true);
-		String linkUri = Page.mDb_page.getNoteLinkUri(position,true);
+		String strTitle = mDb_page.getNoteTitle(position,true);
+		String pictureUri = mDb_page.getNotePictureUri(position,true);
+		String audioUri = mDb_page.getNoteAudioUri(position,true);
+		String linkUri = mDb_page.getNoteLinkUri(position,true);
 
 		// set title
 		if( Util.isEmptyString(strTitle) )
@@ -177,7 +180,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			else if(linkUri.startsWith("http"))
 			{
 				holder.textTitle.setVisibility(View.VISIBLE);
-				Util.setHttpTitle(linkUri,Page.mAct,holder.textTitle);
+				Util.setHttpTitle(linkUri, mAct,holder.textTitle);
 			}
 			else
 			{
@@ -197,9 +200,9 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 		// set audio name
 		String audio_name = null;
 		if(!Util.isEmptyString(audioUri))
-			audio_name = Util.getDisplayNameByUriString(audioUri, Page.mAct);
+			audio_name = Util.getDisplayNameByUriString(audioUri, mAct);
 
-		if(Util.isUriExisted(audioUri, Page.mAct))
+		if(Util.isUriExisted(audioUri, mAct))
 			holder.audioName.setText(audio_name);
 		else
 			holder.audioName.setText(R.string.file_not_found);
@@ -265,8 +268,8 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 //		System.out.println("Page_adapter / _getView / pictureUri = " + pictureUri);
 
 		// show thumb nail if picture Uri exists
-		if(UtilImage.hasImageExtension(pictureUri, Page.mAct ) ||
-		   UtilVideo.hasVideoExtension(pictureUri, Page.mAct )   )
+		if(UtilImage.hasImageExtension(pictureUri, mAct ) ||
+		   UtilVideo.hasVideoExtension(pictureUri, mAct )   )
 		{
 			holder.thumbBlock.setVisibility(View.VISIBLE);
 			holder.thumbPicture.setVisibility(View.VISIBLE);
@@ -281,7 +284,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 										   (Page.mStyle % 2 == 1 ?
 											UilCommon.optionsForRounded_light:
 											UilCommon.optionsForRounded_dark),
-										   Page.mAct);
+										   mAct);
 			}
 			catch(Exception e)
 			{
@@ -302,7 +305,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			try
 			{
 			    AsyncTaskAudioBitmap audioAsyncTask;
-			    audioAsyncTask = new AsyncTaskAudioBitmap(Page.mAct,
+			    audioAsyncTask = new AsyncTaskAudioBitmap(mAct,
 						    							  audioUri,
 						    							  holder.thumbAudio,
 						    							  holder.progressBar,
@@ -346,11 +349,14 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			holder.thumbWeb.setOnTouchListener(new View.OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
+                    if( (event.getAction() == MotionEvent.ACTION_POINTER_UP) ||
+                        (event.getAction() == MotionEvent.ACTION_UP)            )
+                    {
+                        Page.openClickedItem(position);
+                    }
 					return true;
 				}
 			});
-
-
 
 			holder.thumbPicture.setVisibility(View.GONE);
 			holder.thumbAudio.setVisibility(View.GONE);
@@ -396,7 +402,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 	  	if(pref_show_note_attribute.getString("KEY_SHOW_BODY", "yes").equalsIgnoreCase("yes"))
 	  	{
 	  		// test only: enabled for showing picture path
-	  		String strBody = Page.mDb_page.getNoteBody(position,true);
+	  		String strBody = mDb_page.getNoteBody(position,true);
 	  		if(!Util.isEmptyString(strBody)){
 				//normal: do nothing
 			}
@@ -413,7 +419,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			holder.rowDivider.setVisibility(View.VISIBLE);
 			holder.textBody.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
 			// time stamp
-			holder.textTime.setText(Util.getTimeString(Page.mDb_page.getNoteCreatedTime(position,true)));
+			holder.textTime.setText(Util.getTimeString(mDb_page.getNoteCreatedTime(position,true)));
 			holder.textTime.setTextColor(ColorSet.mText_ColorArray[Page.mStyle]);
 	  	}
 	  	else
@@ -430,7 +436,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 	  		holder.imageDragger.setVisibility(View.GONE); 
 		
 	  	// marking
-		if( Page.mDb_page.getNoteMarking(position, true) == 1)
+		if( mDb_page.getNoteMarking(position, true) == 1)
 			holder.imageCheck.setBackgroundResource(Page.mStyle%2 == 1 ?
 	    			R.drawable.btn_check_on_holo_light:
 	    			R.drawable.btn_check_on_holo_dark);	
