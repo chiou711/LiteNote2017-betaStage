@@ -47,7 +47,7 @@ public SelectPageList(Activity act, View rootView, View view)
     int pos = MainAct.mFolder.listView.getCheckedItemPosition();
     mFolderTitle = mDb_drawer.getFolderTitle(pos);
 
-    mDb_folder = new DB_folder(mAct, Util.getPref_lastTimeView_folder_tableId(mAct));
+    mDb_folder = new DB_folder(mAct, Util.getPref_focusView_folder_tableId(mAct));
 
     // checked Text View: select all
     mCheckTvSelAll = (CheckedTextView) rootView.findViewById(R.id.chkSelectAllPages);
@@ -153,7 +153,7 @@ void listForSelect(View root)
     mListStrArr = new ArrayList<String>();
 
     // DB
-    int pageTableId = Util.getPref_lastTimeView_page_tableId(mAct);
+    int pageTableId = Util.getPref_focusView_page_tableId(mAct);
     DB_page.setFocusPage_tableId(pageTableId);
 
     mDb_folder.open();

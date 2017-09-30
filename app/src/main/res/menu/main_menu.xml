@@ -166,6 +166,12 @@
                 android:showAsAction="never"
                 android:title="@string/rearrange_page"
                 android:icon="@drawable/ic_dragger_horizontal"/>
+            <item
+                android:id="@+id/DELETE_PAGES"
+                android:orderInCategory="4"
+                android:showAsAction="never"
+                android:title="@string/delete_pages"
+                android:icon="@drawable/ic_delete"/>
         </menu>
         </item>
 

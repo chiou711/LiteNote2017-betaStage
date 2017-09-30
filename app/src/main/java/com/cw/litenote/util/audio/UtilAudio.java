@@ -6,7 +6,7 @@ import java.util.Locale;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
-import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.folder.TabsHost;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
 
@@ -37,11 +37,11 @@ public class UtilAudio {
     {
 		if( (AudioPlayer.mMediaPlayer != null)    &&
 			(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos)&&
-			(TabsHost.mNow_pageId == MainAct.mPlaying_pageId)&&
+			(TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos)&&
 			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)      )
 		{
 			UtilAudio.stopAudioPlayer();
-			AudioPlayer.mAudioIndex = 0;
+			AudioPlayer.mAudioPos = 0;
 			AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
 			if(MainAct.mSubMenuItemAudio != null)
 				MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);

@@ -77,21 +77,21 @@ public class DB_folder
                 {
                     // importing preference
                 }
-                else {
-                    DB_drawer db_drawer = new DB_drawer(mContext);
-                    int folderId = (int) db_drawer.getFolderId(MainAct.mFocus_folderPos);
-                    // since the folder table does not exist, delete the folder Id in drawer table
-                    db_drawer.deleteFolderId(folderId);
-                }
+//                else {
+//                    DB_drawer db_drawer = new DB_drawer(mContext);
+//                    int folderId = (int) db_drawer.getFolderId(MainAct.mFocus_folderPos);
+//                    // since the folder table does not exist, delete the folder Id in drawer table
+//                    db_drawer.deleteFolderId(folderId);
+//                }
             }
         }
         catch (Exception e)
         {
             System.out.println("DB_folder / open folder table NG! / table id = " + getFocusFolder_tableId());
-            DB_drawer db_drawer = new DB_drawer(mContext);
-            int folderId =  (int) db_drawer.getFolderId(MainAct.mFocus_folderPos);
+//            DB_drawer db_drawer = new DB_drawer(mContext);
+//            int folderId =  (int) db_drawer.getFolderId(MainAct.mFocus_folderPos);
             // since the folder table does not exist, delete the folder Id in drawer table
-            db_drawer.deleteFolderId(folderId);
+//            db_drawer.deleteFolderId(folderId);
         }
 
         return DB_folder.this;
@@ -134,18 +134,20 @@ public class DB_folder
     }
 
     //delete page table
-    public void dropPageTable(int id)
-    {   
-    	this.open();
+    public void dropPageTable(int id,boolean enDbOpenClose)
+    {
+        if(enDbOpenClose)
+            this.open();
 
         //format "Page1_2"
-    	DB_PAGE_TABLE_NAME = DB_PAGE_TABLE_PREFIX.concat(String.valueOf(getFocusFolder_tableId())+"_"+String.valueOf(id));
+        DB_PAGE_TABLE_NAME = DB_PAGE_TABLE_PREFIX.concat(String.valueOf(getFocusFolder_tableId())+"_"+String.valueOf(id));
         String dB_drop_table = "DROP TABLE IF EXISTS " + DB_PAGE_TABLE_NAME + ";";
-        mSqlDb.execSQL(dB_drop_table);         
+        mSqlDb.execSQL(dB_drop_table);
 
-        this.close();
-    }   
-    
+        if(enDbOpenClose)
+            this.close();
+    }
+
     //delete page table by folder table Id
     public void dropPageTable(int folderTableId, int id)
     {   
@@ -210,24 +212,24 @@ public class DB_folder
         long rowId = mSqlDb.insert(intoTable, null, args);
 
         this.close();
-
         return rowId;
-
     }
     
     // delete page
-    public long deletePage(String table, int tabId)
+    public long deletePage(String table, int pageId, boolean enDbOpenClose)
     {
-    	System.out.println("DB / deletePage / table = " + table + ", tab Id = " + tabId);
+        System.out.println("DB / deletePage / table = " + table + ", page Id = " + pageId);
 
-        this.open();
-        long rowsNumber = mSqlDb.delete(table, KEY_PAGE_ID + "='" + tabId +"'", null);
-        this.close();
+        if(enDbOpenClose)
+            this.open();
+        long rowsNumber = mSqlDb.delete(table, KEY_PAGE_ID + "='" + pageId +"'", null);
+        if(enDbOpenClose)
+            this.close();
 
         if(rowsNumber > 0)
-        	System.out.println("DB / deletePage / rowsNumber =" + rowsNumber);
+            System.out.println("DB / deletePage / rowsNumber =" + rowsNumber);
         else
-        	System.out.println("DB / deletePage / failed to delete");
+            System.out.println("DB / deletePage / failed to delete");
 
         return rowsNumber;
     }

@@ -8,7 +8,7 @@ import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.R;
-import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.folder.TabsHost;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
@@ -91,7 +91,7 @@ public class Config extends Fragment
 
 		return mRootView;
 	}   	
-  
+
 	/**
 	 *  set take picture option
 	 *  
@@ -515,10 +515,10 @@ public class Config extends Fragment
 				UtilAudio.stopAudioPlayer();
 
 			//set last tab Id to 0, otherwise TabId will not start from 0 when deleting all
-			TabsHost.setLastExist_tabId(0);
+			TabsHost.setLastPos_pageId(0);
 			//reset tab Index to 0 
 			//fix: select tab over next import amount => clean all => import => export => error
-			TabsHost.mNow_pageId = 0;
+			TabsHost.mCurrPagePos = 0;
 			MainAct.mFocus_folderPos = 0;
     		//remove preference 
 			clearSharedPreferences(getActivity());			

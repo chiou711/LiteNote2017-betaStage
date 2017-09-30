@@ -46,7 +46,7 @@ public class NoteUi
         act = activity;
         mPosition = position;
 
-        DB_page db_page = new DB_page(act,Util.getPref_lastTimeView_page_tableId(act));
+        DB_page db_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
         String pictureUri = db_page.getNotePictureUri(position,true);
         String linkUri = db_page.getNoteLinkUri(position,true);
 

@@ -1,11 +1,10 @@
-package com.cw.litenote.page;
+package com.cw.litenote.folder;
 
 import java.util.ArrayList;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
-import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.util.audio.AudioPlayer;
@@ -25,6 +24,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -38,7 +38,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TabHost.OnTabChangeListener;
 
 public class TabsHost extends Fragment
@@ -54,25 +53,25 @@ public class TabsHost extends Fragment
 	
 	static SharedPreferences mPref_FinalPageViewed;
 	private static SharedPreferences mPref_delete_warn;
-	public static int mFinalPageViewed_pageId;
-	public static int mNow_pageId;
+	public static int mFinalPageViewed_pagePos;
+	public static int mCurrPagePos;
 	public static int mNow_pageTableId;
 	static ArrayList<String> mTabIndicator_ArrayList = new ArrayList<>();
-	public static int mFirstExist_PageId =0;
-	static int mLastExist_pageId =0;
-	public static int mLastExist_pageTableId;
+	public static int mFirstPos_PageId =0;
+	static int mLastPos_pageId =0;
+	public static int mLastPos_pageTableId;
 	public static HorizontalScrollView mHorScrollView;
-    public static Activity mAct;
+    public static FragmentActivity mAct;
 
     public TabsHost(){}
-    
-	@Override
+
+    @Override
 	public void onCreate(final Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
         // get final viewed table Id
 		mAct = getActivity();
-		int tableId = Util.getPref_lastTimeView_page_tableId(mAct);
+		int tableId = Util.getPref_focusView_page_tableId(mAct);
 		mClassName = getClass().getSimpleName();
 		//System.out.println("TabsHost / onCreate / strFinalPageViewed_tableId = " + tableId);
         System.out.println(mClassName + " / onCreate / strFinalPageViewed_tableId = " + tableId);
@@ -84,59 +83,69 @@ public class TabsHost extends Fragment
     	System.out.println("TabsHost / _onCreateView");
 		View rootView;
 
-		// set layout by orientation
-		if (Util.isLandscapeOrientation(mAct))
-		{
-			rootView = inflater.inflate(R.layout.page_view_landscape, container, false);
-		}
-		else
-		{
-			rootView = inflater.inflate(R.layout.page_view_portrait, container, false);
-		}
+        if(FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos) == 0) {
+            rootView = inflater.inflate(R.layout.page_view_blank, container, false);
+            System.out.println("TabsHost / _onCreateView / rootView is empty TextView");
+        }
+        else {
+            // set layout by orientation
+            if (Util.isLandscapeOrientation(mAct))
+                rootView = inflater.inflate(R.layout.page_view_landscape, container, false);
+            else
+                rootView = inflater.inflate(R.layout.page_view_portrait, container, false);
+        }
 
         setRootView(rootView);
 
 		if(mDbFolder != null)
 			mDbFolder.close();
-		mDbFolder = new DB_folder(mAct,Util.getPref_lastTimeView_folder_tableId(mAct));
 
-        setTabHost();
-        setTab(mAct);
-        
+		int folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mFocus_folderPos);
+		mDbFolder = new DB_folder(mAct,folderTableId);
+
+        mDbFolder.open();
+        // check if only one page left
+        int pagesCount = mDbFolder.getPagesCount(false);
+        System.out.println("TabsHost / _onCreateView / pagesCount = " + pagesCount);
+        mDbFolder.close();
+
+        if(pagesCount >0)
+        {
+            setTabHost();
+            setTab(mAct);
+        }
         return rootView;
-    }	
-	
-	@Override
+    }
+
+    @Override
 	public void onResume() {
 		super.onResume();
-		System.out.println("TabsHost / onResume");
+		System.out.println("TabsHost / _onResume");
 	}
 	
 	
 	@Override
 	public void onPause() {
 		super.onPause();
-//		System.out.println("TabsHost / onPause");
-		if( (mTabsHost != null) && MainAct.bEnableConfig)
-			mTabsHost.clearAllTabs(); // workaround: clear for changing to Config
+//		System.out.println("TabsHost / _onPause");
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-//		System.out.println("TabsHost / onSaveInstanceState");
-		super.onSaveInstanceState(outState);
+		System.out.println("TabsHost / _onSaveInstanceState");
+//		super.onSaveInstanceState(outState);
 	}
 	
 	@Override
 	public void onStop() {
-//		System.out.println("TabsHost / onStop");
+//		System.out.println("TabsHost / _onStop");
 		super.onStop();
 	}
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-//		System.out.println("TabsHost / onDestroy");
+//		System.out.println("TabsHost / _onDestroy");
 		if(mTabsHost != null)
 			mTabsHost.clearAllTabs(); // clear for changing drawer
 	}
@@ -190,18 +199,18 @@ public class TabsHost extends Fragment
 
 		// tab host
         mTabsHost = (FragmentTabHost)getRootView().findViewById(android.R.id.tabhost);
-        
+
         //for android-support-v4.jar
         //mTabsHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
-        
+
         //add frame layout for android-support-v13.jar
         //Note: must use getChildFragmentManager() for nested fragment
         mTabsHost.setup(mAct, getChildFragmentManager(), android.R.id.tabcontent);
 	}
 	
-	static void setTab(Activity act)
+	static void setTab(FragmentActivity act)
 	{
-//		System.out.println("TabsHost/ _setTab");
+		System.out.println("TabsHost/ _setTab");
         //set tab indicator
     	setTabIndicator(act);
     	
@@ -216,12 +225,20 @@ public class TabsHost extends Fragment
 	 */
 	protected static void setTabIndicator(final Activity act)
 	{
-		int folderTableId = DB_folder.getFocusFolder_tableId();
-		System.out.println("TabsHost / _setTabIndicator / folderTableId = " + folderTableId);
+//		int folderTableId = DB_folder.getFocusFolder_tableId();
+//		System.out.println("TabsHost / _setTabIndicator / folderTableId = " + folderTableId);
 		
 		// get final viewed table Id
-        int tableId = Util.getPref_lastTimeView_page_tableId(act);
-		
+        int tableId = Util.getPref_focusView_page_tableId(act);
+        System.out.println("TabsHost / _setTabIndicator / final viewed tableId = " + tableId);
+
+        int folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mFocus_folderPos);
+
+        if(mDbFolder != null)
+            mDbFolder = null;
+
+        mDbFolder = new DB_folder(mAct,folderTableId);
+
 		mDbFolder.open();
 		mPagesCount = mDbFolder.getPagesCount(false);
 		System.out.println("TabsHost / _setTabIndicator / mPagesCount = " + mPagesCount);
@@ -239,32 +256,32 @@ public class TabsHost extends Fragment
     		
 			if(mPageCursor.isFirst())
 			{
-				mFirstExist_PageId = pageId ;
+				mFirstPos_PageId = pageId ;
 			}
 			
 			if(mPageCursor.isLast())
 			{
-				mLastExist_pageId = pageId ;
+                setLastPos_pageId(pageId);
 			}
 			i++;
     	}
     	
-		mLastExist_pageTableId = 0;
-		// get final view table id of last time
+		mLastPos_pageTableId = 0;
+		// get focus view table id
 		for(int iPosition = 0; iPosition< mPagesCount; iPosition++)
 		{
 			int pageTableId = mDbFolder.getPageTableId(iPosition,false);
 			if(tableId == pageTableId)
 			{
-				mFinalPageViewed_pageId = iPosition;	// starts from 0
+				mFinalPageViewed_pagePos = iPosition;	// starts from 0
 			}
 			
-			if( pageTableId >= mLastExist_pageTableId)
-				mLastExist_pageTableId = pageTableId;
+			if( pageTableId >= mLastPos_pageTableId)
+				mLastPos_pageTableId = pageTableId;
 		}
 		mDbFolder.close();
 		
-		System.out.println("TabsHost / mLastExist_pageTableId = " + mLastExist_pageTableId);
+		System.out.println("TabsHost / mLastPos_pageTableId = " + mLastPos_pageTableId);
 		
     	//add tab
 //        mTabsHost.getTabWidget().setStripEnabled(true); // enable strip
@@ -274,7 +291,7 @@ public class TabsHost extends Fragment
             TAB_SPEC = TAB_SPEC_PREFIX.concat(String.valueOf(mDbFolder.getPageId(i,true)));
 //        	System.out.println(mClassName + " / addTab / " + i);
             mTabsHost.addTab(mTabsHost.newTabSpec(TAB_SPEC).setIndicator(mTabIndicator_ArrayList.get(i)),
-							 Page.class, //interconnection
+							 Page.class, //interconnection //TODO call page
 							 null);
             
             //set round corner and background color
@@ -347,19 +364,19 @@ public class TabsHost extends Fragment
         
         setTabMargin(act);
 
-		mNow_pageId = mFinalPageViewed_pageId;
+		mCurrPagePos = mFinalPageViewed_pagePos;
 		
-		System.out.println("TabsHost / setTabIndicator / mNow_pageId = " + mNow_pageId);
+		System.out.println("TabsHost / setTabIndicator / mCurrPagePos = " + mCurrPagePos);
 		
 		//set background color to selected tab 
-		mTabsHost.setCurrentTab(mNow_pageId);
+		mTabsHost.setCurrentTab(mCurrPagePos);
         
 		// scroll to last view
         mHorScrollView.post(new Runnable() {
 	        @Override
 	        public void run() {
-		        mPref_FinalPageViewed = act.getSharedPreferences("last_time_view", 0);
-		        int scrollX = Util.getPref_lastTimeView_scrollX_byFolderTableId(act);
+		        mPref_FinalPageViewed = act.getSharedPreferences("focus_view", 0);
+		        int scrollX = Util.getPref_focusView_scrollX_byFolderTableId(act);
 	        	mHorScrollView.scrollTo(scrollX, 0);
 	            updateTabSpec(mTabsHost.getCurrentTabTag(),act);
 	        } 
@@ -374,7 +391,7 @@ public class TabsHost extends Fragment
 		for (int i = 0; i < tabCount; i++)	
 		{
 	        TextView textView= (TextView) mTabsHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
-			if(highlightIsOn && (MainAct.mPlaying_pageId == i))
+			if(highlightIsOn && (MainAct.mPlaying_pagePos == i))
 			    textView.setTextColor(ColorSet.getHighlightColor(mAct));
 			else
 			{
@@ -449,8 +466,8 @@ public class TabsHost extends Fragment
 		int scrollX = mHorScrollView.getScrollX();
 		
 		//update final page currently viewed: scroll x
-        mPref_FinalPageViewed = activity.getSharedPreferences("last_time_view", 0);
-    	Util.setPref_lastTimeView_scrollX_byFolderTableId(activity, scrollX );
+        mPref_FinalPageViewed = activity.getSharedPreferences("focus_view", 0);
+    	Util.setPref_focusView_scrollX_byFolderTableId(activity, scrollX );
 		
     	mDbFolder.open();
 		int pagesCount = mDbFolder.getPagesCount(false);
@@ -462,12 +479,12 @@ public class TabsHost extends Fragment
 	    	
 			if(TAB_SPEC.equals(tabSpec) )
 	    	{
-	    		mNow_pageId = i;
+	    		mCurrPagePos = i;
 	    		//update final page currently viewed: tab Id
-	    		Util.setPref_lastTimeView_page_tableId(activity,pageTableId);
+	    		Util.setPref_focusView_page_tableId(activity,pageTableId);
 
 				// get current playing page table Id
-				mNow_pageTableId = Util.getPref_lastTimeView_page_tableId(activity);
+				mNow_pageTableId = Util.getPref_focusView_page_tableId(activity);
 	    		DB_page.setFocusPage_tableId(pageTableId);
 	    		System.out.println(mClassName + " / _updateTabSpec / tabSpec = " + tabSpec);
 	    	} 
@@ -487,7 +504,7 @@ public class TabsHost extends Fragment
 	 * set tab Edit listener
 	 *
 	 */
-	protected static void setTabEditListener(final Activity activity)
+	protected static void setTabEditListener(final FragmentActivity activity)
 	{
 	    // set listener for editing tab info
 	    int i = 0;
@@ -514,25 +531,25 @@ public class TabsHost extends Fragment
 	 * delete page
 	 * 
 	 */
-	public static  void deletePage(int TabId, final Activity activity)
+	public static  void deletePage(int TabId, final FragmentActivity activity)
 	{
 		mDbFolder.open();
 		// check if only one page left
 		int pagesCount = mDbFolder.getPagesCount(false);
-		if(pagesCount != 1)
+		if(pagesCount > 0)
 		{
-			final int tabId =  mDbFolder.getPageId(mNow_pageId, false);
+			final int tabId =  mDbFolder.getPageId(mCurrPagePos, false);
 			//if current page is the first page and will be delete,
 			//try to get next existence of note page
-			System.out.println("deletePage / mCurrentTabIndex = " + mNow_pageId);
-			System.out.println("deletePage / mFirstExist_PageId = " + mFirstExist_PageId);
-	        if(tabId == mFirstExist_PageId)
+			System.out.println("deletePage / mCurrentTabIndex = " + mCurrPagePos);
+			System.out.println("deletePage / mFirstPos_PageId = " + mFirstPos_PageId);
+	        if(tabId == mFirstPos_PageId)
 	        {
-	        	int cGetNextExistIndex = mNow_pageId +1;
+	        	int cGetNextExistIndex = mCurrPagePos +1;
 	        	boolean bGotNext = false;
 				while(!bGotNext){
 		        	try{
-		        	   	mFirstExist_PageId =  mDbFolder.getPageId(cGetNextExistIndex, false);
+		        	   	mFirstPos_PageId =  mDbFolder.getPageId(cGetNextExistIndex, false);
 		        		bGotNext = true;
 		        	}catch(Exception e){
     		        	 bGotNext = false;
@@ -543,48 +560,49 @@ public class TabsHost extends Fragment
 	        int newFirstPageTblId = 0;
 	        for(int i=0 ; i<pagesCount; i++)
 	        {
-	        	if(	mDbFolder.getPageId(i, false)== mFirstExist_PageId)
+	        	if(	mDbFolder.getPageId(i, false)== mFirstPos_PageId)
 	        	{
 	        		newFirstPageTblId =  mDbFolder.getPageTableId(i, false);
 	    			System.out.println("deletePage / newFirstPageTblId = " + newFirstPageTblId);
 	        	}
 	        }
 	        System.out.println("--- after delete / newFirstPageTblId = " + newFirstPageTblId);
-	        Util.setPref_lastTimeView_page_tableId(activity, newFirstPageTblId);
+	        Util.setPref_focusView_page_tableId(activity, newFirstPageTblId);
 		}
-		else{
-             Toast.makeText(activity, R.string.toast_keep_one_page , Toast.LENGTH_SHORT).show();
-             return;
-		}
+//		else
+//		{
+//             Toast.makeText(activity, R.string.toast_keep_one_page , Toast.LENGTH_SHORT).show();
+//             return;
+//		}
 		mDbFolder.close();
 		
 		// set scroll X
 		int scrollX = 0; //over the last scroll X
-        mPref_FinalPageViewed = activity.getSharedPreferences("last_time_view", 0);
-    	Util.setPref_lastTimeView_scrollX_byFolderTableId(activity, scrollX );
+        mPref_FinalPageViewed = activity.getSharedPreferences("focus_view", 0);
+    	Util.setPref_focusView_scrollX_byFolderTableId(activity, scrollX );
 	 	  
 		
 		// get page table Id for dropping
-		int pageTableId = mDbFolder.getPageTableId(mNow_pageId, true);
+		int pageTableId = mDbFolder.getPageTableId(mCurrPagePos, true);
 		System.out.println("TabsHost / _deletePage / pageTableId =  " + pageTableId);
 		
  	    // delete tab name
-		mDbFolder.dropPageTable(pageTableId);
-		mDbFolder.deletePage(DB_folder.getFocusFolder_tableName(),TabId);
+		mDbFolder.dropPageTable(pageTableId,true);
+		mDbFolder.deletePage(DB_folder.getFocusFolder_tableName(),TabId,true);
 		mPagesCount--;
 		
 		// After Delete page, update highlight tab
-    	if(mNow_pageId < MainAct.mPlaying_pageId)
+    	if(mCurrPagePos < MainAct.mPlaying_pagePos)
     	{
-    		MainAct.mPlaying_pageId--;
+    		MainAct.mPlaying_pagePos--;
     	}
-        else if((mNow_pageId == MainAct.mPlaying_pageId) &&
+        else if((mCurrPagePos == MainAct.mPlaying_pagePos) &&
                 (MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos))
         {
     		if(AudioPlayer.mMediaPlayer != null)
     		{
     			UtilAudio.stopAudioPlayer();
-				AudioPlayer.mAudioIndex = 0;
+				AudioPlayer.mAudioPos = 0;
 				AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
     		}    		
     	}
@@ -599,7 +617,7 @@ public class TabsHost extends Fragment
 	        @Override
 	        public void run() {
 	        	mHorScrollView.scrollTo(0, 0);
-	        	Util.setPref_lastTimeView_scrollX_byFolderTableId(activity, 0 );
+	        	Util.setPref_focusView_scrollX_byFolderTableId(activity, 0 );
 	        }
 	    });
 	}
@@ -609,19 +627,19 @@ public class TabsHost extends Fragment
 	 * 
 	 */
 	public static int mStyle = 0;
-	static void editPageTitle(int pageCursor, final Activity act)
+	static void editPageTitle(int pageCursor, final FragmentActivity act)
 	{
 		final int pageId = mDbFolder.getPageId(pageCursor, true);
 		mDbFolder.open();
 		mPageCursor = mDbFolder.getPageCursor();
 		if(mPageCursor.isFirst())
-			mFirstExist_PageId = pageId;
+			mFirstPos_PageId = pageId;
 		mDbFolder.close();
 
 		// get tab name
 		String title = mDbFolder.getPageTitle(pageCursor, true);
 		
-		if(pageCursor == mNow_pageId)
+		if(pageCursor == mCurrPagePos)
 		{
 	        final EditText editText1 = new EditText(act.getBaseContext());
 	        editText1.setText(title);
@@ -675,10 +693,10 @@ public class TabsHost extends Fragment
 	                    public void onClick(DialogInterface dialog, int which)
 	                    {
 	                		// save
-        					final int pageId =  mDbFolder.getPageId(mNow_pageId, true);
-        					final int pageTableId =  mDbFolder.getPageTableId(mNow_pageId, true);
+        					final int pageId =  mDbFolder.getPageId(mCurrPagePos, true);
+        					final int pageTableId =  mDbFolder.getPageTableId(mCurrPagePos, true);
         					
-	                        int tabStyle = mDbFolder.getPageStyle(mNow_pageId, true);
+	                        int tabStyle = mDbFolder.getPageStyle(mCurrPagePos, true);
 							mDbFolder.updatePage(pageId,
                                                  editText1.getText().toString(),
                                                  pageTableId,
@@ -686,7 +704,7 @@ public class TabsHost extends Fragment
                                                  true);
 	                        
 							// Before _recreate, store latest page number currently viewed
-							Util.setPref_lastTimeView_page_tableId(act, pageTableId);
+							Util.setPref_focusView_page_tableId(act, pageTableId);
 	                        
 	                        updateTabChange(act);
 	                    }
@@ -713,20 +731,22 @@ public class TabsHost extends Fragment
 	/**
 	 * update tab change 
 	 */
-	public static void updateTabChange(Activity act)
+	public static void updateTabChange(FragmentActivity act)
 	{
-//		System.out.println("TabsHost / _updateChange ");
-		mTabsHost.clearAllTabs(); //must add this in order to clear onTanChange event
-    	setTab(act);
-	}    
-	
-	static public int getLastExist_TabId()
-	{
-		return mLastExist_pageId;
+		System.out.println("TabsHost / _updateChange ");
+            FolderUi.selectFolder(MainAct.mFocus_folderPos);
+//			if(mTabsHost != null)
+//            	mTabsHost.clearAllTabs(); //must add this in order to clear onTabChange event
+//            setTab(act);
 	}
 	
-	static public void setLastExist_tabId(int lastTabId)
+	static public int getLastPos_pageId()
 	{
-		mLastExist_pageId = lastTabId;
+		return mLastPos_pageId;
+	}
+	
+	static public void setLastPos_pageId(int lastPosPageId)
+	{
+		mLastPos_pageId = lastPosPageId;
 	}
 }

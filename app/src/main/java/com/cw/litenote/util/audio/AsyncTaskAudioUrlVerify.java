@@ -7,11 +7,6 @@ import com.cw.litenote.util.Util;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.os.Handler;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 // A class that will show progress bar in the main GUI context
 //
@@ -60,7 +55,7 @@ public class AsyncTaskAudioUrlVerify extends AsyncTask<String,Integer,String>
 		 System.out.println("AudioUrlVerifyTask / doInBackground / params[0] = " + params[0] );
 		 mProgress =0;
  		 // check if audio file exists or not
-		 String audioStr = AudioPlayer.mAudioInfo.getAudioAt(AudioPlayer.mAudioIndex);
+		 String audioStr = AudioPlayer.mAudioInfo.getAudioAt(AudioPlayer.mAudioPos);
  		 mIsOkUrl = false;
  		 String scheme  = Util.getUriScheme(audioStr);
  		 System.out.println("scheme = " + scheme + " / path = " + audioStr);

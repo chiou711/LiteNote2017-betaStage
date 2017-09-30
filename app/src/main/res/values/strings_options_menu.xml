@@ -9,6 +9,7 @@
     <string name="menu_button_slide_show">Play slide show</string>
     <string name="change_page_color">Page Color</string>
     <string name="rearrange_page">Page order</string>
+    <string name="delete_pages">Delete pages</string>
     <string name="add_new_page">Add page</string>
     <string name="add_new_page_select_position">Select position:</string>
     <string name="add_new_page_leftmost">To leftmost</string>

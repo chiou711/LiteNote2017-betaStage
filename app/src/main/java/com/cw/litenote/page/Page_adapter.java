@@ -214,7 +214,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 
 		// show audio highlight if audio is not at Stop
 		if( PageUi.isSamePageTable() &&
-			(position == AudioPlayer.mAudioIndex)  &&
+			(position == AudioPlayer.mAudioPos)  &&
 			(AudioPlayer.mMediaPlayer != null) &&
 			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) &&
 			(AudioPlayer.getPlayMode() == AudioPlayer.CONTINUE_MODE))

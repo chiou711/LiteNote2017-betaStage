@@ -5,15 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-
-import com.cw.litenote.main.MainAct;
-import com.cw.litenote.page.TabsHost;
-import com.cw.litenote.util.Util;
-
 import java.util.Date;
 
-import static com.cw.litenote.page.TabsHost.deletePage;
-import static com.cw.litenote.db.DB_folder.getFocusFolder_tableName;
 
 /**
  *  Data Base Class for Page
@@ -74,53 +67,55 @@ public class DB_page
 		// workaround: to apply an existing page table that is found firstly
 		try
 		{
+			System.out.println("DB_page / _open / open page table Try / table name = " + DB_PAGE_TABLE_NAME);
+			System.out.println("DB_page / _open / open page table Try / getFocusPage_tableId() = " + getFocusPage_tableId());
 			mCursor_note = this.getNoteCursor_byPageTableId(getFocusPage_tableId());
-//			System.out.println("DB_page / _open / open page table OK / table name = " + DB_PAGE_TABLE_NAME);
+			System.out.println("DB_page / _open / open page table OK / table name = " + DB_PAGE_TABLE_NAME);
 		}
 		catch(Exception e)
 		{
 			System.out.println("DB_page / _open / open page table NG! / table name = " + DB_PAGE_TABLE_NAME);
 
 			// since the page table does not exist, delete the tab in folder table
-			System.out.println("   getFocusFolder_tableName() = " + getFocusFolder_tableName());
-			System.out.println("   TabsHost.mCurrentTabIndex = " + TabsHost.mNow_pageId);
-			deletePage( TabsHost.mNow_pageId, MainAct.mAct);
-
-			DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-			db_drawer.open();
-			// find a new one last view page table, if pager table dose not exist
-			int foldersCount = db_drawer.mCursor_folder.getCount();// db_drawer.getFoldersCount();
-
-			for(int folderPos=0; folderPos< foldersCount; folderPos++)
-			{
-				if(db_drawer.mCursor_folder.moveToPosition(folderPos) )
-				{
-					int folder_tableId = db_drawer.getFolderTableId(folderPos);
-					System.out.println("DB_page / folder_tableId = " + folder_tableId);
-					DB_folder.setFocusFolder_tableId(folder_tableId);
-					Util.setPref_lastTimeView_folder_tableId(MainAct.mAct, folder_tableId);
-
-					DB_folder db_folder = new DB_folder(MainAct.mAct,Util.getPref_lastTimeView_folder_tableId(MainAct.mAct));
-					db_folder.open();
-					int pagesCount = db_folder.mCursor_page.getCount();//db_folder.getPagesCount(true);
-					for(int pagePos=0; pagePos < pagesCount; pagePos++)
-					{
-						if(db_folder.mCursor_page.moveToPosition(pagePos))
-						{
-							int page_tableId = db_folder.getPageTableId(pagePos,true);
-							System.out.println("DB_page / find pageTableId = " + page_tableId);
-							setFocusPage_tableId(page_tableId);
-							Util.setPref_lastTimeView_page_tableId(MainAct.mAct, page_tableId);
-							db_folder.close();
-							db_drawer.close();
-
-							MainAct.mAct.recreate();
-							return DB_page.this;
-						}
-					}//for
-				}
-				db_drawer.close();
-			}//for
+//			System.out.println("   getFocusFolder_tableName() = " + getFocusFolder_tableName());
+//			System.out.println("   TabsHost.mCurrentTabIndex = " + TabsHost.mCurrPagePos);
+//			deletePage( TabsHost.mCurrPagePos, MainAct.mAct);
+//
+//			DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
+//			db_drawer.open();
+//			// find a new one last view page table, if pager table dose not exist
+//			int foldersCount = db_drawer.mCursor_folder.getCount();// db_drawer.getFoldersCount();
+//
+//			for(int folderPos=0; folderPos< foldersCount; folderPos++)
+//			{
+//				if(db_drawer.mCursor_folder.moveToPosition(folderPos) )
+//				{
+//					int folder_tableId = db_drawer.getFolderTableId(folderPos);
+//					System.out.println("DB_page / folder_tableId = " + folder_tableId);
+//					DB_folder.setFocusFolder_tableId(folder_tableId);
+//					Util.setPref_focusView_folder_tableId(MainAct.mAct, folder_tableId);
+//
+//					DB_folder db_folder = new DB_folder(MainAct.mAct,Util.getPref_focusView_folder_tableId(MainAct.mAct));
+//					db_folder.open();
+//					int pagesCount = db_folder.mCursor_page.getCount();//db_folder.getPagesCount(true);
+//					for(int pagePos=0; pagePos < pagesCount; pagePos++)
+//					{
+//						if(db_folder.mCursor_page.moveToPosition(pagePos))
+//						{
+//							int page_tableId = db_folder.getPageTableId(pagePos,true);
+//							System.out.println("DB_page / find pageTableId = " + page_tableId);
+//							setFocusPage_tableId(page_tableId);
+//							Util.setPref_focusView_page_tableId(MainAct.mAct, page_tableId);
+//							db_folder.close();
+//							db_drawer.close();
+//
+//							MainAct.mAct.recreate();
+//							return DB_page.this;
+//						}
+//					}//for
+//				}
+//				db_drawer.close();
+//			}//for
 		}//catch
 
 		return DB_page.this;
@@ -282,7 +277,9 @@ public class DB_page
 		if(enDbOpenClose)
 			this.open();
 
-		int count = mCursor_note.getCount();
+		int count = 0;
+		if(mCursor_note != null)
+			count = mCursor_note.getCount();
 
 		if(enDbOpenClose)
 			this.close();

@@ -48,19 +48,19 @@ class DatabaseHelper extends SQLiteOpenHelper
 		}
 
 		// Create Page tables
-    	if(!Define.HAS_PREFERENCE)
-    	{
-	    	for(int i = 1; i<= Define.ORIGIN_FOLDERS_COUNT; i++)
-	    	{
-	        	System.out.println("DatabaseHelper / _onCreate / will insert folder table " + i);
-	        	for(int j = 1; j<= Define.ORIGIN_PAGES_COUNT; j++)
-	        	{
-	            	System.out.println("DatabaseHelper / _onCreate / will insert note table " + j);
-					DB_folder db_folder = new DB_folder(MainAct.mAct,i);
-					db_folder.insertPageTable(db_folder, i, j, true);
-	        	}
-	    	}
-    	}
+//    	if(!Define.HAS_PREFERENCE)
+//    	{
+//	    	for(int i = 1; i<= Define.ORIGIN_FOLDERS_COUNT; i++)
+//	    	{
+//	        	System.out.println("DatabaseHelper / _onCreate / will insert folder table " + i);
+//	        	for(int j = 1; j<= Define.ORIGIN_PAGES_COUNT; j++)
+//	        	{
+//	            	System.out.println("DatabaseHelper / _onCreate / will insert note table " + j);
+//					DB_folder db_folder = new DB_folder(MainAct.mAct,i);
+//					db_folder.insertPageTable(db_folder, i, j, true);
+//	        	}
+//	    	}
+//    	}
 
     }
 

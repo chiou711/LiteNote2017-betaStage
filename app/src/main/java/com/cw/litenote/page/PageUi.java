@@ -1,28 +1,17 @@
 package com.cw.litenote.page;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -32,21 +21,13 @@ import android.widget.Toast;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.folder.TabsHost;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.note.Note_addAudio;
-import com.cw.litenote.note.Note_addCameraImage;
-import com.cw.litenote.note.Note_addCameraVideo;
-import com.cw.litenote.note.Note_addNew_option;
-import com.cw.litenote.note.Note_addReadyImage;
-import com.cw.litenote.note.Note_addReadyVideo;
-import com.cw.litenote.note.Note_addText;
 import com.cw.litenote.preference.Define;
 import com.cw.litenote.util.Util;
 import com.cw.litenote.util.image.UtilImage;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class PageUi
@@ -60,7 +41,7 @@ public class PageUi
 	 * Change Page Color
 	 *
 	 */
-	public static void changePageColor(final Activity act)
+	public static void changePageColor(final FragmentActivity act)
 	{
 		// set color
 		final Builder builder = new Builder(act);
@@ -112,9 +93,9 @@ public class PageUi
 			public void onCheckedChanged(RadioGroup RG, int id) {
 				DB_folder db = TabsHost.mDbFolder;
 				TabsHost.mStyle = RG.indexOfChild(RG.findViewById(id));
-				db.updatePage(db.getPageId(TabsHost.mNow_pageId, true),
-							  db.getPageTitle(TabsHost.mNow_pageId, true),
-							  db.getPageTableId(TabsHost.mNow_pageId, true),
+				db.updatePage(db.getPageId(TabsHost.mCurrPagePos, true),
+							  db.getPageTitle(TabsHost.mCurrPagePos, true),
+							  db.getPageTableId(TabsHost.mCurrPagePos, true),
 							  TabsHost.mStyle,
                               true);
 	 			dlg.dismiss();
@@ -126,7 +107,7 @@ public class PageUi
 	 * shift page right or left
 	 *
 	 */
-	public static void shiftPage(final Activity act)
+	public static void shiftPage(final FragmentActivity act)
 	{
 	    Builder builder = new Builder(act);
 	    builder.setTitle(R.string.rearrange_page_title)
@@ -155,42 +136,42 @@ public class PageUi
 		        mButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_finish , 0, 0, 0);
 
 		        int[] leftMargin = {0,0};
-		        if(TabsHost.mNow_pageId == 0)
+		        if(TabsHost.mCurrPagePos == 0)
 		        	TabsHost.mTabsHost.getTabWidget().getChildAt(0).getLocationInWindow(leftMargin);
 		        else
-		        	TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mNow_pageId -1).getLocationInWindow(leftMargin);
+		        	TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mCurrPagePos -1).getLocationInWindow(leftMargin);
 
 				int curTabWidth,nextTabWidth;
-				curTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mNow_pageId).getWidth();
-				if(TabsHost.mNow_pageId == 0)
+				curTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mCurrPagePos).getWidth();
+				if(TabsHost.mCurrPagePos == 0)
 					nextTabWidth = curTabWidth;
 				else
-					nextTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mNow_pageId -1).getWidth();
+					nextTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mCurrPagePos -1).getWidth();
 
 				// when leftmost tab margin over window border
 	       		if(leftMargin[0] < 0)
 	       			TabsHost.mHorScrollView.scrollBy(- (nextTabWidth + dividerWidth) , 0);
 
 	    		dlg.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-	    	    if(TabsHost.mNow_pageId == 0)
+	    	    if(TabsHost.mCurrPagePos == 0)
 	    	    {
 	    	    	Toast.makeText(TabsHost.mTabsHost.getContext(), R.string.toast_leftmost ,Toast.LENGTH_SHORT).show();
 	    	    	dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);//avoid long time toast
 	    	    }
 	    	    else
 	    	    {
-	    	    	Util.setPref_lastTimeView_page_tableId(act, TabsHost.mDbFolder.getPageTableId(TabsHost.mNow_pageId, true));
-	    	    	swapPage(TabsHost.mNow_pageId,
-	    	    			    TabsHost.mNow_pageId -1);
+	    	    	Util.setPref_focusView_page_tableId(act, TabsHost.mDbFolder.getPageTableId(TabsHost.mCurrPagePos, true));
+	    	    	swapPage(TabsHost.mCurrPagePos,
+	    	    			    TabsHost.mCurrPagePos -1);
 
                     // shift left when audio playing
                     if(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos) {
                         // target is playing index
-                        if (TabsHost.mNow_pageId == MainAct.mPlaying_pageId)
-                            MainAct.mPlaying_pageId--;
+                        if (TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos)
+                            MainAct.mPlaying_pagePos--;
                         // target is at right side of playing index
-                        else if ((TabsHost.mNow_pageId - MainAct.mPlaying_pageId) == 1)
-                            MainAct.mPlaying_pageId++;
+                        else if ((TabsHost.mCurrPagePos - MainAct.mPlaying_pagePos) == 1)
+                            MainAct.mPlaying_pagePos++;
                     }
 					TabsHost.updateTabChange(act);
 	    	    }
@@ -222,17 +203,17 @@ public class PageUi
 	    		int count = db.getPagesCount(true);
 
 				int[] rightMargin = {0,0};
-				if(TabsHost.mNow_pageId == (count-1))
+				if(TabsHost.mCurrPagePos == (count-1))
 					TabsHost.mTabsHost.getTabWidget().getChildAt(count-1).getLocationInWindow(rightMargin);
 				else
-					TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mNow_pageId +1).getLocationInWindow(rightMargin);
+					TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mCurrPagePos +1).getLocationInWindow(rightMargin);
 
 				int curTabWidth, nextTabWidth;
-				curTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mNow_pageId).getWidth();
-				if(TabsHost.mNow_pageId == (count-1))
+				curTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mCurrPagePos).getWidth();
+				if(TabsHost.mCurrPagePos == (count-1))
 					nextTabWidth = curTabWidth;
 				else
-					nextTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mNow_pageId +1).getWidth();
+					nextTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(TabsHost.mCurrPagePos +1).getWidth();
 
 	    		// when rightmost tab margin plus its tab width over screen border
 				int screenWidth = UtilImage.getScreenWidth(act);
@@ -241,7 +222,7 @@ public class PageUi
 
 	    		dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(true);
 
-	   	    	if(TabsHost.mNow_pageId == (count-1))
+	   	    	if(TabsHost.mCurrPagePos == (count-1))
 	   	    	{
 	   	    		// end of the right side
 	   	    		Toast.makeText(TabsHost.mTabsHost.getContext(),R.string.toast_rightmost,Toast.LENGTH_SHORT).show();
@@ -249,17 +230,17 @@ public class PageUi
 	   	    	}
 	   	    	else
 	   	    	{
-	    	    	Util.setPref_lastTimeView_page_tableId(act, db.getPageTableId(TabsHost.mNow_pageId, true));
-					swapPage(TabsHost.mNow_pageId, TabsHost.mNow_pageId +1);
+	    	    	Util.setPref_focusView_page_tableId(act, db.getPageTableId(TabsHost.mCurrPagePos, true));
+					swapPage(TabsHost.mCurrPagePos, TabsHost.mCurrPagePos +1);
 
                     // shift right when audio playing
                     if(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos) {
                         // target is playing index
-                        if (TabsHost.mNow_pageId == MainAct.mPlaying_pageId)
-                            MainAct.mPlaying_pageId++;
+                        if (TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos)
+                            MainAct.mPlaying_pagePos++;
                         // target is at left side of plying index
-                        else if ((MainAct.mPlaying_pageId - TabsHost.mNow_pageId) == 1)
-                            MainAct.mPlaying_pageId--;
+                        else if ((MainAct.mPlaying_pagePos - TabsHost.mCurrPagePos) == 1)
+                            MainAct.mPlaying_pagePos--;
                     }
 					TabsHost.updateTabChange(act);
 	   	    	}
@@ -327,7 +308,7 @@ public class PageUi
         String pageName = Define.getTabTitle(act, newTabId);
 
         // check if name is duplicated
-        DB_folder dbFolder = TabsHost.mDbFolder;
+		DB_folder dbFolder = new DB_folder(act,DB_folder.getFocusFolder_tableId());
         dbFolder.open();
         int pagesCount = dbFolder.getPagesCount(false);
 
@@ -434,7 +415,7 @@ public class PageUi
 	 */
 	public static void insertPage_rightmost(final FragmentActivity act, int newTblId, String tabName)
 	{
-		DB_folder dbFolder = TabsHost.mDbFolder;
+		DB_folder dbFolder = new DB_folder(act,DB_folder.getFocusFolder_tableId());
 	    // insert tab name
 		int style = Util.getNewPageStyle(act);
 		dbFolder.insertPage(DB_folder.getFocusFolder_tableName(),tabName,newTblId,style );
@@ -444,20 +425,22 @@ public class PageUi
 		TabsHost.mPagesCount++;
 		
 		// commit: final page viewed
-		Util.setPref_lastTimeView_page_tableId(act, newTblId);
+		Util.setPref_focusView_page_tableId(act, newTblId);
 		
 	    // set scroll X
 		final int scrollX = (TabsHost.mPagesCount) * 60 * 5; //over the last scroll X
 		
 		TabsHost.updateTabChange(act);
-		
-		TabsHost.mHorScrollView.post(new Runnable() {
-	        @Override
-	        public void run() {
-	        	TabsHost.mHorScrollView.scrollTo(scrollX, 0);
-	        	Util.setPref_lastTimeView_scrollX_byFolderTableId(act, scrollX );
-	        } 
-	    });
+
+		if(TabsHost.mHorScrollView != null) {
+			TabsHost.mHorScrollView.post(new Runnable() {
+				@Override
+				public void run() {
+					TabsHost.mHorScrollView.scrollTo(scrollX, 0);
+					Util.setPref_focusView_scrollX_byFolderTableId(act, scrollX);
+				}
+			});
+		}
 	}
 
 	/* 
@@ -491,42 +474,42 @@ public class PageUi
 		
 		// commit: scroll X
 		TabsHost.updateTabChange(act);
-		
+
 		TabsHost.mHorScrollView.post(new Runnable() {
 	        @Override
 	        public void run() {
 	        	TabsHost.mHorScrollView.scrollTo(scrollX, 0);
-	        	Util.setPref_lastTimeView_scrollX_byFolderTableId(act, scrollX );
+	        	Util.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
 	        } 
 	    });
 		
 		// update highlight tab
 		if(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos)
-			MainAct.mPlaying_pageId++;
+			MainAct.mPlaying_pagePos++;
 	}
 	
 	
 	/*
-	 * Update Final page which was viewed last time
+	 * Update Final page which was focus view
 	 * 
 	 */
 	protected static void updateFinalPageViewed(FragmentActivity act)
 	{
 	    // get final viewed table Id
-	    int tableId = Util.getPref_lastTimeView_page_tableId(act);
+	    int tableId = Util.getPref_focusView_page_tableId(act);
 		DB_page.setFocusPage_tableId(tableId);
 	
 		DB_folder dbFolder = TabsHost.mDbFolder;
 		dbFolder.open();
 
-		// get final view tab index of last time
+		// get final view tab index of focus
 		for(int i = 0; i<dbFolder.getPagesCount(false); i++)
 		{
 			if(Integer.valueOf(tableId) == dbFolder.getPageTableId(i, false))
-				TabsHost.mFinalPageViewed_pageId = i;	// starts from 0
+				TabsHost.mFinalPageViewed_pagePos = i;	// starts from 0
 			
-	    	if(	dbFolder.getPageId(i, false)== TabsHost.mFirstExist_PageId)
-	    		Util.setPref_lastTimeView_page_tableId(act, dbFolder.getPageTableId(i, false) );
+	    	if(	dbFolder.getPageId(i, false)== TabsHost.mFirstPos_PageId)
+	    		Util.setPref_focusView_page_tableId(act, dbFolder.getPageTableId(i, false) );
 		}
 		dbFolder.close();
 	}
@@ -534,7 +517,7 @@ public class PageUi
     public static boolean isSamePageTable()
     {
 	    return ( (MainAct.mPlaying_pageTableId == TabsHost.mNow_pageTableId) &&
-			     (MainAct.mPlaying_pageId == TabsHost.mNow_pageId) &&
+			     (MainAct.mPlaying_pagePos == TabsHost.mCurrPagePos) &&
 	     	     (MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos)        );
     }
     

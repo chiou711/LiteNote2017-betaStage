@@ -1,38 +1,23 @@
 package com.cw.litenote.main;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import com.cw.litenote.R;
-import com.cw.litenote.db.DB_folder;
-import com.cw.litenote.db.DB_page;
-import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.note.Note_addAudio;
 import com.cw.litenote.note.Note_addCameraImage;
 import com.cw.litenote.note.Note_addCameraVideo;
@@ -40,11 +25,8 @@ import com.cw.litenote.note.Note_addText;
 import com.cw.litenote.note.Note_addNew_option;
 import com.cw.litenote.note.Note_addReadyImage;
 import com.cw.litenote.note.Note_addReadyVideo;
-import com.cw.litenote.preference.Define;
-import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.Util;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -314,7 +296,8 @@ class MenuId {
 
     static final int ADD_NEW_PAGE = R.id.ADD_NEW_PAGE;
     static final int CHANGE_PAGE_COLOR = R.id.CHANGE_PAGE_COLOR;
-    static final int SHIFT_PAGE = R.id.SHIFT_PAGE;
+	static final int SHIFT_PAGE = R.id.SHIFT_PAGE;
+	static final int DELETE_PAGES = R.id.DELETE_PAGES;
 	static final int SHOW_BODY = R.id.SHOW_BODY;
 	static final int CLICK_LAUNCH_YOUTUBE = R.id.CLICK_LAUNCH_YOUTUBE;
     static final int ENABLE_NOTE_DRAG_AND_DROP = R.id.ENABLE_NOTE_DRAG_AND_DROP;
@@ -322,7 +305,7 @@ class MenuId {
     static final int EXPORT_TO_SD_CARD = R.id.EXPORT_TO_SD_CARD;
 	static final int IMPORT_FROM_SD_CARD = R.id.IMPORT_FROM_SD_CARD;
 	static final int IMPORT_FROM_WEB = R.id.IMPORT_FROM_WEB;
-    static final int CONFIG_PREFERENCE = R.id.CONFIG_PREF;
+    static final int CONFIG = R.id.CONFIG_PREF;
 
     static final int ADD_NEW_FOLDER = R.id.ADD_NEW_FOLDER;
     static final int ENABLE_FOLDER_DRAG_AND_DROP = R.id.ENABLE_FOLDER_DRAG_AND_DROP;

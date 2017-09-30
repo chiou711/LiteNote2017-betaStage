@@ -135,7 +135,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
 
         youTubePlayer.setShowFullscreenButton(true);
 
-        DB_page db_page = new DB_page(act,Util.getPref_lastTimeView_page_tableId(act));
+        DB_page db_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
         String linkUri = db_page.getNoteLinkUri(Note.mCurrentPosition,true);
         System.out.println("YouTubePlayerAct / _prepare_play_YouTube / linkUri = " + linkUri);
 

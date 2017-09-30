@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
-import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.folder.TabsHost;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.image.TouchImageView;
 import com.cw.litenote.util.image.UtilImage_bitmapLoader;
@@ -111,7 +111,7 @@ class Note_common {
         progressBar = (ProgressBar) act.findViewById(R.id.edit_progress_bar);
         progressBarExpand = (ProgressBar) act.findViewById(R.id.edit_progress_bar_expand);
         		
-		style = TabsHost.mDbFolder.getPageStyle(TabsHost.mNow_pageId, true);
+		style = TabsHost.mDbFolder.getPageStyle(TabsHost.mCurrPagePos, true);
 
 		enlargedImage = (TouchImageView)act.findViewById(R.id.expanded_image);
 
@@ -192,7 +192,7 @@ class Note_common {
 
 	void UI_init_text()
 	{
-		style = TabsHost.mDbFolder.getPageStyle(TabsHost.mNow_pageId, true);
+		style = TabsHost.mDbFolder.getPageStyle(TabsHost.mCurrPagePos, true);
 
 		LinearLayout block = (LinearLayout) act.findViewById(R.id.edit_title_block);
 		if(block != null)

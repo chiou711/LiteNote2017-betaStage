@@ -1,6 +1,5 @@
 package com.cw.litenote.note;
 
-import com.cw.litenote.main.MainUi;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
@@ -163,7 +162,7 @@ public class Note_edit extends Activity
                         		
                         		// update highlight position
                         		if(position < Page.mHighlightPosition )
-                        			AudioPlayer.mAudioIndex--;
+                        			AudioPlayer.mAudioPos--;
                         		
                             	finish();
                         	}

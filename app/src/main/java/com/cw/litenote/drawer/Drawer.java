@@ -9,7 +9,7 @@ import android.view.View;
 import com.cw.litenote.R;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.folder.TabsHost;
 
 /**
  * Created by CW on 2016/8/24.
@@ -38,27 +38,39 @@ public class Drawer {
                     public void onDrawerOpened(View drawerView)
                     {
                         System.out.println("Drawer / _onDrawerOpened ");
-                        MainAct.setFolderTitle(MainAct.mAppTitle);
-//                        MainAct.mFolder.adapter.notifyDataSetChanged();
+
                         act.invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+
+                        if(MainAct.mFolder.listView.getCount() >0) {
+                            MainAct.setFolderTitle(MainAct.mAppTitle);
+                        }
                     }
 
                     public void onDrawerClosed(View view)
                     {
                         System.out.println("Drawer / _onDrawerClosed / MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
-                        int pos = MainAct.mFolder.listView.getCheckedItemPosition();
-                        MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(pos);
-                        MainAct.setFolderTitle(MainAct.mFolderTitle);
+
                         act.invalidateOptionsMenu(); // creates a call to onPrepareOptionsMenu()
 
-                        // add for deleting folder condition
-                        if(TabsHost.mTabsHost == null)
-                            FolderUi.selectFolder(MainAct.mFocus_folderPos);
+//                        if(MainAct.mFolder.listView.getCount() >0)
+                        if(MainAct.mDb_drawer.getFoldersCount() >0)
+                        {
+                            int pos = MainAct.mFolder.listView.getCheckedItemPosition();
+                            MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(pos);
+                            MainAct.setFolderTitle(MainAct.mFolderTitle);
+
+                            if(FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos) == 0)
+                            {
+                                MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.INVISIBLE);
+                                MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
+                            }
+
+                            // add for deleting folder condition
+                            if (TabsHost.mTabsHost == null)
+                                FolderUi.selectFolder(MainAct.mFocus_folderPos);
+                        }
                     }
-
-
-                };
-
+               };
     }
 
     public void initDrawer()

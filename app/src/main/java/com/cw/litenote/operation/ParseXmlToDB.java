@@ -7,7 +7,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.folder.TabsHost;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.Util;
@@ -34,10 +34,10 @@ class ParseXmlToDB {
         mContext = context;
         this.fileInputStream = fileInputStream;
 
-        int folderTableId = Util.getPref_lastTimeView_folder_tableId(mContext);
+        int folderTableId = Util.getPref_focusView_folder_tableId(mContext);
         mDb_folder = new DB_folder(MainAct.mAct, folderTableId);
 
-        int pageTableId = Util.getPref_lastTimeView_page_tableId(mContext);
+        int pageTableId = Util.getPref_focusView_page_tableId(mContext);
         mDb_page = new DB_page(MainAct.mAct,pageTableId);
 
         isParsing = true;
@@ -99,7 +99,6 @@ class ParseXmlToDB {
                         if(name.equals("page_name"))
                         {
                             pageName = text.trim();
-
                             if(mEnableInsertDB)
                             {
                                 int style = Util.getNewPageStyle(mContext);
@@ -107,13 +106,18 @@ class ParseXmlToDB {
                                 // style is not set in XML file, so insert default style instead
                                 mDb_folder.insertPage(DB_folder.getFocusFolder_tableName(),
                                                         pageName,
-                                                        TabsHost.getLastExist_TabId() + 1,
+                                                        TabsHost.getLastPos_pageId() + 1,
                                                         style );
 
                                 // insert table for new tab
-                                mDb_folder.insertPageTable(mDb_folder,DB_folder.getFocusFolder_tableId(), TabsHost.getLastExist_TabId() + 1, false );
+                                mDb_folder.insertPageTable(mDb_folder,DB_folder.getFocusFolder_tableId(), TabsHost.getLastPos_pageId() + 1, false );
                                 // update last tab Id after Insert
-                                TabsHost.setLastExist_tabId(TabsHost.getLastExist_TabId() + 1);
+                                TabsHost.setLastPos_pageId(TabsHost.getLastPos_pageId() + 1);//??? logic error? should be max page Id?
+
+                                // update from 0 to 1 if Import starts from Empty
+                                int pgsCnt = mDb_folder.getPagesCount(true);
+                                if((pgsCnt > 0) && (Util.getPref_focusView_page_tableId(MainAct.mAct) ==0))
+                                    Util.setPref_focusView_page_tableId(MainAct.mAct, 1);
                             }
                             fileBody = fileBody.concat(Util.NEW_LINE + "=== " + "Page:" + " " + pageName + " ===");
                        }
@@ -148,7 +152,7 @@ class ParseXmlToDB {
                             System.out.println("ParseXmlToDB / _parseXMLAndInsertDB / link = " + link);
                             if(mEnableInsertDB)
                             {
-                                DB_page.setFocusPage_tableId(TabsHost.getLastExist_TabId());
+                                DB_page.setFocusPage_tableId(TabsHost.getLastPos_pageId());
                                 if(title.length() !=0 || body.length() != 0 || picture.length() !=0 || audio.length() !=0 ||link.length() !=0)
                                 {
                                     if((!Util.isEmptyString(picture)) || (!Util.isEmptyString(audio)))

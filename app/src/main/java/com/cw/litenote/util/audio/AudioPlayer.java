@@ -3,7 +3,7 @@ package com.cw.litenote.util.audio;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
-import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.folder.TabsHost;
 import com.cw.litenote.note.Note;
 import com.cw.litenote.util.Util;
 
@@ -28,7 +28,7 @@ public class AudioPlayer
 	static final int DURATION_1S = 1000; // 1 seconds per slide
 	static AudioInfo mAudioInfo; // slide show being played
 	public static Handler mAudioHandler; // used to update the slide show
-	public static int mAudioIndex; // index of current media to play
+	public static int mAudioPos; // index of current media to play
 	public static int mPlaybackTime; // time in miniSeconds from which media should play 
 	public static MediaPlayer mMediaPlayer; // plays the background music, if any
 	static FragmentActivity mAct;
@@ -118,7 +118,7 @@ public class AudioPlayer
 		{
 	   		if(mMediaPlayer == null)
 	   		{
-	   			String audioStr = mAudioInfo.getAudioAt(mAudioIndex);
+	   			String audioStr = mAudioInfo.getAudioAt(mAudioPos);
 	   			if(AsyncTaskAudioUrlVerify.mIsOkUrl)
 	   			{
 				    System.out.println("Runnable updateMediaPlay / play mode: OneTime");
@@ -170,12 +170,12 @@ public class AudioPlayer
 	{   @Override
 		public void run()
 		{
-	   		if( AudioInfo.getAudioMarking(mAudioIndex) == 1 )
+	   		if( AudioInfo.getAudioMarking(mAudioPos) == 1 )
 	   		{ 
 	   			if(mMediaPlayer == null)
 	   			{
 		    		// check if audio file exists or not
-   					mAudioStrContinueMode = mAudioInfo.getAudioAt(mAudioIndex);
+   					mAudioStrContinueMode = mAudioInfo.getAudioAt(mAudioPos);
 
 					if(!AsyncTaskAudioUrlVerify.mIsOkUrl)
 					{
@@ -239,20 +239,20 @@ public class AudioPlayer
 	   				}
 	   			}
 	   		}
-	   		else if( AudioInfo.getAudioMarking(mAudioIndex) == 0 )// for non-marking item
+	   		else if( AudioInfo.getAudioMarking(mAudioPos) == 0 )// for non-marking item
 	   		{
 	   			System.out.println("--- for non-marking item");
 	   			// get next index
 	   			if(willPlayNext)
-	   				mAudioIndex++;
+	   				mAudioPos++;
 	   			else
-	   				mAudioIndex--;
+	   				mAudioPos--;
 	   			
-	   			if( mAudioIndex >= AudioInfo.getAudioList().size())
-	   				mAudioIndex = 0; //back to first index
-	   			else if( mAudioIndex < 0)
+	   			if( mAudioPos >= AudioInfo.getAudioList().size())
+	   				mAudioPos = 0; //back to first index
+	   			else if( mAudioPos < 0)
 	   			{
-	   				mAudioIndex ++;
+	   				mAudioPos++;
 	   				willPlayNext = true;
 	   			}
 	   			
@@ -281,9 +281,9 @@ public class AudioPlayer
 					if(getPlayMode() == CONTINUE_MODE)
 					{
 						mAudio_tryTimes = 0; //reset try times
-						mAudioIndex++;
-						if(mAudioIndex == AudioInfo.getAudioList().size())
-							mAudioIndex = 0;	// back to first index
+						mAudioPos++;
+						if(mAudioPos == AudioInfo.getAudioList().size())
+							mAudioPos = 0;	// back to first index
 
 						startNewAudio();
 						Page.mItemAdapter.notifyDataSetChanged();
@@ -399,10 +399,10 @@ public class AudioPlayer
 			return;
 
 		// check playing drawer and playing tab
-//		System.out.println("---------------- TabsHost.mNow_pageId == MainAct.mPlaying_pageId = " + (TabsHost.mNow_pageId == MainAct.mPlaying_pageId));
+//		System.out.println("---------------- TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos = " + (TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos));
 //		System.out.println("---------------- MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos = " + (MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos));
 //		System.out.println("---------------- Page.mDndListView.getChildAt(0) != null = " + (Page.mDndListView.getChildAt(0) != null));
-		if( (TabsHost.mNow_pageId == MainAct.mPlaying_pageId) &&
+		if( (TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos) &&
 			(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos) &&
 			(Page.mDndListView.getChildAt(0) != null)                   )
 		{
@@ -417,7 +417,7 @@ public class AudioPlayer
 //			System.out.println("---------------- dividerHeight = " + dividerHeight);
 //			System.out.println("---------------- firstVisible_noteId = " + firstVisible_noteId);
 //			System.out.println("---------------- firstVisibleNote_top = " + firstVisibleNote_top);
-//			System.out.println("---------------- AudioPlayer.mAudioIndex = " + AudioPlayer.mAudioIndex);
+//			System.out.println("---------------- AudioPlayer.mAudioPos = " + AudioPlayer.mAudioPos);
 
 			if(firstVisibleNote_top < 0)
 			{
@@ -427,20 +427,20 @@ public class AudioPlayer
 			}
 
 			boolean noScroll = false;
-			// base on AudioPlayer.mAudioIndex to scroll
-			if(firstVisible_noteId != AudioPlayer.mAudioIndex)
+			// base on AudioPlayer.mAudioPos to scroll
+			if(firstVisible_noteId != AudioPlayer.mAudioPos)
 			{
-				while ((firstVisible_noteId != AudioPlayer.mAudioIndex) && (!noScroll))
+				while ((firstVisible_noteId != AudioPlayer.mAudioPos) && (!noScroll))
 				{
 					int offset = itemHeight + dividerHeight;
 					// scroll forwards
-					if (firstVisible_noteId > AudioPlayer.mAudioIndex)
+					if (firstVisible_noteId > AudioPlayer.mAudioPos)
 					{
 						Page.mDndListView.scrollListBy(-offset);
 //						System.out.println("-----scroll forwards " + (-offset));
 					}
 					// scroll backwards
-					else if (firstVisible_noteId < AudioPlayer.mAudioIndex)
+					else if (firstVisible_noteId < AudioPlayer.mAudioPos)
 					{
 						Page.mDndListView.scrollListBy(offset);
 //						System.out.println("-----scroll backwards " + offset);
@@ -457,8 +457,8 @@ public class AudioPlayer
 				}
 			}
 			// backup scroll Y
-			Util.setPref_lastTimeView_list_view_first_visible_index(Page.mAct,firstVisible_noteId);
-			Util.setPref_lastTimeView_list_view_first_visible_index_top(Page.mAct,firstVisibleNote_top);
+			Util.setPref_focusView_list_view_first_visible_index(Page.mAct,firstVisible_noteId);
+			Util.setPref_focusView_list_view_first_visible_index_top(Page.mAct,firstVisibleNote_top);
 
 			Page.mItemAdapter.notifyDataSetChanged();
 		}
@@ -477,7 +477,7 @@ public class AudioPlayer
 		// start a new handler
 		mAudioHandler = new Handler();
 		
-		if( (getPlayMode() == CONTINUE_MODE) && (AudioInfo.getAudioMarking(mAudioIndex) == 0))
+		if( (getPlayMode() == CONTINUE_MODE) && (AudioInfo.getAudioMarking(mAudioPos) == 0))
 		{
 			mAudioHandler.postDelayed(mRunContinueMode,Util.oneSecond/4);		}
 		else
@@ -500,10 +500,10 @@ public class AudioPlayer
 		mPlaybackTime = 0;
    
 		// new audio index
-		mAudioIndex++;
+		mAudioPos++;
 		
-		if(mAudioIndex >= AudioInfo.getAudioList().size())
-			mAudioIndex = 0; //back to first index
+		if(mAudioPos >= AudioInfo.getAudioList().size())
+			mAudioPos = 0; //back to first index
 
 		// check try times,had tried or not tried yet, anyway the audio file is found
 		System.out.println("check mTryTimes = " + mAudio_tryTimes);
@@ -524,7 +524,7 @@ public class AudioPlayer
 			// stop media player
 			stopAudio();
 		}		
-		System.out.println("Next mAudioIndex = " + mAudioIndex);
+		System.out.println("Next mAudioPos = " + mAudioPos);
 	}
 
 	public static void stopAudio()

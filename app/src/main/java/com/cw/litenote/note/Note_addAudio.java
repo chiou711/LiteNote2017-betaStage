@@ -2,7 +2,6 @@ package com.cw.litenote.note;
 
 import java.io.File;
 
-import com.cw.litenote.main.MainUi;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
@@ -22,7 +21,7 @@ public class Note_addAudio extends FragmentActivity {
 
     Long noteId;
     String selectedAudioUri;
-    Note_common note_common;
+//    Note_common note_common;
     boolean enSaveDb = true;
 	String audioUriInDB;
 	private DB_page dB;
@@ -34,7 +33,7 @@ public class Note_addAudio extends FragmentActivity {
         
         System.out.println("Note_addAudio / onCreate");
         
-        note_common = new Note_common(this);
+//        note_common = new Note_common(this);
         audioUriInDB = "";
         selectedAudioUri = "";
         bUseSelectedFile = false;
@@ -44,7 +43,8 @@ public class Note_addAudio extends FragmentActivity {
             (Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
         
         // get audio Uri in DB if instance is not null
-        dB = Page.mDb_page;
+		dB = new DB_page(this,Util.getPref_focusView_page_tableId(this));
+//        dB = Page.mDb_page;
         if(savedInstanceState != null)
         {
 	        System.out.println("Note_addAudio / noteId =  " + noteId);
@@ -142,15 +142,24 @@ public class Note_addAudio extends FragmentActivity {
 					}
 					
 		  		    noteId = null; // set null for Insert
-		        	noteId = note_common.insertAudioToDB(uriStr);
+//		        	noteId = note_common.insertAudioToDB(uriStr);
+
+					if( !Util.isEmptyString(uriStr))
+					{
+						// insert
+						// set marking to 1 for default
+						dB.insertNote("", "", uriStr, "", "", "", 1, (long) 0);// add new note, get return row Id
+					}
+
 		        	selectedAudioUri = uriStr;
-		        	
-		        	if( (note_common.getCount() > 0) &&
+
+//					if( (note_common.getCount() > 0) &&
+					if( (dB.getNotesCount(true) > 0) &&
 		        		option.equalsIgnoreCase("single_to_top"))
 		        	{
 		        		Page.swap(Page.mDb_page);
 		        		//update playing focus
-		        		AudioPlayer.mAudioIndex++;
+		        		AudioPlayer.mAudioPos++;
 		        	}
 		        	
 		        	if(!Util.isEmptyString(uriStr))	
@@ -207,15 +216,21 @@ public class Note_addAudio extends FragmentActivity {
 							System.out.println("urlStr = " + urlStr);
 				  		    noteId = null; // set null for Insert
 				  		    if(!Util.isEmptyString(urlStr))
-				  		    	noteId = note_common.insertAudioToDB(urlStr);
+							{
+								// insert
+								// set marking to 1 for default
+								dB.insertNote("", "", urlStr, "", "", "", 1, (long) 0);// add new note, get return row Id
+							}
+//				  		    noteId = note_common.insertAudioToDB(urlStr);
 				        	selectedAudioUri = urlStr;
-				        	
-				        	if( (note_common.getCount() > 0) &&
-	  		        			option.equalsIgnoreCase("directory_to_top") ) 
+
+//							if( (note_common.getCount() > 0) &&
+							if( (dB.getNotesCount(true) > 0) &&
+	  		        			option.equalsIgnoreCase("directory_to_top") )
 				        	{
 				        		Page.swap(Page.mDb_page);
 				        		//update playing focus
-				        		AudioPlayer.mAudioIndex++;
+				        		AudioPlayer.mAudioPos++;
 				        	}
 				    		
 				        	// avoid showing empty toast

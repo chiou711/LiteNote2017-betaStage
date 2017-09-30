@@ -16,9 +16,7 @@ import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.page.TabsHost;
 import com.cw.litenote.util.audio.AudioPlayer;
-import com.cw.litenote.preference.Define;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
 import com.mobeta.android.dslv.DragSortController;
@@ -50,14 +48,15 @@ public class Folder
         // set Folder title
         if(MainAct.mDb_drawer.getFoldersCount() == 0)
         {
-            for(int i = 0; i< Define.ORIGIN_FOLDERS_COUNT; i++)
-            {
-                // insert folder
-                System.out.println("Folder/ _initFolder / insert folder "+ i) ;
-                String folderTitle = Define.getFolderTitle(act,i);
-                MainAct.mFolderTitles.add(folderTitle);
-                MainAct.mDb_drawer.insertFolder(i+1, folderTitle );
-            }
+            // default: add 2 new folders
+//            for(int i = 0; i< Define.ORIGIN_FOLDERS_COUNT; i++)
+//            {
+//                // insert folder
+//                System.out.println("Folder/ _initFolder / insert folder "+ i) ;
+//                String folderTitle = Define.getFolderTitle(act,i);
+//                MainAct.mFolderTitles.add(folderTitle);
+//                MainAct.mDb_drawer.insertFolder(i+1, folderTitle );
+//            }
         }
         else
         {
@@ -173,7 +172,7 @@ public class Folder
 
             for(int pagePos=0; pagePos<pagesCount; pagePos++)
             {
-                TabsHost.mNow_pageId = pagePos;
+                TabsHost.mCurrPagePos = pagePos;
                 int pageId = db_folder.getPageId(pagePos, true);
                 int pageTableId = db_folder.getPageTableId(pagePos, true);
                 String pageTitle = db_folder.getPageTitle(pagePos, true);
@@ -291,11 +290,11 @@ public class Folder
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
         {
-            System.out.println("Folder / _onItemClickListener");
+            System.out.println("Folder / _onItemClickListener / position = " + position);
             MainAct.mFocus_folderPos = position;
 
             DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-            Util.setPref_lastTimeView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position) );
+            Util.setPref_focusView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position) );
 
             FolderUi.selectFolder(position);
             MainAct.setFolderTitle(MainAct.mFolderTitle);

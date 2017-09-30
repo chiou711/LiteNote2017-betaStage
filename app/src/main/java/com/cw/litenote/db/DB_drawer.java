@@ -117,12 +117,12 @@ public class DB_drawer
         }
         else
         {
-        	String folder_table = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(id));
-        	DB_folder.insertPage(mSqlDb,
-                      folder_table,
-                      Define.getTabTitle(MainAct.mAct,1),
-                      1,
-                      Define.STYLE_DEFAULT);
+//        	String folder_table = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(id));
+//        	DB_folder.insertPage(mSqlDb,
+//                      folder_table,
+//                      Define.getTabTitle(MainAct.mAct,1),
+//                      1,
+//                      Define.STYLE_DEFAULT);
         	//insertPage(mSqlDb,folder_table,"N2",2,1);
         	//insertPage(mSqlDb,folder_table,"N3",3,2);
         	//insertPage(mSqlDb,folder_table,"N4",4,3);
@@ -212,7 +212,13 @@ public class DB_drawer
         this.open();
     	mCursor_folder.moveToPosition(position);
     	// note: KEY_FOLDER_ID + " AS " + BaseColumns._ID
-    	long column = (long) mCursor_folder.getInt(mCursor_folder.getColumnIndex(BaseColumns._ID));
+        long column = -1;
+        try {
+            column = (long) mCursor_folder.getInt(mCursor_folder.getColumnIndex(BaseColumns._ID));
+        }
+        catch (Exception e) {
+            System.out.println("DB_drawer / _getFolderId / exception ");
+        }
         this.close();
         return column;
     }

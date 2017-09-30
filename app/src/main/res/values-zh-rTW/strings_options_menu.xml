@@ -9,6 +9,7 @@
     <string name="menu_button_slide_show">播放幻燈片</string>
     <string name="change_page_color">頁面顏色</string>
     <string name="rearrange_page">頁面順序</string>
+    <string name="delete_pages">刪除頁面</string>
     <string name="add_new_page">新增記事頁</string>
     <string name="add_new_page_select_position">選擇位置:</string>
     <string name="add_new_page_leftmost">到最左邊</string>

@@ -9,7 +9,7 @@ import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
-import com.cw.litenote.page.TabsHost;
+import com.cw.litenote.folder.TabsHost;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
 import com.cw.litenote.util.audio.AudioPlayer;
@@ -142,7 +142,7 @@ public class Note extends FragmentActivity
 		UilCommon.init();
 
 		// DB
-		mDb_page = new DB_page(act,Util.getPref_lastTimeView_page_tableId(act));
+		mDb_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
 
 		// Instantiate a ViewPager and a PagerAdapter.
 		mPager = (ViewPager) findViewById(R.id.pager);
@@ -154,9 +154,9 @@ public class Note extends FragmentActivity
 		if(TabsHost.mDbFolder != null)
 			TabsHost.mDbFolder.close();
 
-		TabsHost.mDbFolder = new DB_folder(act,Util.getPref_lastTimeView_folder_tableId(act));
+		TabsHost.mDbFolder = new DB_folder(act,Util.getPref_focusView_folder_tableId(act));
 
-		mStyle = TabsHost.mDbFolder.getPageStyle(TabsHost.mNow_pageId, true);
+		mStyle = TabsHost.mDbFolder.getPageStyle(TabsHost.mCurrPagePos, true);
 
 		if(mDb_page != null) {
 			mNoteId = mDb_page.getNoteId(mCurrentPosition, true);
@@ -294,7 +294,7 @@ public class Note extends FragmentActivity
 			if((nextPosition == mCurrentPosition+1) || (nextPosition == mCurrentPosition-1))
 			{
 				if(AudioPlayer.getPlayMode() == AudioPlayer.ONE_TIME_MODE)
-					AudioPlayer.mAudioIndex = mCurrentPosition;//update Audio index
+					AudioPlayer.mAudioPos = mCurrentPosition;//update Audio index
 			}
 
 			// stop video when changing note
@@ -759,11 +759,11 @@ public class Note extends FragmentActivity
     {
 		if(UtilAudio.hasAudioExtension(audioStr))
 		{
-    		AudioPlayer.mAudioIndex = mCurrentPosition;
+    		AudioPlayer.mAudioPos = mCurrentPosition;
     		// new instance
     		if(AudioPlayer.mMediaPlayer == null)
     		{
-    			MainAct.mPlaying_pageTableId = Util.getPref_lastTimeView_page_tableId(act);
+    			MainAct.mPlaying_pageTableId = Util.getPref_focusView_page_tableId(act);
         		AudioPlayer.setPlayMode(AudioPlayer.ONE_TIME_MODE);
     		}
     		// If Audio player is NOT at One time mode and media exists
