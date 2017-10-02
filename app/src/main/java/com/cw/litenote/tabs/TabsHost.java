@@ -1,10 +1,11 @@
-package com.cw.litenote.folder;
+package com.cw.litenote.tabs;
 
 import java.util.ArrayList;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.util.audio.AudioPlayer;

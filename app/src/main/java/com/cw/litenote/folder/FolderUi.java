@@ -24,6 +24,7 @@ import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.preference.Define;
+import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.Util;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
@@ -289,10 +290,10 @@ public class FolderUi
         // clear folder
         if (TabsHost.mTabsHost != null)
             TabsHost.mTabsHost.clearAllTabs();
-//        TabsHost.mTabsHost = null;
 
         // remove focus view Key
         Util.removePref_focusView_key(act, folderTableId);
+
         // refresh drawer list view
         MainAct.folderAdapter.notifyDataSetChanged();
 	}
@@ -517,6 +518,8 @@ public class FolderUi
 				Util.createAssetsFile(act,audioFileName);
 			}
 		}
+
+        MainAct.mAct.invalidateOptionsMenu();
 
         int pagesCount = getFolder_pagesCount(position);
         System.out.println("FolderUi / _selectFolder / pagesCount = " + pagesCount);

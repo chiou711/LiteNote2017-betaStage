@@ -16,7 +16,7 @@ import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.operation.DeletePagesFragment;
 import com.cw.litenote.operation.Import_webAct;
 import com.cw.litenote.page.PageUi;
-import com.cw.litenote.folder.TabsHost;
+import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.CustomWebView;
@@ -522,23 +522,39 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         // If the navigation drawer is open, hide action items related to the content view
         if(mDrawer.isDrawerOpen())
         {
-        	mMenu.setGroupVisible(R.id.group0, false);
-    		mMenu.setGroupVisible(R.id.group1, true);
+            mMenu.setGroupVisible(R.id.group_folders, true);
+            mMenu.setGroupVisible(R.id.group_pages_and_more, false);
+            mMenu.setGroupVisible(R.id.group_notes, false);
         }
-        else
+        else if(!mDrawer.isDrawerOpen())
         {
             DB_drawer db_drawer = new DB_drawer(this);
             db_drawer.open();
             int folderCnt = db_drawer.getFoldersCount();
             db_drawer.close();
-            if(folderCnt>0) {
+            if(folderCnt>0)
+            {
                 setTitle(mFolderTitle);
-                mMenu.setGroupVisible(R.id.group1, false);
+
+                mMenu.setGroupVisible(R.id.group_folders, false);
+                int pgsCnt = FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos);
+
+                mMenu.setGroupVisible(R.id.group_pages_and_more, true);
+
+                // pages order
+                mMenu.findItem(R.id.SHIFT_PAGE).setVisible(pgsCnt >1);
+
+                // delete pages
+                mMenu.findItem(R.id.DELETE_PAGES).setVisible(pgsCnt >0);
+
+                // group of notes
+                mMenu.setGroupVisible(R.id.group_notes, pgsCnt > 0);
             }
-            else
+            else if(folderCnt==0)
 			{
-				mMenu.setGroupVisible(R.id.group0, false);
-				mMenu.setGroupVisible(R.id.group1, false);
+				mMenu.setGroupVisible(R.id.group_folders, false);
+                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
+                mMenu.setGroupVisible(R.id.group_notes, false);
 			}
         }
         return super.onPrepareOptionsMenu(menu);
@@ -714,10 +730,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return true;
 
 			case MenuId.ADD_NEW_NOTE:
-				if(FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos) > 0)
-					MainUi.addNewNote(this);
-				else
-					Toast.makeText(this,"No page yet!",Toast.LENGTH_LONG).show();
+				MainUi.addNewNote(this);
 				return true;
 
         	case MenuId.OPEN_PLAY_SUBMENU:
@@ -834,7 +847,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
 				if(mDb_folder.getPagesCount(true)>0)
 				{
-                    mMenu.setGroupVisible(R.id.group0, false); //hide the menu
+                    mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
 					DeletePagesFragment delPgsFragment = new DeletePagesFragment();
 					mFragmentTransaction = fragmentManager.beginTransaction();
 					mFragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
@@ -904,7 +917,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				return true;
 
 			case MenuId.EXPORT_TO_SD_CARD:
-				mMenu.setGroupVisible(R.id.group0, false); //hide the menu
+				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
                 mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
 				if(mDb_folder.getPagesCount(true)>0)
 				{
@@ -920,7 +933,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				return true;
 
 			case MenuId.IMPORT_FROM_SD_CARD:
-				mMenu.setGroupVisible(R.id.group0, false); //hide the menu
+				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
 				Import_filesList importFragment = new Import_filesList();
 				FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 				transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
@@ -934,7 +947,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				return true;
 
 			case MenuId.SEND_PAGES:
-				mMenu.setGroupVisible(R.id.group0, false); //hide the menu
+				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
 
 				DB_folder dbFolderMail = new DB_folder(this,DB_folder.getFocusFolder_tableId());
 				if(dbFolderMail.getPagesCount(true)>0)
@@ -956,7 +969,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             	return true;
 
             case MenuId.CONFIG:
-            	mMenu.setGroupVisible(R.id.group0, false); //hide the menu
+            	mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
         		setTitle(R.string.settings);
         		bEnableConfig = true;
 
@@ -998,7 +1011,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     {
 //		mConfigFragment = null;
 		bEnableConfig = false;
-		mMenu.setGroupVisible(R.id.group0, true);
+		mMenu.setGroupVisible(R.id.group_notes, true);
 		mAct.getActionBar().setDisplayShowHomeEnabled(true);
 		mAct.getActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawer.drawerToggle.setDrawerIndicatorEnabled(true);

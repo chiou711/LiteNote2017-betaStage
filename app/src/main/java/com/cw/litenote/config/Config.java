@@ -8,7 +8,7 @@ import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.R;
-import com.cw.litenote.folder.TabsHost;
+import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
@@ -17,6 +17,7 @@ import de.psdev.licensesdialog.LicensesDialogFragment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -523,7 +524,11 @@ public class Config extends Fragment
     		//remove preference 
 			clearSharedPreferences(getActivity());			
 			dialog.dismiss();
-			getActivity().recreate();
+			getActivity().finish();
+			Intent intent  = new Intent(getActivity(),MainAct.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			getActivity().startActivity(intent);
 		}
     };
     

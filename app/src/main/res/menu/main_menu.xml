@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <!-- main group -->
     <group
-        android:id="@+id/group0"
+        android:id="@+id/group_notes"
         android:title="notes"
         android:showAsAction="always|withText"
         android:orderInCategory="0">
@@ -99,8 +99,14 @@
             android:icon="@drawable/ic_menu_clear_playlist"/>
     </menu>
     </item>
+    </group>
 
     <!-- more -->
+    <group
+        android:id="@+id/group_pages_and_more"
+        android:title="more"
+        android:showAsAction="always|withText"
+        android:orderInCategory="1">
     <item
         android:id="@+id/options"
         android:orderInCategory="3"
@@ -110,40 +116,10 @@
 
     <!-- more sub menu -->
     <menu xmlns:android="http://schemas.android.com/apk/res/android">
-        <!-- Note operation -->
-        <item
-            android:id="@+id/note_operation"
-            android:orderInCategory="1"
-            android:showAsAction="always|withText"
-            android:title="@string/note_operation"
-            >
-            <menu xmlns:android="http://schemas.android.com/apk/res/android">
-                <item
-                    android:id="@+id/ENABLE_NOTE_DRAG_AND_DROP"
-                    android:orderInCategory="1"
-                    android:showAsAction="never"
-                    android:title="@string/drag_note"
-                    android:icon="@drawable/btn_check_off_holo_light"/>
-                <item
-                    android:id="@+id/SHOW_BODY"
-                    android:orderInCategory="2"
-                    android:showAsAction="never"
-                    android:title="@string/preview_note_body"
-                    android:icon="@drawable/btn_check_off_holo_light"/>
-                <item
-                    android:id="@+id/CLICK_LAUNCH_YOUTUBE"
-                    android:orderInCategory="3"
-                    android:showAsAction="never"
-                    android:title="@string/click_launch_youtube"
-                    android:icon="@drawable/btn_check_off_holo_light"/>
-            </menu>
-        </item>
-
-
         <!-- Page operation -->
         <item
             android:id="@+id/page_operation"
-            android:orderInCategory="2"
+            android:orderInCategory="1"
             android:showAsAction="always|withText"
             android:title="@string/page_operation"
             >
@@ -173,6 +149,35 @@
                 android:title="@string/delete_pages"
                 android:icon="@drawable/ic_delete"/>
         </menu>
+        </item>
+
+        <!-- Note operation -->
+        <item
+            android:id="@+id/note_operation"
+            android:orderInCategory="2"
+            android:showAsAction="always|withText"
+            android:title="@string/note_operation"
+            >
+            <menu xmlns:android="http://schemas.android.com/apk/res/android">
+                <item
+                    android:id="@+id/ENABLE_NOTE_DRAG_AND_DROP"
+                    android:orderInCategory="1"
+                    android:showAsAction="never"
+                    android:title="@string/drag_note"
+                    android:icon="@drawable/btn_check_off_holo_light"/>
+                <item
+                    android:id="@+id/SHOW_BODY"
+                    android:orderInCategory="2"
+                    android:showAsAction="never"
+                    android:title="@string/preview_note_body"
+                    android:icon="@drawable/btn_check_off_holo_light"/>
+                <item
+                    android:id="@+id/CLICK_LAUNCH_YOUTUBE"
+                    android:orderInCategory="3"
+                    android:showAsAction="never"
+                    android:title="@string/click_launch_youtube"
+                    android:icon="@drawable/btn_check_off_holo_light"/>
+            </menu>
         </item>
 
         <!-- backup operation -->
@@ -223,10 +228,10 @@
 
     <!-- folder group -->
     <group
-        android:id="@+id/group1"
+        android:id="@+id/group_folders"
         android:title="folder"
         android:showAsAction="always|withText"
-        android:orderInCategory="1">
+        android:orderInCategory="2">
     <item
         android:id="@+id/ADD_FOLDER_OPTIONS"
         android:orderInCategory="0"

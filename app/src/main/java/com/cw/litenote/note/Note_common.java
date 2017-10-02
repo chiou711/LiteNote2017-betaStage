@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
-import com.cw.litenote.folder.TabsHost;
+import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.image.TouchImageView;
 import com.cw.litenote.util.image.UtilImage_bitmapLoader;

@@ -26,7 +26,7 @@ import com.cw.litenote.util.Util;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 
-import static com.cw.litenote.folder.TabsHost.mDbFolder;
+import static com.cw.litenote.tabs.TabsHost.mDbFolder;
 
 public class DeletePagesFragment extends Fragment{
 	Context mContext;

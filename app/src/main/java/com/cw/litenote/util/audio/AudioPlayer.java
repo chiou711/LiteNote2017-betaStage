@@ -3,7 +3,7 @@ package com.cw.litenote.util.audio;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
-import com.cw.litenote.folder.TabsHost;
+import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.note.Note;
 import com.cw.litenote.util.Util;
 

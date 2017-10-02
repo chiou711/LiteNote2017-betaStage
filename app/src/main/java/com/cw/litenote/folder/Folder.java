@@ -16,6 +16,7 @@ import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.main.MainAct;
+import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;

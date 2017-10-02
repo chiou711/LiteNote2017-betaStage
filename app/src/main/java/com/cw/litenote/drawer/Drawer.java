@@ -9,7 +9,7 @@ import android.view.View;
 import com.cw.litenote.R;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.folder.TabsHost;
+import com.cw.litenote.tabs.TabsHost;
 
 /**
  * Created by CW on 2016/8/24.
@@ -39,6 +39,7 @@ public class Drawer {
                     {
                         System.out.println("Drawer / _onDrawerOpened ");
 
+                        MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.INVISIBLE);
                         act.invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 
                         if(MainAct.mFolder.listView.getCount() >0) {
@@ -50,6 +51,7 @@ public class Drawer {
                     {
                         System.out.println("Drawer / _onDrawerClosed / MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
 
+                        MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
                         act.invalidateOptionsMenu(); // creates a call to onPrepareOptionsMenu()
 
 //                        if(MainAct.mFolder.listView.getCount() >0)
@@ -58,12 +60,6 @@ public class Drawer {
                             int pos = MainAct.mFolder.listView.getCheckedItemPosition();
                             MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(pos);
                             MainAct.setFolderTitle(MainAct.mFolderTitle);
-
-                            if(FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos) == 0)
-                            {
-                                MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.INVISIBLE);
-                                MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
-                            }
 
                             // add for deleting folder condition
                             if (TabsHost.mTabsHost == null)
