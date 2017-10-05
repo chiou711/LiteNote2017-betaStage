@@ -2,6 +2,7 @@ package com.cw.litenote.operation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,11 +15,9 @@ import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.database.Cursor;
 
 import com.cw.litenote.R;
-import com.cw.litenote.db.DB_folder;
-import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.util.ColorSet;
@@ -26,24 +25,25 @@ import com.cw.litenote.util.Util;
 import com.cw.litenote.util.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 
-import static com.cw.litenote.tabs.TabsHost.mDbFolder;
 
-public class DeletePagesFragment extends Fragment{
+public class DeleteFoldersFragment extends Fragment{
 	Context mContext;
 	CheckedTextView mCheckTvSelAll;
 	Button btnSelPageOK;
     ListView mListView;
-	SelectPageList selPageList;
-	public static View rootView;
+	SelectFolderList selFolderList;
+	View rootView;
     FragmentActivity act;
+    DB_drawer mDbDrawer;
 
-	public DeletePagesFragment(){}
+	public DeleteFoldersFragment(){}
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         mContext = act;
+        mDbDrawer = new DB_drawer(act);
     }
 
 	@Override
@@ -62,9 +62,9 @@ public class DeletePagesFragment extends Fragment{
                 ((CheckedTextView)checkSelAll).setChecked(!currentCheck);
 
                 if(((CheckedTextView)checkSelAll).isChecked())
-                    selPageList.selectAllPages(true);
+                    selFolderList.selectAllPages(true);
                 else
-                    selPageList.selectAllPages(false);
+                    selFolderList.selectAllPages(false);
             }
         });
 
@@ -76,48 +76,65 @@ public class DeletePagesFragment extends Fragment{
         btnSelPageOK.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(selPageList.mChkNum > 0)
+                if(selFolderList.mChkNum > 0)
                 {
-					mDbFolder.open();
-                    for(int i=0;i<selPageList.COUNT;i++)
+					DB_drawer dbDrawer = new DB_drawer(act);
+
+                    // drawer DB check
+                    boolean doDB_check = false;
+                    if(doDB_check) {
+                        dbDrawer.open();
+                        for (int i = 0; i < selFolderList.COUNT; i++) {
+                            int folderTableId = dbDrawer.getFolderTableId(i, false);
+                            System.out.println("DeleteFoldersFragment / _setOnClickListener / drawer DB check / folderTableId = " + folderTableId);
+
+                            int folderId = (int) dbDrawer.getFolderId(i, false);
+                            System.out.println("DeleteFoldersFragment / _setOnClickListener / drawer DB check / folderId = " + folderId);
+                        }
+                        dbDrawer.close();
+                    }
+
+                    dbDrawer.open();
+                    for(int i = 0; i< selFolderList.COUNT; i++)
                     {
-                        if (selPageList.mCheckedArr.get(i))
+                        if(selFolderList.mCheckedArr.get(i))
                         {
-							int pageTableId = mDbFolder.getPageTableId(i, false);
-							mDbFolder.dropPageTable(pageTableId,false);
+							int folderTableId = dbDrawer.getFolderTableId(i,false);
+                            dbDrawer.dropFolderTable(folderTableId,false);
 
-							int pageId = mDbFolder.getPageId(i,false);
+							int folderId = (int)dbDrawer.getFolderId(i,false);
+							// delete folder row
+                            dbDrawer.deleteFolderId(folderId,false);
 
-							// delete page row
-							mDbFolder.deletePage(DB_folder.getFocusFolder_tableName(),pageId,false);
+                            // change focus //TODO
+                            MainAct.mFocus_folderPos=0;
                         }
                     }
-					mDbFolder.close();
 
-                    mDbFolder.open();
-                    // check if only one page left
-                    int pgsCnt = mDbFolder.getPagesCount(false);
-                    if(pgsCnt > 0)
+                    // check if only one folder left
+                    int foldersCnt = dbDrawer.getFoldersCount(false);
+
+                    if(foldersCnt > 0)
                     {
-                        int newFirstPageTblId=0;
+                        int newFirstFolderTblId=0;
                         int i=0;
-                        Cursor mPageCursor = mDbFolder.getPageCursor();
-                        while(i < pgsCnt)
+                        dbDrawer.open();
+                        Cursor folderCursor = dbDrawer.getFolderCursor();
+                        while(i < foldersCnt)
                         {
-                            mPageCursor.moveToPosition(i);
-                            if(mPageCursor.isFirst())
-                                newFirstPageTblId = mDbFolder.getPageTableId(i,false);
+                            folderCursor.moveToPosition(i);
+                            if(folderCursor.isFirst())
+                                newFirstFolderTblId = dbDrawer.getFolderTableId(i,false);
                             i++;
                         }
-                        System.out.println("TabsHost / _postDeletePage / newFirstPageTblId = " + newFirstPageTblId);
-                        Util.setPref_focusView_page_tableId(act, newFirstPageTblId);
+                        Util.setPref_focusView_folder_tableId(act, newFirstFolderTblId);
                     }
-                    else if(pgsCnt ==0)
-                        Util.setPref_focusView_page_tableId(act, 0);
+                    else if(foldersCnt ==0)
+                        Util.setPref_focusView_folder_tableId(act, 1);
 
-                    mDbFolder.close();
+                    dbDrawer.close();
 
-                    // set scroll X
+                    // set scroll X //TODO　??? need this?
                     int scrollX = 0; //over the last scroll X
                     Util.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
 
@@ -127,8 +144,7 @@ public class DeletePagesFragment extends Fragment{
                         AudioPlayer.mAudioPos = 0;
                         AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
                     }
-
-                    selPageList = new SelectPageList(act,rootView , mListView);
+                    selFolderList = new SelectFolderList(act,rootView , mListView);
                 }
                 else
                     Toast.makeText(act,
@@ -144,7 +160,11 @@ public class DeletePagesFragment extends Fragment{
         btnSelPageCancel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            if(FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos) == 0)
+            //TODO ??? need this?
+            DB_drawer dbDrawer = new DB_drawer(act);
+            int foldersCnt = dbDrawer.getFoldersCount(true);
+
+            if(foldersCnt == 0)
             {
                 getActivity().finish();
                 Intent intent  = new Intent(act,MainAct.class);
@@ -152,21 +172,21 @@ public class DeletePagesFragment extends Fragment{
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 getActivity().startActivity(intent);
             }
-            else
+            else {
                 act.getSupportFragmentManager().popBackStack(); //TODO ??? exception
+            }
                 // for pages count = 0 case
                 // java.lang.IllegalArgumentException: No view found for id 0x1020011 (android:id/tabcontent) for fragment Page{8ac28af #0 id=0x1020011 tab1}
             }
         });
 
         //show list for selection
-        selPageList = new SelectPageList(act,rootView , mListView);
+        selFolderList = new SelectFolderList(act,rootView , mListView);
 
 		((MainAct)act).setOnBackPressedListener(new BaseBackPressedListener(act));
 
 		return rootView;
 	}
-
 
 	@Override
 	public void onPause() {

@@ -727,7 +727,7 @@ public class Page extends UilListViewBaseFragment
 					// update playing folder position
 				    MainAct.mPlaying_folderPos = MainAct.mFocus_folderPos;
 				    // update playing folder table Id
-					MainAct.mPlaying_folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mPlaying_folderPos);
+					MainAct.mPlaying_folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
 					
 		            mItemAdapter.notifyDataSetChanged();
 				}

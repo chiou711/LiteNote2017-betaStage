@@ -310,7 +310,7 @@ public class PageUi
         // check if name is duplicated
 		DB_folder dbFolder = new DB_folder(act,DB_folder.getFocusFolder_tableId());
         dbFolder.open();
-        int pagesCount = dbFolder.getPagesCount(false);
+        final int pagesCount = dbFolder.getPagesCount(false);
 
         for (int i = 0; i < pagesCount; i++) {
             String tabTitle = dbFolder.getPageTitle(i, false);
@@ -350,10 +350,13 @@ public class PageUi
 
         // get new page location option
         mPref_add_new_page_location = act.getSharedPreferences("add_new_page_option", 0);
-        if (mPref_add_new_page_location.getString("KEY_ADD_NEW_PAGE_TO", "right").equalsIgnoreCase("left")) {
+        if (mPref_add_new_page_location.getString("KEY_ADD_NEW_PAGE_TO", "right").equalsIgnoreCase("left"))
+        {
             mRadioGroup.check(mRadioGroup.getChildAt(0).getId());
             mAddAt = 0;
-        } else if (mPref_add_new_page_location.getString("KEY_ADD_NEW_PAGE_TO", "right").equalsIgnoreCase("right")) {
+        }
+        else if (mPref_add_new_page_location.getString("KEY_ADD_NEW_PAGE_TO", "right").equalsIgnoreCase("right"))
+        {
             mRadioGroup.check(mRadioGroup.getChildAt(1).getId());
             mAddAt = 1;
         }
@@ -398,9 +401,12 @@ public class PageUi
                 else
                     pageName = Define.getTabTitle(act, newTabId);
 
-
-                if (mAddAt == 0)
-                    insertPage_leftmost(act, newTabId, pageName);
+                if (mAddAt == 0) {
+                    if(pagesCount>0)
+                        insertPage_leftmost(act, newTabId, pageName);
+                    else
+                        insertPage_rightmost(act, newTabId, pageName);
+                }
                 else
                     insertPage_rightmost(act, newTabId, pageName);
 
@@ -447,7 +453,7 @@ public class PageUi
 	 * Insert Page to Leftmost
 	 * 
 	 */
-	public static void insertPage_leftmost(final FragmentActivity act, int newTabId, String tabName)//??? why exception
+	public static void insertPage_leftmost(final FragmentActivity act, int newTabId, String tabName)
 	{
 		DB_folder dbFolder = TabsHost.mDbFolder;
 		

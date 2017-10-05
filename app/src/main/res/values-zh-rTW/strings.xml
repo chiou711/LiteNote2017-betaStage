@@ -46,4 +46,5 @@
     <string name="settings_operation">設定 ></string>
     <string name="set_enable">啟用</string>
     <string name="set_disable">停用</string>
+    <string name="no_page_yet">還沒有頁面</string>
 </resources>

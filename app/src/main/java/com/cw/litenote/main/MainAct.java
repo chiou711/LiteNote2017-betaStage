@@ -13,6 +13,7 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.folder.Folder;
 import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.operation.DeleteFoldersFragment;
 import com.cw.litenote.operation.DeletePagesFragment;
 import com.cw.litenote.operation.Import_webAct;
 import com.cw.litenote.page.PageUi;
@@ -156,7 +157,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         UtilImage.getDefaultScaleInPercent(MainAct.this);
 
-        mFolderTitles = new ArrayList<String>();
+        mFolderTitles = new ArrayList<>();
 
 		Context context = getApplicationContext();
 
@@ -198,9 +199,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	        // get focus folder table Id, default folder table Id: 1
 	        if (savedInstanceState == null)
 	        {
-	        	for(int i = 0; i< mDb_drawer.getFoldersCount(); i++)
+	        	for(int i = 0; i< mDb_drawer.getFoldersCount(true); i++)
 	        	{
-		        	if(mDb_drawer.getFolderTableId(i)==Util.getPref_focusView_folder_tableId(this))
+		        	if(mDb_drawer.getFolderTableId(i,true)==Util.getPref_focusView_folder_tableId(this))
 		        	{
 		        		mFocus_folderPos =  i;
 		    			System.out.println("MainAct / _onCreate /  mFocus_folderPos = " + mFocus_folderPos);
@@ -244,46 +245,82 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		new EULA_dlg(this).show();
     }
 
-    //Add note with Intent link
-	String title;
-	String addNote_IntentLink(Intent intent)
-	{
-		Bundle extras = intent.getExtras();
-		String pathOri = null;
-		String path;
-		if(extras != null)
-			pathOri = extras.getString(Intent.EXTRA_TEXT);
-		else
-			System.out.println("MainAct / _addNote_IntentLink / extras == null");
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        initConfigFragment();
+        setFolderTitle(title);
+    }
 
-		path = pathOri;
+    /**
+     * Set folder title
+     */
+    public static void setFolderTitle(CharSequence title) {
+        if(title == null)
+        {
+            title = mFolderTitle;
+            initActionBar();
+            mDrawer.closeDrawer();
+        }
+        System.out.println("MainAct / _setFolderTitle / title = " + title);
+        mAct.getActionBar().setTitle(title);
+    }
 
-		if(!Util.isEmptyString(pathOri))
-		{
-			System.out.println("-------link path of Share 1 = " + pathOri);
-			// for SoundCloud case, path could contain other strings before URI path
-			if(pathOri.contains("http"))
-			{
-				String[] str = pathOri.split("http");
+    /**
+     * initialize action bar
+     */
+    static void initActionBar()
+    {
+//		mConfigFragment = null;
+        bEnableConfig = false;
+        mMenu.setGroupVisible(R.id.group_notes, true);
+        mAct.getActionBar().setDisplayShowHomeEnabled(true);
+        mAct.getActionBar().setDisplayHomeAsUpEnabled(true);
+        mDrawer.drawerToggle.setDrawerIndicatorEnabled(true);
+    }
 
-				for(int i=0;i< str.length;i++)
-				{
-					if(str[i].contains("://"))
-						path = "http".concat(str[i]);
-				}
-			}
+    /**
+     * Add note with Intent link
+     */
+    String title;
+    String addNote_IntentLink(Intent intent)
+    {
+        Bundle extras = intent.getExtras();
+        String pathOri = null;
+        String path;
+        if(extras != null)
+            pathOri = extras.getString(Intent.EXTRA_TEXT);
+        else
+            System.out.println("MainAct / _addNote_IntentLink / extras == null");
 
-			System.out.println("-------link path of Share 2 = " + path);
-			mDb_page.open();
-			final long rowId = mDb_page.insertNote("", "", "", "", path, "", 0, (long) 0);// add new note, get return row Id
-			mDb_page.close();
+        path = pathOri;
 
-			// save to top or to bottom
-			final String link =path;
-			int count = mDb_page.getNotesCount(true);
-			SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
+        if(!Util.isEmptyString(pathOri))
+        {
+            System.out.println("-------link path of Share 1 = " + pathOri);
+            // for SoundCloud case, path could contain other strings before URI path
+            if(pathOri.contains("http"))
+            {
+                String[] str = pathOri.split("http");
 
-			// YouTube
+                for(int i=0;i< str.length;i++)
+                {
+                    if(str[i].contains("://"))
+                        path = "http".concat(str[i]);
+                }
+            }
+
+            System.out.println("-------link path of Share 2 = " + path);
+            mDb_page.open();
+            final long rowId = mDb_page.insertNote("", "", "", "", path, "", 0, (long) 0);// add new note, get return row Id
+            mDb_page.close();
+
+            // save to top or to bottom
+            final String link =path;
+            int count = mDb_page.getNotesCount(true);
+            SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
+
+            // YouTube
             if( Util.isYouTubeLink(path))
             {
                 title = Util.getYouTubeTitle(path);
@@ -296,86 +333,87 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                     mDb_page.updateNote(rowId, title, "", "", "", path, "", 0, now.getTime(), true); // update note
                 }
 
-				if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
-						(count > 1)        )
-				{
-					Page.swap(mDb_page);
-				}
+                if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
+                        (count > 1)        )
+                {
+                    Page.swap(mDb_page);
+                }
 
-				Toast.makeText(this,
-						getResources().getText(R.string.add_new_note_option_title) + title,
-						Toast.LENGTH_SHORT)
-						.show();
+                Toast.makeText(this,
+                        getResources().getText(R.string.add_new_note_option_title) + title,
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
-			// Web page
-			else if(!Util.isEmptyString(path) &&
-					path.startsWith("http")   &&
-					!Util.isYouTubeLink(path)   )
-			{
-				title = path; //set default
-				final CustomWebView web = new CustomWebView(mAct);
-				web.loadUrl(path);
-				web.setVisibility(View.INVISIBLE);
-				web.setWebChromeClient(new WebChromeClient() {
-					@Override
-					public void onReceivedTitle(WebView view, String titleReceived) {
-						super.onReceivedTitle(view, titleReceived);
-						if (!TextUtils.isEmpty(titleReceived) &&
-							!titleReceived.equalsIgnoreCase("about:blank"))
-						{
-							SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
-							if(pref_show_note_attribute
-									.getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
-									.equalsIgnoreCase("yes"))
-							{
-								Date now = new Date();
-								mDb_page.updateNote(rowId, titleReceived, "", "", "", link, "", 0, now.getTime(), true); // update note
-							}
+            // Web page
+            else if(!Util.isEmptyString(path) &&
+                    path.startsWith("http")   &&
+                    !Util.isYouTubeLink(path)   )
+            {
+                title = path; //set default
+                final CustomWebView web = new CustomWebView(mAct);
+                web.loadUrl(path);
+                web.setVisibility(View.INVISIBLE);
+                web.setWebChromeClient(new WebChromeClient() {
+                    @Override
+                    public void onReceivedTitle(WebView view, String titleReceived) {
+                        super.onReceivedTitle(view, titleReceived);
+                        if (!TextUtils.isEmpty(titleReceived) &&
+                                !titleReceived.equalsIgnoreCase("about:blank"))
+                        {
+                            SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
+                            if(pref_show_note_attribute
+                                    .getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
+                                    .equalsIgnoreCase("yes"))
+                            {
+                                Date now = new Date();
+                                mDb_page.updateNote(rowId, titleReceived, "", "", "", link, "", 0, now.getTime(), true); // update note
+                            }
 
-							int count = mDb_page.getNotesCount(true);
-							if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
-									(count > 1)        )
-							{
-								Page.swap(mDb_page);
-							}
+                            int count = mDb_page.getNotesCount(true);
+                            if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
+                                    (count > 1)        )
+                            {
+                                Page.swap(mDb_page);
+                            }
 
-							Toast.makeText(mAct,
-									getResources().getText(R.string.add_new_note_option_title) + titleReceived,
-									Toast.LENGTH_SHORT)
-									.show();
-							CustomWebView.pauseWebView(web);
-							CustomWebView.blankWebView(web);
-							if(Page.mItemAdapter != null)
-								Page.mItemAdapter.notifyDataSetChanged();
-							title = titleReceived;
-						}
-					}
-				});
-			}
+                            Toast.makeText(mAct,
+                                    getResources().getText(R.string.add_new_note_option_title) + titleReceived,
+                                    Toast.LENGTH_SHORT)
+                                    .show();
+                            CustomWebView.pauseWebView(web);
+                            CustomWebView.blankWebView(web);
+                            if(Page.mItemAdapter != null)
+                                Page.mItemAdapter.notifyDataSetChanged();
+                            title = titleReceived;
+                        }
+                    }
+                });
+            }
             else // other
             {
-				title = pathOri; //??? better way?
-				if (pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO", "bottom").equalsIgnoreCase("top") &&
-						(count > 1)) {
-					Page.swap(mDb_page);
-				}
+                title = pathOri; //??? better way?
+                if (pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO", "bottom").equalsIgnoreCase("top") &&
+                        (count > 1)) {
+                    Page.swap(mDb_page);
+                }
 
-				Toast.makeText(this,
-						getResources().getText(R.string.add_new_note_option_title) + title,
-						Toast.LENGTH_SHORT)
-						.show();
-			}
+                Toast.makeText(this,
+                        getResources().getText(R.string.add_new_note_option_title) + title,
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
 
-			return title;
-		}
-		else
-			return null;
-	}
+            return title;
+        }
+        else
+            return null;
+    }
 
-    /*
-     * Life cycle
-     * 
-     */
+    /*********************************************************************************
+     *
+     *                                      Life cycle
+     *
+     *********************************************************************************/
 
     // if one LiteNote Intent is already running, call it again in YouTube or Browser will run into this
     @Override
@@ -449,7 +487,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		// fix: home button failed after power off/on in Config fragment
 		fragmentManager.popBackStack();
 
-		if(mDb_drawer.getFoldersCount()>0) {
+		if(mDb_drawer.getFoldersCount(true)>0) {
 			System.out.println("MainAct / _onResumeFragments / mFocus_folderPos = " + mFocus_folderPos);
 			FolderUi.selectFolder(mFocus_folderPos);
 			setTitle(mFolderTitle);
@@ -509,37 +547,227 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		mDrawer.drawerToggle.syncState();
     }
 
+    void initConfigFragment()
+    {
+        mConfigFragment = null;
+    }
 
-    /* Called whenever we call invalidateOptionsMenu() */
+    /**
+     *  on Back button pressed
+     */
+    @Override
+    public void onBackPressed()
+    {
+        System.out.println("MainAct / _onBackPressed");
+
+        if (onBackPressedListener != null)
+        {
+            DB_drawer dbDrawer = new DB_drawer(this);
+            int foldersCnt = dbDrawer.getFoldersCount(true);
+
+            if(foldersCnt == 0)
+            {
+                finish();
+                Intent intent  = new Intent(this,MainAct.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+            else
+                onBackPressedListener.doBack();
+        }
+        else
+            super.onBackPressed();
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        int backStackEntryCount = fragmentManager.getBackStackEntryCount();
+        System.out.println("MainAct / _onBackStackChanged / backStackEntryCount = " + backStackEntryCount);
+
+        if(backStackEntryCount == 1) // Config fragment
+        {
+            bEnableConfig = true;
+            System.out.println("MainAct / _onBackStackChanged / Config");
+            getActionBar().setDisplayShowHomeEnabled(false);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+            mDrawer.drawerToggle.setDrawerIndicatorEnabled(false);
+        }
+        else if(backStackEntryCount == 0) // Folder
+        {
+            onBackPressedListener = null;
+            bEnableConfig = false;
+
+            if(mFolder.adapter!=null)
+                mFolder.adapter.notifyDataSetChanged();
+
+            System.out.println("MainAct / _onBackStackChanged / Folder");
+            initConfigFragment();
+            initActionBar();
+            setTitle(mFolderTitle);
+            invalidateOptionsMenu();
+        }
+    }
+
+    public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
+        this.onBackPressedListener = onBackPressedListener;
+    }
+
+    /**
+     * on Activity Result
+     */
+    AlertDialog.Builder builder;
+    AlertDialog alertDlg;
+    Handler handler;
+    int count;
+    String countStr;
+    String nextLinkTitle;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        System.out.println("MainAct / _onActivityResult ");
+        String stringFileName = null;
+
+        // mail
+        if((requestCode== MailNotes.EMAIL) ||(requestCode== MailPagesFragment.EMAIL_PAGES)) {
+            if (requestCode == MailNotes.EMAIL)
+                stringFileName = MailNotes.mAttachmentFileName;
+            else if (requestCode == MailPagesFragment.EMAIL_PAGES)
+                stringFileName = MailPagesFragment.mAttachmentFileName;
+
+            Toast.makeText(mAct, R.string.mail_exit, Toast.LENGTH_SHORT).show();
+
+            // note: result code is always 0 (cancel), so it is not used
+            new DeleteFileAlarmReceiver(mAct,
+                    System.currentTimeMillis() + 1000 * 60 * 5, // formal: 300 seconds
+//					System.currentTimeMillis() + 1000 * 10, // test: 10 seconds
+                    stringFileName);
+        }
+
+        // YouTube
+        if(requestCode == Util.YOUTUBE_LINK_INTENT)
+        {
+            // preference of delay
+            SharedPreferences pref_delay = getSharedPreferences("youtube_launch_delay", 0);
+            count = Integer.valueOf(pref_delay.getString("KEY_YOUTUBE_LAUNCH_DELAY","10"));
+
+            builder = new AlertDialog.Builder(this);
+
+            Page.currPlayPosition++;
+
+            String link = getYouTubeLink(Page.currPlayPosition);
+            nextLinkTitle =  Util.getYouTubeTitle(link);
+
+            countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
+            countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
+
+            builder.setTitle(R.string.message_continue_or_stop_YouTube_title)
+                    .setMessage(nextLinkTitle +"\n\n" + countStr)
+                    .setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog1, int which1)
+                        {
+                            alertDlg.dismiss();
+                            cancelYouTubeHandler();
+                        }
+                    })
+                    .setPositiveButton(R.string.confirm_dialog_button_yes, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog1, int which1) {
+                            alertDlg.dismiss();
+                            cancelYouTubeHandler();
+                            launchNextYouTubeIntent();
+                        }
+                    });
+
+            alertDlg = builder.create();
+
+            // set listener for selection
+            alertDlg.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dlgInterface) {
+                    handler = new Handler();
+                    handler.postDelayed(runCountDown,1000);
+                }
+            });
+            alertDlg.show();
+        }
+
+        // make sure main activity is still executing
+        if(requestCode == Util.YOUTUBE_ADD_NEW_LINK_INTENT)
+            recreate();
+    }
+
+
+	/***********************************************************************************
+     *
+	 *                                          Menu
+	 *
+	 ***********************************************************************************/
+
+    /****************************************************
+     *  On Prepare Option menu :
+     *  Called whenever we call invalidateOptionsMenu()
+     ****************************************************/
     @Override
     public boolean onPrepareOptionsMenu(android.view.Menu menu) {
         System.out.println("MainAct / _onPrepareOptionsMenu");
 
         //??? why still got here even already call finish()after having got YouTube link
-		if((mDrawer == null) || (mDrawer.drawerLayout == null))
-			return false;
+        if((mDrawer == null) || (mDrawer.drawerLayout == null))
+            return false;
 
+        DB_drawer db_drawer = new DB_drawer(this);
+        int foldersCnt = db_drawer.getFoldersCount(true);
+
+        /**
+         * Folder group
+         */
         // If the navigation drawer is open, hide action items related to the content view
         if(mDrawer.isDrawerOpen())
         {
             mMenu.setGroupVisible(R.id.group_folders, true);
+
+            mMenu.findItem(R.id.DELETE_FOLDERS).setVisible(foldersCnt >0);
+            mMenu.findItem(R.id.ENABLE_FOLDER_DRAG_AND_DROP).setVisible(foldersCnt >1);
+
             mMenu.setGroupVisible(R.id.group_pages_and_more, false);
             mMenu.setGroupVisible(R.id.group_notes, false);
         }
         else if(!mDrawer.isDrawerOpen())
         {
-            DB_drawer db_drawer = new DB_drawer(this);
-            db_drawer.open();
-            int folderCnt = db_drawer.getFoldersCount();
-            db_drawer.close();
-            if(folderCnt>0)
+            mMenu.setGroupVisible(R.id.group_folders, false);
+
+            /**
+             * Page group and more
+             */
+            mMenu.setGroupVisible(R.id.group_pages_and_more, foldersCnt >0);
+
+            if(foldersCnt>0)
             {
                 setTitle(mFolderTitle);
 
-                mMenu.setGroupVisible(R.id.group_folders, false);
                 int pgsCnt = FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos);
+                String preStr = "MainAct / _onPrepareOptionsMenu / ";
+                System.out.println(preStr + "MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
 
-                mMenu.setGroupVisible(R.id.group_pages_and_more, true);
+                int notesCnt = 0;
+                System.out.println(preStr + "DB_page.getFocusPage_tableId() = " + DB_page.getFocusPage_tableId());
+                if(Page.mDb_page != null){
+                    try {
+                        notesCnt = Page.mDb_page.getNotesCount(true);
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println(preStr + "Page.mDb_page.getNotesCount(false) error / 0 page ");
+                        notesCnt = 0;
+                    }
+                }
+
+                // change page color
+                mMenu.findItem(R.id.CHANGE_PAGE_COLOR).setVisible(pgsCnt >0);
 
                 // pages order
                 mMenu.findItem(R.id.SHIFT_PAGE).setVisible(pgsCnt >1);
@@ -547,45 +775,42 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 // delete pages
                 mMenu.findItem(R.id.DELETE_PAGES).setVisible(pgsCnt >0);
 
+                // note operation
+                mMenu.findItem(R.id.note_operation).setVisible( (pgsCnt >0) && (notesCnt>0) );
+
+                // EXPORT TO SD CARD
+                mMenu.findItem(R.id.EXPORT_TO_SD_CARD).setVisible(pgsCnt >0);
+
+                // SEND PAGES
+                mMenu.findItem(R.id.SEND_PAGES).setVisible(pgsCnt >0);
+
+                /**
+                 *  Note group
+                 */
                 // group of notes
                 mMenu.setGroupVisible(R.id.group_notes, pgsCnt > 0);
+
+                // play
+                mMenu.findItem(R.id.PLAY).setVisible( (pgsCnt >0) && (notesCnt>0) );
+
+                // HANDLE CHECKED NOTES
+                mMenu.findItem(R.id.HANDLE_CHECKED_NOTES).setVisible( (pgsCnt >0) && (notesCnt>0) );
             }
-            else if(folderCnt==0)
-			{
-				mMenu.setGroupVisible(R.id.group_folders, false);
-                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
+            else if(foldersCnt==0)
+            {
+                /**
+                 *  Note group
+                 */
                 mMenu.setGroupVisible(R.id.group_notes, false);
-			}
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }
 
-	@Override
-    public void setTitle(CharSequence title) {
-    	super.setTitle(title);
-        initConfigFragment();
-        setFolderTitle(title);
-    }
-
-    public static void setFolderTitle(CharSequence title) {
-        if(title == null)
-        {
-        	title = mFolderTitle;
-        	initActionBar();
-            mDrawer.closeDrawer();
-        }
-        System.out.println("MainAct / _setFolderTitle / title = " + title);
-        mAct.getActionBar().setTitle(title);
-    }
-
-	/******************************************************
-	 * Menu
-	 *
-	 */
-    // Menu identifiers
-	/*
+	/*************************
 	 * onCreate Options Menu
-	 */
+     *
+	 *************************/
 	public static MenuItem mSubMenuItemAudio;
 	MenuItem playOrStopMusicButton;
 	@Override
@@ -651,10 +876,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	/*
+	/******************************
 	 * on options item selected
-	 * 
-	 */
+     *
+	 ******************************/
 	public static SlideshowInfo slideshowInfo;
 	static FragmentTransaction mFragmentTransaction;
 	public static int mPlaying_pageTableId;
@@ -670,18 +895,33 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		// Go back: check if Configure fragment now
 		if( (item.getItemId() == android.R.id.home ))
     	{
-    		System.out.println("MainAct / _onOptionsItemSelected / Home key of Config is pressed ");
+    		System.out.println("MainAct / _onOptionsItemSelected / Home key of Config is pressed / fragmentManager.getBackStackEntryCount() =" +
+                    fragmentManager.getBackStackEntryCount());
 
-			if(fragmentManager.getBackStackEntryCount() > 0 )
+            if(fragmentManager.getBackStackEntryCount() > 0 )
 			{
-				fragmentManager.popBackStack();
-				if(bEnableConfig)
-				{
-                    initConfigFragment();
-                    initActionBar();
-                    setTitle(mFolderTitle);
-                    mDrawer.closeDrawer();
-				}
+                DB_drawer dbDrawer = new DB_drawer(this);
+                int foldersCnt = dbDrawer.getFoldersCount(true);
+                System.out.println("MainAct / _onOptionsItemSelected / Home key of Config is pressed / foldersCnt = " + foldersCnt);
+
+                if(foldersCnt == 0)
+                {
+                    finish();
+                    Intent intent  = new Intent(this,MainAct.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+                else {
+                    fragmentManager.popBackStack();//??? folders count = 1 : exception
+                    if (bEnableConfig) {
+                        initConfigFragment();
+                        initActionBar();
+                        mFolderTitle = mDb_drawer.getFolderTitle(mFocus_folderPos,true);
+                        setTitle(mFolderTitle);
+                        mDrawer.closeDrawer();
+                    }
+                }
 				return true;
 			}
     	}
@@ -726,7 +966,25 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             	}
                 folderAdapter.notifyDataSetChanged();
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                return true;
 
+            case MenuId.DELETE_FOLDERS:
+                MainAct.bEnableConfig = true;
+//                mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
+                mDb_drawer = new DB_drawer(this);
+                if(mDb_drawer.getFoldersCount(true)>0)
+                {
+                    mDrawer.closeDrawer();
+                    mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
+                    DeleteFoldersFragment delFoldersFragment = new DeleteFoldersFragment();
+                    mFragmentTransaction = fragmentManager.beginTransaction();
+                    mFragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
+                    mFragmentTransaction.replace(R.id.content_frame, delFoldersFragment).addToBackStack("delete_folders").commit();
+                }
+                else
+                {
+                    Toast.makeText(this, R.string.config_export_none_toast, Toast.LENGTH_SHORT).show();
+                }
                 return true;
 
 			case MenuId.ADD_NEW_NOTE:
@@ -855,7 +1113,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				}
 				else
 				{
-					Toast.makeText(this, R.string.config_export_none_toast, Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, R.string.no_page_yet, Toast.LENGTH_SHORT).show();
 				}
 			return true;
 
@@ -928,7 +1186,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				}
 				else
 				{
-					Toast.makeText(this, R.string.config_export_none_toast, Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, R.string.no_page_yet, Toast.LENGTH_SHORT).show();
 				}
 				return true;
 
@@ -959,7 +1217,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				}
 				else
 				{
-					Toast.makeText(this, R.string.config_export_none_toast, Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, R.string.no_page_yet, Toast.LENGTH_SHORT).show();
 				}
             	return true;
 
@@ -984,158 +1242,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         }
     }
 
-
-    /**
-     *  on Back button pressed
+    /****************************
+     *          YouTube
      *
-     */
-    @Override
-    public void onBackPressed()
-    {
-        System.out.println("MainAct / _onBackPressed");
-
-		if (onBackPressedListener != null)
-        {
-            onBackPressedListener.doBack();
-        }
-		else
-			super.onBackPressed();
-    }
-
-    void initConfigFragment()
-    {
-        mConfigFragment = null;
-    }
-
-    static void initActionBar()
-    {
-//		mConfigFragment = null;
-		bEnableConfig = false;
-		mMenu.setGroupVisible(R.id.group_notes, true);
-		mAct.getActionBar().setDisplayShowHomeEnabled(true);
-		mAct.getActionBar().setDisplayHomeAsUpEnabled(true);
-        mDrawer.drawerToggle.setDrawerIndicatorEnabled(true);
-    }
-
-	@Override
-	public void onBackStackChanged() {
-		int backStackEntryCount = fragmentManager.getBackStackEntryCount();
-		System.out.println("MainAct / _onBackStackChanged / backStackEntryCount = " + backStackEntryCount);
-
-        if(backStackEntryCount == 1) // Config fragment
-		{
-			bEnableConfig = true;
-			System.out.println("MainAct / _onBackStackChanged / Config");
-			getActionBar().setDisplayShowHomeEnabled(false);
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-            mDrawer.drawerToggle.setDrawerIndicatorEnabled(false);
-		}
-		else if(backStackEntryCount == 0) // Folder
-		{
-            onBackPressedListener = null;
-			bEnableConfig = false;
-			System.out.println("MainAct / _onBackStackChanged / Folder");
-			initConfigFragment();
-            initActionBar();
-            setTitle(mFolderTitle);
-			invalidateOptionsMenu();
-		}
-	}
-
-	public void setOnBackPressedListener(OnBackPressedListener onBackPressedListener) {
-		this.onBackPressedListener = onBackPressedListener;
-	}
-
-    AlertDialog.Builder builder;
-    AlertDialog alertDlg;
-    Handler handler;
-    int count;
-    String countStr;
-	String nextLinkTitle;
-
-	/**
-	 * onActivityRusult
-	 * @param requestCode
-	 * @param resultCode
-	 * @param data
-	 */
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		System.out.println("MainAct / _onActivityResult ");
-		String stringFileName = null;
-
-		// mail
-		if((requestCode== MailNotes.EMAIL) ||(requestCode== MailPagesFragment.EMAIL_PAGES)) {
-			if (requestCode == MailNotes.EMAIL)
-				stringFileName = MailNotes.mAttachmentFileName;
-			else if (requestCode == MailPagesFragment.EMAIL_PAGES)
-				stringFileName = MailPagesFragment.mAttachmentFileName;
-
-			Toast.makeText(mAct, R.string.mail_exit, Toast.LENGTH_SHORT).show();
-
-			// note: result code is always 0 (cancel), so it is not used
-			new DeleteFileAlarmReceiver(mAct,
-					System.currentTimeMillis() + 1000 * 60 * 5, // formal: 300 seconds
-//					System.currentTimeMillis() + 1000 * 10, // test: 10 seconds
-					stringFileName);
-		}
-
-		// YouTube
-		if(requestCode == Util.YOUTUBE_LINK_INTENT)
-		{
-			// preference of delay
-			SharedPreferences pref_delay = getSharedPreferences("youtube_launch_delay", 0);
-			count = Integer.valueOf(pref_delay.getString("KEY_YOUTUBE_LAUNCH_DELAY","10"));
-
-			builder = new AlertDialog.Builder(this);
-
-			Page.currPlayPosition++;
-
-			String link = getYouTubeLink(Page.currPlayPosition);
-			nextLinkTitle =  Util.getYouTubeTitle(link);
-
-			countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
-            countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
-
-			builder.setTitle(R.string.message_continue_or_stop_YouTube_title)
-                   .setMessage(nextLinkTitle +"\n\n" + countStr)
-                   .setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
-                   {
-                       @Override
-                       public void onClick(DialogInterface dialog1, int which1)
-                       {
-                           alertDlg.dismiss();
-						   cancelYouTubeHandler();
-                       }
-                   })
-                   .setPositiveButton(R.string.confirm_dialog_button_yes, new DialogInterface.OnClickListener()
-                   {
-                       @Override
-                       public void onClick(DialogInterface dialog1, int which1) {
-                           alertDlg.dismiss();
-						   cancelYouTubeHandler();
-                           launchNextYouTubeIntent();
-                       }
-                   });
-
-            alertDlg = builder.create();
-
-            // set listener for selection
-            alertDlg.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dlgInterface) {
-                    handler = new Handler();
-                    handler.postDelayed(runCountDown,1000);
-                }
-            });
-            alertDlg.show();
-		}
-
-		// make sure main activity is still executing
-		if(requestCode == Util.YOUTUBE_ADD_NEW_LINK_INTENT)
-            recreate();
-	}
+     ****************************/
 	/**
 	 *  get YouTube link
 	 */

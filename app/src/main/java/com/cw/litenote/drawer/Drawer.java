@@ -52,18 +52,22 @@ public class Drawer {
                         System.out.println("Drawer / _onDrawerClosed / MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
 
                         MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
-                        act.invalidateOptionsMenu(); // creates a call to onPrepareOptionsMenu()
 
-//                        if(MainAct.mFolder.listView.getCount() >0)
-                        if(MainAct.mDb_drawer.getFoldersCount() >0)
-                        {
-                            int pos = MainAct.mFolder.listView.getCheckedItemPosition();
-                            MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(pos);
-                            MainAct.setFolderTitle(MainAct.mFolderTitle);
+                        if( !MainAct.bEnableConfig ) {
+                            act.invalidateOptionsMenu(); // creates a call to onPrepareOptionsMenu()
 
-                            // add for deleting folder condition
-                            if (TabsHost.mTabsHost == null)
-                                FolderUi.selectFolder(MainAct.mFocus_folderPos);
+//                            if(MainAct.mFolder.listView.getCount() >0)
+                            if (MainAct.mDb_drawer.getFoldersCount(true) > 0)
+                            {
+                                int pos = MainAct.mFolder.listView.getCheckedItemPosition();
+                                MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(pos,true);
+                                MainAct.setFolderTitle(MainAct.mFolderTitle);
+
+                                // add for deleting folder condition
+                                if (TabsHost.mTabsHost == null)
+                                    FolderUi.selectFolder(MainAct.mFocus_folderPos);
+                            } else
+                                MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.INVISIBLE);
                         }
                     }
                };
@@ -85,5 +89,10 @@ public class Drawer {
     public boolean isDrawerOpen()
     {
         return drawerLayout.isDrawerOpen(MainAct.mFolder.listView);
+    }
+
+    public static int getFocusFolderPosition()
+    {
+        return MainAct.mFocus_folderPos;
     }
 }

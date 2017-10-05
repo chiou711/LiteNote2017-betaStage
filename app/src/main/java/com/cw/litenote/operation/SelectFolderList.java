@@ -13,20 +13,17 @@ import android.widget.ListView;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
-import com.cw.litenote.db.DB_folder;
-import com.cw.litenote.db.DB_page;
-import com.cw.litenote.main.MainAct;
+import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by cw on 2017/9/21.
+ * Created by cw on 2017/10/4.
  */
 
-public class SelectPageList
+public class SelectFolderList
 {
     View mView;
     CheckedTextView mCheckTvSelAll;
@@ -34,21 +31,14 @@ public class SelectPageList
     List<String> mListStrArr; // list view string array
     public List<Boolean> mCheckedArr; // checked list view items array
     DB_drawer mDb_drawer;
-    DB_folder mDb_folder;
     int COUNT;
     Activity mAct;
-    public String mXML_default_filename;//??? for only 2 cases (all and single)?
-    public String mFolderTitle;
 
-    public SelectPageList(Activity act, View rootView, View view)
+    public SelectFolderList(Activity act, View rootView, View view)
     {
         mAct = act;
 
-        mDb_drawer = new DB_drawer(act);
-        int pos = MainAct.mFolder.listView.getCheckedItemPosition();
-        mFolderTitle = mDb_drawer.getFolderTitle(pos,true);
-
-        mDb_folder = new DB_folder(mAct, Util.getPref_focusView_folder_tableId(mAct));
+        mDb_drawer = new DB_drawer(mAct);
 
         // checked Text View: select all
         mCheckTvSelAll = (CheckedTextView) rootView.findViewById(R.id.chkSelectAllPages);
@@ -60,10 +50,7 @@ public class SelectPageList
                 ((CheckedTextView)checkSelAll).setChecked(!currentCheck);
 
                 if(((CheckedTextView)checkSelAll).isChecked())
-                {
                     selectAllPages(true);
-                    mXML_default_filename = mFolderTitle;
-                }
                 else
                     selectAllPages(false);
             }
@@ -79,15 +66,15 @@ public class SelectPageList
     {
         mChkNum = 0;
 
-        mDb_folder.open();
-        COUNT = mDb_folder.getPagesCount(false);
+        mDb_drawer.open();
+        COUNT = mDb_drawer.getFoldersCount(true);
         for(int i=0;i<COUNT;i++)
         {
             CheckedTextView chkTV = (CheckedTextView) mListView.findViewById(R.id.checkTV);
             mCheckedArr.set(i, enAll);
-            mListStrArr.set(i, mDb_folder.getPageTitle(i,false));
+            mListStrArr.set(i, mDb_drawer.getFolderTitle(i,true));
 
-            int style = mDb_folder.getPageStyle(i, false);
+            int style = 1;
 
             if( enAll)
                 chkTV.setCompoundDrawablesWithIntrinsicBounds(style%2 == 1 ?
@@ -98,7 +85,7 @@ public class SelectPageList
                 R.drawable.btn_check_off_holo_light:
                 R.drawable.btn_check_off_holo_dark,0,0,0);
         }
-        mDb_folder.close();
+        mDb_drawer.close();
 
         mChkNum = (enAll == true)? COUNT : 0;
 
@@ -120,10 +107,12 @@ public class SelectPageList
         {
             public void onItemClick(AdapterView<?> parent, View vw, int position, long id)
             {
+                System.out.println("SelectFolderList / _onItemClick / position = " + position);
+                System.out.println("SelectFolderList / _onItemClick / id = " + id);
                 CheckedTextView chkTV = (CheckedTextView) vw.findViewById(R.id.checkTV);
                 chkTV.setChecked(!chkTV.isChecked());
                 mCheckedArr.set(position, chkTV.isChecked());
-                if(mCheckedArr.get(position) == true)
+                if(mCheckedArr.get(position))
                     mChkNum++;
                 else
                     mChkNum--;
@@ -134,7 +123,7 @@ public class SelectPageList
                 }
 
                 // set for contrast
-                int mStyle = mDb_folder.getPageStyle(position, true);
+                int mStyle = 1;
                 if( chkTV.isChecked())
                     chkTV.setCompoundDrawablesWithIntrinsicBounds(mStyle%2 == 1 ?
                     R.drawable.btn_check_on_holo_light:
@@ -144,29 +133,23 @@ public class SelectPageList
                     R.drawable.btn_check_off_holo_light:
                     R.drawable.btn_check_off_holo_dark,0,0,0);
 
-                // set default file name
-                mXML_default_filename = mDb_folder.getPageTitle(position, true);
             }
         });
 
         // set list string array
-        mCheckedArr = new ArrayList<Boolean>();
-        mListStrArr = new ArrayList<String>();
+        mListStrArr = new ArrayList<>();
+        mCheckedArr = new ArrayList<>();
 
-        // DB
-        int pageTableId = Util.getPref_focusView_page_tableId(mAct);
-        DB_page.setFocusPage_tableId(pageTableId);
-
-        mDb_folder.open();
-        COUNT = mDb_folder.getPagesCount(false);
+        mDb_drawer.open();
+        COUNT = mDb_drawer.getFoldersCount(true);
         for(int i=0;i<COUNT;i++)
         {
             // list string array: init
-            mListStrArr.add(mDb_folder.getPageTitle(i,false));
+            mListStrArr.add(mDb_drawer.getFolderTitle(i,true));
             // checked mark array: init
             mCheckedArr.add(false);
         }
-        mDb_folder.close();
+        mDb_drawer.close();
 
         // set list adapter
         ListAdapter listAdapter = new ListAdapter(mAct, mListStrArr);
@@ -211,14 +194,14 @@ public class SelectPageList
             // set checked text view
             CheckedTextView chkTV = (CheckedTextView) mView.findViewById(R.id.checkTV);
             // show style
-            int style = mDb_folder.getPageStyle(position, true);
+            int style = 1;
             chkTV.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
             chkTV.setTextColor(ColorSet.mText_ColorArray[style]);
 
             // Show current page
             //??? how to set left padding of text view of a CheckedTextview
             // workaround: set single line to true and add one space in front of the text
-            if(mDb_folder.getPageTableId(position,true) == Integer.valueOf(DB_page.getFocusPage_tableId()))
+            if(position == Drawer.getFocusFolderPosition())
             {
                 chkTV.setTypeface(chkTV.getTypeface(), Typeface.BOLD_ITALIC);
                 chkTV.setText( " " + mList.get(position) + "*" );

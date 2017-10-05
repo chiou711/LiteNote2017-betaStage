@@ -32,7 +32,7 @@ import static com.cw.litenote.folder.FolderUi.addFolderListeners;
 public class Folder
 {
     public DragSortListView listView;
-    SimpleDragSortCursorAdapter adapter;
+    public SimpleDragSortCursorAdapter adapter;
     DragSortController controller;
     FragmentActivity act;
 
@@ -47,7 +47,7 @@ public class Folder
     {
 
         // set Folder title
-        if(MainAct.mDb_drawer.getFoldersCount() == 0)
+        if(MainAct.mDb_drawer.getFoldersCount(true) == 0)
         {
             // default: add 2 new folders
 //            for(int i = 0; i< Define.ORIGIN_FOLDERS_COUNT; i++)
@@ -61,10 +61,10 @@ public class Folder
         }
         else
         {
-            for(int i = 0; i< MainAct.mDb_drawer.getFoldersCount(); i++)
+            for(int i = 0; i< MainAct.mDb_drawer.getFoldersCount(true); i++)
             {
                 MainAct.mFolderTitles.add(""); // init only
-                MainAct.mFolderTitles.set(i, MainAct.mDb_drawer.getFolderTitle(i));
+                MainAct.mFolderTitles.set(i, MainAct.mDb_drawer.getFolderTitle(i,true));
             }
         }
 
@@ -141,10 +141,10 @@ public class Folder
 
             DB_drawer db_drawer = new DB_drawer(act);
             // update audio playing drawer index
-            int drawerCount = db_drawer.getFoldersCount();
+            int drawerCount = db_drawer.getFoldersCount(true);
             for(int i=0;i<drawerCount;i++)
             {
-                if(db_drawer.getFolderTableId(i) == MainAct.mPlaying_folderTableId)
+                if(db_drawer.getFolderTableId(i,true) == MainAct.mPlaying_folderTableId)
                     MainAct.mPlaying_folderPos = i;
             }
             adapter.notifyDataSetChanged();
@@ -156,14 +156,14 @@ public class Folder
     public static void listAllFolderTables(FragmentActivity act)
     {
         // list all folder tables
-        int foldersCount = MainAct.mDb_drawer.getFoldersCount();
+        int foldersCount = MainAct.mDb_drawer.getFoldersCount(true);
         for(int folderPos=0; folderPos<foldersCount; folderPos++)
         {
-            String folderTitle = MainAct.mDb_drawer.getFolderTitle(folderPos);
+            String folderTitle = MainAct.mDb_drawer.getFolderTitle(folderPos,true);
             MainAct.mFocus_folderPos = folderPos;
 
             // list all folder tables
-            int folderTableId = MainAct.mDb_drawer.getFolderTableId(folderPos);
+            int folderTableId = MainAct.mDb_drawer.getFolderTableId(folderPos,true);
             System.out.println("--- folder table Id = " + folderTableId +
                                ", folder title = " + folderTitle);
 
@@ -220,7 +220,7 @@ public class Folder
         @Override
         public int getCount() {
             DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-            int count = db_drawer.getFoldersCount();
+            int count = db_drawer.getFoldersCount(true);
             return count;
         }
 
@@ -262,7 +262,7 @@ public class Folder
                 viewHolder.drawerTitle.setTextColor(Color.argb(0xff, 0xff, 0xff, 0xff));
 
             DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-            viewHolder.drawerTitle.setText(db_drawer.getFolderTitle(position));
+            viewHolder.drawerTitle.setText(db_drawer.getFolderTitle(position,true));
 
             // dragger
             SharedPreferences pref = MainAct.mAct.getSharedPreferences("show_note_attribute", 0);;
@@ -295,7 +295,7 @@ public class Folder
             MainAct.mFocus_folderPos = position;
 
             DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-            Util.setPref_focusView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position) );
+            Util.setPref_focusView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position,true) );
 
             FolderUi.selectFolder(position);
             MainAct.setFolderTitle(MainAct.mFolderTitle);

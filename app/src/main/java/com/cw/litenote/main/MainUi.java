@@ -287,6 +287,7 @@ public class MainUi
 
 
 class MenuId {
+	// Menu identifiers
     static final int ADD_NEW_NOTE = R.id.ADD_NEW_NOTE;
 
     static final int OPEN_PLAY_SUBMENU = R.id.PLAY;
@@ -309,6 +310,7 @@ class MenuId {
 
     static final int ADD_NEW_FOLDER = R.id.ADD_NEW_FOLDER;
     static final int ENABLE_FOLDER_DRAG_AND_DROP = R.id.ENABLE_FOLDER_DRAG_AND_DROP;
+    static final int DELETE_FOLDERS = R.id.DELETE_FOLDERS;
 }
 
 

@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,7 +58,7 @@ public class FolderUi
     public static void addNewFolder(final FragmentActivity act, final int newTableId)
     {
         // get folder name
-        String folderName = act.getResources()
+        final String hintFolderName = act.getResources()
                                .getString(R.string.default_folder_name)
                                .concat(String.valueOf(newTableId));
 
@@ -74,14 +75,21 @@ public class FolderUi
         }
 
         // set hint
-        editFolderName.setHint(folderName);
         editFolderName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    ((EditText) v).setText("");
-                    ((EditText) v).setSelection(0);
+                    ((EditText) v).setHint(hintFolderName);
                 }
+            }
+        });
+
+        editFolderName.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ((EditText) v).setText(hintFolderName);
+                ((EditText) v).setSelection(hintFolderName.length());
+                return false;
             }
         });
 
@@ -132,18 +140,17 @@ public class FolderUi
             @Override
             public void onClick(View v) {
 				DB_drawer db_drawer = new DB_drawer(act);
-				DB_folder db_folder = new DB_folder(act,newTableId);
+                db_drawer.open();
 
 				String folderTitle;
                 if (!Util.isEmptyString(editFolderName.getText().toString()))
                     folderTitle = editFolderName.getText().toString();
                 else
-                    folderTitle = act.getResources().getString(R.string.default_folder_name)
-                                                    .concat(String.valueOf(newTableId));
+                    folderTitle = act.getResources().getString(R.string.default_folder_name).concat(String.valueOf(newTableId));
 
                 MainAct.mFolderTitles.add(folderTitle);
                 // insert new drawer Id and Title
-                db_drawer.insertFolder(newTableId, folderTitle );
+                db_drawer.insertFolder(newTableId, folderTitle,false );
 
                 // insert folder table
                 db_drawer.insertFolderTable(db_drawer,newTableId, false);
@@ -157,7 +164,7 @@ public class FolderUi
                 // add new folder to the top
                 if(mAddFolderAt == 0)
                 {
-                    int startCursor = db_drawer.getFoldersCount()-1;
+                    int startCursor = db_drawer.getFoldersCount(false)-1;
                     int endCursor = 0;
 
                     //reorder data base storage for ADD_NEW_TO_TOP option
@@ -172,24 +179,27 @@ public class FolderUi
                     }
 
                     // update focus folder position
-                    if(db_drawer.getFoldersCount()==1)
+                    if(db_drawer.getFoldersCount(false)==1)
                         MainAct.mFocus_folderPos = 0;
                     else
                         MainAct.mFocus_folderPos++;
 
                     // update focus folder table Id for Add to top
-                    Util.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(MainAct.mFocus_folderPos) );
+                    Util.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(MainAct.mFocus_folderPos,false) );
 
                     // update playing highlight if needed
                     if(AudioPlayer.mMediaPlayer != null)
                         MainAct.mPlaying_folderPos++;
                 }
+                db_drawer.close();
 
                 MainAct.folderAdapter.notifyDataSetChanged();
 
                 //end
                 dialog1.dismiss();
                 updateFocus_folderPosition();
+
+                MainAct.mAct.invalidateOptionsMenu();
             }
         });
     }
@@ -218,7 +228,7 @@ public class FolderUi
 //		}
 
         // get folder table Id
-        int folderTableId = db_drawer.getFolderTableId(position);
+        int folderTableId = db_drawer.getFolderTableId(position,true);
 
         // 1) delete related page table
         DB_folder dbFolder = new DB_folder(act, folderTableId);
@@ -229,29 +239,29 @@ public class FolderUi
         }
 
         // get folder Id
-        int folderId = (int) db_drawer.getFolderId(position);
+        int folderId = (int) db_drawer.getFolderId(position,true);
 
         // 2) delete folder table Id
-        db_drawer.dropFolderTable(folderTableId);
+        db_drawer.dropFolderTable(folderTableId,true);
 
         // 3) delete folder Id in drawer table
-        db_drawer.deleteFolderId(folderId);
+        db_drawer.deleteFolderId(folderId,true);
 
         renewFirstAndLast_folderId();
 
         // After Delete
         // - update mFocus_folderPos
         // - select first existing drawer item
-        int foldersCount = db_drawer.getFoldersCount();
+        int foldersCount = db_drawer.getFoldersCount(true);
 
         // get new focus position
         // if focus item is deleted, set focus to new first existing folder
         if (MainAct.mFocus_folderPos == position)
         {
-            for (int item = 0; item < foldersCount; item++)
+            for (int i = 0; i < foldersCount; i++)
             {
-                if (db_drawer.getFolderId(item) == mFirstExist_folderId)
-                    MainAct.mFocus_folderPos = item;
+                if (db_drawer.getFolderId(i,true) == mFirstExist_folderId)
+                    MainAct.mFocus_folderPos = i;
             }
         } else if (position < MainAct.mFocus_folderPos)
             MainAct.mFocus_folderPos--;
@@ -262,7 +272,7 @@ public class FolderUi
         MainAct.mFolder.listView.setItemChecked(MainAct.mFocus_folderPos, true);
 
         if (foldersCount > 0) {
-            int focusFolderTableId = db_drawer.getFolderTableId(MainAct.mFocus_folderPos);
+            int focusFolderTableId = db_drawer.getFolderTableId(MainAct.mFocus_folderPos,true);
             // update folder table Id of focus view
             Util.setPref_focusView_folder_tableId(act, focusFolderTableId);
             // update folder table Id of new focus (error will cause first folder been deleted)
@@ -296,6 +306,8 @@ public class FolderUi
 
         // refresh drawer list view
         MainAct.folderAdapter.notifyDataSetChanged();
+
+        MainAct.mAct.invalidateOptionsMenu();
 	}
 
 
@@ -306,7 +318,7 @@ public class FolderUi
         Activity act = MainAct.mAct;
 		DB_drawer db_drawer = new DB_drawer(act);
 		int i = 0;
-		int foldersCount = db_drawer.getFoldersCount();
+		int foldersCount = db_drawer.getFoldersCount(true);
 		mLastExist_folderTableId = 0;
 		while(i < foldersCount)
     	{
@@ -318,10 +330,10 @@ public class FolderUi
 			db_drawer.close();
 
 			if(isFirst)
-				mFirstExist_folderId = (int) db_drawer.getFolderId(i) ;
+				mFirstExist_folderId = (int) db_drawer.getFolderId(i,true) ;
 			
-			if(db_drawer.getFolderTableId(i) >= mLastExist_folderTableId)
-				mLastExist_folderTableId = db_drawer.getFolderTableId(i);
+			if(db_drawer.getFolderTableId(i,true) >= mLastExist_folderTableId)
+				mLastExist_folderTableId = db_drawer.getFolderTableId(i,true);
 			
 			i++;
     	} 
@@ -334,7 +346,7 @@ public class FolderUi
 		DB_drawer db = new DB_drawer(act);
 
 		// insert when table is empty, activated only for the first time 
-		final String folderTitle = db.getFolderTitle(position);
+		final String folderTitle = db.getFolderTitle(position,true);
 	
 		final EditText editText = new EditText(act);
 	    editText.setText(folderTitle);
@@ -389,11 +401,12 @@ public class FolderUi
 	    		{
 	    			DB_drawer db_drawer = new DB_drawer(act);
 	    			// save
-	    			int drawerId =  (int) db_drawer.getFolderId(position);
-	    			int drawerTabInfoTableId =  db_drawer.getFolderTableId(position);
+	    			int drawerId =  (int) db_drawer.getFolderId(position,true);
+	    			int drawerTabInfoTableId =  db_drawer.getFolderTableId(position,true);
 					db_drawer.updateFolder(drawerId,
-									drawerTabInfoTableId,
-									editText.getText().toString());
+							               drawerTabInfoTableId,
+									       editText.getText().toString()
+                                           ,true);
 					// update
 					MainAct.folderAdapter.notifyDataSetChanged();
 	                MainAct.setFolderTitle(editText.getText().toString());
@@ -428,21 +441,24 @@ public class FolderUi
         Activity act = MainAct.mAct;
 		DB_drawer db_drawer = new DB_drawer(act);
 
-		mFolderId1 = db_drawer.getFolderId(startPosition);
-		mFolderTableId1 = db_drawer.getFolderTableId(startPosition);
-		mFolderTitle1 = db_drawer.getFolderTitle(startPosition);
+        db_drawer.open();
+		mFolderId1 = db_drawer.getFolderId(startPosition,false);
+		mFolderTableId1 = db_drawer.getFolderTableId(startPosition,false);
+		mFolderTitle1 = db_drawer.getFolderTitle(startPosition,false);
 
-		mFolderId2 = db_drawer.getFolderId(endPosition);
-		mFolderTableId2 = db_drawer.getFolderTableId(endPosition);
-		mFolderTitle2 = db_drawer.getFolderTitle(endPosition);
+		mFolderId2 = db_drawer.getFolderId(endPosition,false);
+		mFolderTableId2 = db_drawer.getFolderTableId(endPosition,false);
+		mFolderTitle2 = db_drawer.getFolderTitle(endPosition,false);
 
 	    db_drawer.updateFolder(mFolderId1,
-				mFolderTableId2,
-				mFolderTitle2);
+                               mFolderTableId2,
+                               mFolderTitle2
+                               ,false);
 
 		db_drawer.updateFolder(mFolderId2,
-				mFolderTableId1,
-				mFolderTitle1);
+                               mFolderTableId1,
+                               mFolderTitle1,false);
+        db_drawer.close();
 	}
 
     // Update focus position
@@ -453,10 +469,10 @@ public class FolderUi
 
 		//update focus position
 		int iLastView_folderTableId = Util.getPref_focusView_folder_tableId(act);
-		int count = db_drawer.getFoldersCount();
+		int count = db_drawer.getFoldersCount(true);
     	for(int i=0;i<count;i++)
     	{
-        	if(	db_drawer.getFolderTableId(i)== iLastView_folderTableId)
+        	if(	db_drawer.getFolderTableId(i,true)== iLastView_folderTableId)
         	{
         		MainAct.mFocus_folderPos =  i;
 				MainAct.mFolder.listView.setItemChecked(MainAct.mFocus_folderPos, true);
@@ -469,7 +485,7 @@ public class FolderUi
     public static void selectFolder(final int position)
     {
     	System.out.println("MainUi / _selectFolder / position = " + position);
-    	MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(position);
+    	MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(position,true);
 
 		// update selected item and title, then close the drawer
 		MainAct.mFolder.listView.setItemChecked(position, true);
@@ -550,12 +566,20 @@ public class FolderUi
     public static int getFolder_pagesCount(int folderPos)
     {
         System.out.println("FolderUi / _getFolder_pagesCount / folderPos = " + folderPos);
-        int focusFolder_tableId = MainAct.mDb_drawer.getFolderTableId(folderPos);
-        DB_folder db_folder = new DB_folder(MainAct.mAct,focusFolder_tableId);
-        db_folder.open();
-        int pagesCount = db_folder.getPagesCount(false);
-        System.out.println("FolderUi / _getFolder_pagesCount / pagesCount = " + pagesCount);
-        db_folder.close();
+        int pagesCount;
+        try {
+            int focusFolder_tableId = MainAct.mDb_drawer.getFolderTableId(folderPos, true);
+            DB_folder db_folder = new DB_folder(MainAct.mAct, focusFolder_tableId);
+            db_folder.open();
+            pagesCount = db_folder.getPagesCount(false);
+            System.out.println("FolderUi / _getFolder_pagesCount / pagesCount = " + pagesCount);
+            db_folder.close();
+        }
+        catch (Exception e)
+        {
+            System.out.println("FolderUi / _getFolder_pagesCount / db_folder.getPagesCount error / 0 page");
+            pagesCount = 0;
+        }
         return  pagesCount;
     }
     

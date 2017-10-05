@@ -253,6 +253,12 @@
             android:showAsAction="never"
             android:title="@string/drag_folder"
             android:icon="@drawable/ic_dragger_on"/>
+        <item
+            android:id="@+id/DELETE_FOLDERS"
+            android:orderInCategory="2"
+            android:showAsAction="never"
+            android:title="@string/delete_folders"
+            android:icon="@drawable/ic_delete"/>
     </menu>
     </item>
     </group>

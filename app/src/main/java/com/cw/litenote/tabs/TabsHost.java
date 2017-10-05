@@ -101,7 +101,7 @@ public class TabsHost extends Fragment
 		if(mDbFolder != null)
 			mDbFolder.close();
 
-		int folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mFocus_folderPos);
+		int folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mFocus_folderPos,true);
 		mDbFolder = new DB_folder(mAct,folderTableId);
 
         mDbFolder.open();
@@ -233,7 +233,7 @@ public class TabsHost extends Fragment
         int tableId = Util.getPref_focusView_page_tableId(act);
         System.out.println("TabsHost / _setTabIndicator / final viewed tableId = " + tableId);
 
-        int folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mFocus_folderPos);
+        int folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mFocus_folderPos,true);
 
         if(mDbFolder != null)
             mDbFolder = null;

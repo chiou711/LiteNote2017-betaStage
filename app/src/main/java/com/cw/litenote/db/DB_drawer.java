@@ -134,14 +134,16 @@ public class DB_drawer
     }
 
     // delete folder table
-    public void dropFolderTable(int tableId)
+    public void dropFolderTable(int tableId,boolean enDbOpenClose)
     {
-    	this.open();
+    	if(enDbOpenClose)
+    	    this.open();
 		//format "Folder1"
     	String DB_FOLDER_TABLE_NAME = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(tableId));
         String dB_drop_table = "DROP TABLE IF EXISTS " + DB_FOLDER_TABLE_NAME + ";";
         mSqlDb.execSQL(dB_drop_table);
-        this.close();
+        if(enDbOpenClose)
+            this.close();
     }
 
 
@@ -158,7 +160,7 @@ public class DB_drawer
       };
 
 
-    private Cursor getFolderCursor() {
+    public Cursor getFolderCursor() {
         return mSqlDb.query(DB_DRAWER_TABLE_NAME,
 				 strFolderColumns,
 				 null,
@@ -169,32 +171,37 @@ public class DB_drawer
 				 );
     }
 
-    public long insertFolder(int tableId, String title)
+    public long insertFolder(int tableId, String title,boolean enDbOpenClose)
     {
         System.out.println("DB_drawer / _insertFolder/ tableId = " + tableId + " / title = " + title);
-    	this.open();
+        if(enDbOpenClose)
+            this.open();
         Date now = new Date();
         ContentValues args = new ContentValues();
         args.put(KEY_FOLDER_TABLE_ID, tableId);
         args.put(KEY_FOLDER_TITLE, title);
         args.put(KEY_FOLDER_CREATED, now.getTime());
         long rowId = mSqlDb.insert(DB_DRAWER_TABLE_NAME, null, args);
-        this.close();
+        if(enDbOpenClose)
+            this.close();
         return rowId;
     }
 
-    public long deleteFolderId(int id)
+    public long deleteFolderId(int id,boolean enDbOpenClose)
     {
-        this.open();
+        if(enDbOpenClose)
+            this.open();
         long rowsNumber = mSqlDb.delete(DB_DRAWER_TABLE_NAME, KEY_FOLDER_ID + "='" + id +"'", null);
-        this.close();
+        if(enDbOpenClose)
+            this.close();
         return  rowsNumber;
     }
     
     
     // update folder
-    public boolean updateFolder(long rowId, int drawerFolderTableId, String drawerTitle) {
-    	this.open();
+    public boolean updateFolder(long rowId, int drawerFolderTableId, String drawerTitle,boolean enDbOpenClose) {
+        if(enDbOpenClose)
+            this.open();
         ContentValues args = new ContentValues();
         Date now = new Date();  
         args.put(KEY_FOLDER_TABLE_ID, drawerFolderTableId);
@@ -203,13 +210,15 @@ public class DB_drawer
 
         int cUpdateItems = mSqlDb.update(DB_DRAWER_TABLE_NAME, args, KEY_FOLDER_ID + "=" + rowId, null);
         boolean bUpdate = cUpdateItems > 0? true:false;
-        this.close();
+        if(enDbOpenClose)
+            this.close();
         return bUpdate;
     }    
     
-    public long getFolderId(int position)
+    public long getFolderId(int position,boolean enDbOpenClose)
     {
-        this.open();
+        if(enDbOpenClose)
+            this.open();
     	mCursor_folder.moveToPosition(position);
     	// note: KEY_FOLDER_ID + " AS " + BaseColumns._ID
         long column = -1;
@@ -219,44 +228,61 @@ public class DB_drawer
         catch (Exception e) {
             System.out.println("DB_drawer / _getFolderId / exception ");
         }
-        this.close();
+        if(enDbOpenClose)
+            this.close();
         return column;
     }
     
-    public int getFoldersCount()
+    public int getFoldersCount(boolean enDbOpenClose)
     {
-        this.open();
+        if(enDbOpenClose)
+            this.open();
     	int count = mCursor_folder.getCount();
-        this.close();
+        if(enDbOpenClose)
+            this.close();
     	return count;
     }
     
-    public int getFolderTableId(int position)
+    public int getFolderTableId(int position,boolean enDbOpenClose)
     {
-        this.open();
-		mCursor_folder.moveToPosition(position);
-		int id = mCursor_folder.getInt(mCursor_folder.getColumnIndex(KEY_FOLDER_TABLE_ID));
-        this.close();
+        if(enDbOpenClose)
+            this.open();
+        mCursor_folder.moveToPosition(position);
+        int id = mCursor_folder.getInt(mCursor_folder.getColumnIndex(KEY_FOLDER_TABLE_ID));
+
+        if(enDbOpenClose)
+            this.close();
         return id;
-    	
+
     }
+
+
     
-	public String getFolderTitle(int position)
+	public String getFolderTitle(int position,boolean enDbOpenClose)
 	{
-        this.open();
+        if(enDbOpenClose)
+            this.open();
 		mCursor_folder.moveToPosition(position);
-		String str = mCursor_folder.getString(mCursor_folder.getColumnIndex(KEY_FOLDER_TITLE));
-        this.close();
+        String str="";
+        try {
+            str = mCursor_folder.getString(mCursor_folder.getColumnIndex(KEY_FOLDER_TITLE));
+        }
+        catch (Exception e)
+        {
+            System.out.println("DB_drawer / _getFolderTitle / getString error / empty string");
+        }
+        if(enDbOpenClose)
+            this.close();
         return str;
 	}
 
     public void listFolders()
     {
-        int count = getFoldersCount();
+        int count = getFoldersCount(true);
         System.out.println("DB_drawer / _listFolders / folders count = " + count);
         for (int i = 0; i < count; i++)
         {
-            String title = getFolderTitle(i);
+            String title = getFolderTitle(i,true);
             System.out.println("DB_drawer / _listFolders / position = " + i + " / folder title = " + title);
         }
     }
