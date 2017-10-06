@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.preference.Define;
 import com.cw.litenote.util.Util;
@@ -73,7 +74,7 @@ public class DB_folder
             if( mCursor_page.getCount() == 0)
             {
                 if(Define.HAS_PREFERENCE &&
-                   !Util.getPref_has_default_import(MainAct.mAct,MainAct.mFocus_folderPos) )
+                   !Util.getPref_has_default_import(MainAct.mAct, FolderUi.getFocus_folderPos()) )
                 {
                     // importing preference
                 }

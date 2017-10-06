@@ -7,6 +7,7 @@ import java.util.Locale;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.note.Note;
@@ -117,7 +118,7 @@ public class Page extends UilListViewBaseFragment
 		mDndListView.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_OVERLAY);
 		Util.setScrollThumb(getActivity(),mDndListView);
 
-    	mStyle = Util.getCurrentPageStyle(getActivity());
+    	mStyle = Util.getCurrentPageStyle();
 //    	System.out.println("Page / _onActivityCreated / mStyle = " + mStyle);
 
     	UilCommon.init();
@@ -513,8 +514,8 @@ public class Page extends UilListViewBaseFragment
 	        View v = mDndListView.getChildAt(0);
 	        mFirstVisibleIndexTop = (v == null) ? 0 : v.getTop();
 
-			if( (TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos)&&
-				(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos) &&
+			if( (PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos)&&
+				(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()) &&
 				(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY) &&
 				(Page.mDndListView.getChildAt(0) != null)                    )
 			{
@@ -723,9 +724,9 @@ public class Page extends UilListViewBaseFragment
 					// update playing page table Id
 					MainAct.mPlaying_pageTableId = TabsHost.mNow_pageTableId;
 					// update playing page Id
-					MainAct.mPlaying_pagePos = TabsHost.mCurrPagePos;
+					MainAct.mPlaying_pagePos = PageUi.getFocus_pagePos();
 					// update playing folder position
-				    MainAct.mPlaying_folderPos = MainAct.mFocus_folderPos;
+				    MainAct.mPlaying_folderPos = FolderUi.getFocus_folderPos();
 				    // update playing folder table Id
 					MainAct.mPlaying_folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
 					
@@ -1200,7 +1201,7 @@ public class Page extends UilListViewBaseFragment
 		}
 		db_folder.close();
 		
-		pageNames[TabsHost.mCurrPagePos] = pageNames[TabsHost.mCurrPagePos] + " *"; // add mark to current page
+		pageNames[PageUi.getFocus_pagePos()] = pageNames[PageUi.getFocus_pagePos()] + " *"; // add mark to current page
 		   
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()

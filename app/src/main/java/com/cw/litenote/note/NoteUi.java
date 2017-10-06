@@ -38,6 +38,20 @@ public class NoteUi
     private ViewPager pager;
     private FragmentActivity act;
 
+
+    // getter and setter of focus note position
+    public static int mFocus_notePos;
+
+    public static int getFocus_notePos() {
+        return mFocus_notePos;
+    }
+
+    public static void setFocus_notePos(int Pos) {
+        mFocus_notePos = Pos;
+    }
+
+
+    // constructor
     public NoteUi(FragmentActivity activity, ViewPager viewPager, int position)
     {
 
@@ -105,7 +119,7 @@ public class NoteUi
             if(UtilVideo.hasVideoExtension(pictureUri, act))
             {
                 if(!UtilVideo.hasMediaControlWidget)
-                    NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+                    NoteUi.updateVideoPlayButtonState(pager, getFocus_notePos());
                 else
                     show_picViewUI_previous_next(false,0);
             }
@@ -164,7 +178,7 @@ public class NoteUi
     static PopupMenu popup;
     private static String mPictureString;
     /**
-     *  Set picutre view listeners
+     *  Set picture view listeners
      * @param act
      * @param pager
      * @param strPicture
@@ -220,7 +234,7 @@ public class NoteUi
                     {
                         UtilVideo.changeVideoState();
                         UtilVideo.playOrPauseVideo(pager,strPicture);
-                        updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+                        updateVideoPlayButtonState(pager, getFocus_notePos());
                     }
                 }
             });
@@ -278,7 +292,7 @@ public class NoteUi
 	            public void onClick(View view)
 	            {
     		        // remove current link web view
-					int position = Note.mCurrentPosition;
+					int position = getFocus_notePos();
 					String tagPictureStr = "current"+ position +"pictureView";
 					ViewGroup pictureGroup = (ViewGroup) pager.findViewWithTag(tagPictureStr);
 					if(pictureGroup != null)
@@ -358,8 +372,8 @@ public class NoteUi
 
                     // for transient popup
                     cancel_UI_callbacks();
-                    NoteAdapter.picUI_primary = new NoteUi(act,pager, pager.getCurrentItem());
-                    NoteAdapter.picUI_primary.tempShow_picViewUI(5005,strPicture);
+                    Note_adapter.picUI_primary = new NoteUi(act,pager, pager.getCurrentItem());
+                    Note_adapter.picUI_primary.tempShow_picViewUI(5005,strPicture);
 	            }
 	        });
 
@@ -369,7 +383,7 @@ public class NoteUi
 	  		picView_previous_button.setOnClickListener(new View.OnClickListener()
 	        {
 	            public void onClick(View view) {
-	            	Note.mCurrentPosition--;
+                    setFocus_notePos(getFocus_notePos()-1);
 	            	pager.setCurrentItem(pager.getCurrentItem() - 1);
 	            }
 	        });
@@ -380,7 +394,7 @@ public class NoteUi
 	  		picView_next_button.setOnClickListener(new View.OnClickListener()
 	        {
 	            public void onClick(View view) {
-	            	Note.mCurrentPosition++;
+                    setFocus_notePos(getFocus_notePos()+1);
 	            	pager.setCurrentItem(pager.getCurrentItem() + 1);
 	            }
 	        });
@@ -556,10 +570,10 @@ public class NoteUi
             Note.picUI_touch = null;
         }
 
-        if(NoteAdapter.picUI_primary != null) {
-            if(NoteAdapter.picUI_primary.handler != null)
-                NoteAdapter.picUI_primary.handler.removeCallbacks(NoteAdapter.picUI_primary.runnableHideUi);
-            NoteAdapter.picUI_primary = null;
+        if(Note_adapter.picUI_primary != null) {
+            if(Note_adapter.picUI_primary.handler != null)
+                Note_adapter.picUI_primary.handler.removeCallbacks(Note_adapter.picUI_primary.runnableHideUi);
+            Note_adapter.picUI_primary = null;
         }
     }
 

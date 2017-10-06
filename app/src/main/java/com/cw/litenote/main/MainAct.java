@@ -13,6 +13,7 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.folder.Folder;
 import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.note_add.New_noteOption;
 import com.cw.litenote.operation.DeleteFoldersFragment;
 import com.cw.litenote.operation.DeletePagesFragment;
 import com.cw.litenote.operation.Import_webAct;
@@ -80,7 +81,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public static DB_folder mDb_folder;
     public DB_page mDb_page;
     public static List<String> mFolderTitles;
-    public static int mFocus_folderPos;
 	static NoisyAudioStreamReceiver noisyAudioStreamReceiver;
 	static IntentFilter intentFilter;
     public static FragmentActivity mAct;
@@ -187,7 +187,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			if(ENABLE_DB_CHECK)
 			{
 		        // list all folder tables
-                Folder.listAllFolderTables(mAct);
+                FolderUi.listAllFolderTables(mAct);
 
 				// recover focus
 				focusFolder_tableId = Util.getPref_focusView_folder_tableId(this);
@@ -203,8 +203,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	        	{
 		        	if(mDb_drawer.getFolderTableId(i,true)==Util.getPref_focusView_folder_tableId(this))
 		        	{
-		        		mFocus_folderPos =  i;
-		    			System.out.println("MainAct / _onCreate /  mFocus_folderPos = " + mFocus_folderPos);
+                        FolderUi.setFocus_folderPos(i);
+		    			System.out.println("MainAct / _onCreate /  FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
 		        	}
 	        	}
 	        	AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
@@ -430,8 +430,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     protected void onSaveInstanceState(Bundle outState)
     {
        super.onSaveInstanceState(outState);
-  	   System.out.println("MainAct / onSaveInstanceState / mFocus_folderPos = " + mFocus_folderPos);
-       outState.putInt("NowFolderPosition", mFocus_folderPos);
+  	   System.out.println("MainAct / onSaveInstanceState / getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
+       outState.putInt("NowFolderPosition", FolderUi.getFocus_folderPos());
        outState.putInt("Playing_pageId", mPlaying_pagePos);
        outState.putInt("Playing_folderPos", mPlaying_folderPos);
        outState.putInt("SeekBarProgress", Page.mProgress);
@@ -450,7 +450,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		System.out.println("MainAct / _onRestoreInstanceState ");
     	if(savedInstanceState != null)
     	{
-    		mFocus_folderPos = savedInstanceState.getInt("NowFolderPosition");
+            FolderUi.setFocus_folderPos(savedInstanceState.getInt("NowFolderPosition"));
     		mPlaying_pagePos = savedInstanceState.getInt("Playing_pageId");
     		mPlaying_folderPos = savedInstanceState.getInt("Playing_folderPos");
     		AudioPlayer.setPlayState(savedInstanceState.getInt("AudioPlayerState"));
@@ -488,8 +488,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		fragmentManager.popBackStack();
 
 		if(mDb_drawer.getFoldersCount(true)>0) {
-			System.out.println("MainAct / _onResumeFragments / mFocus_folderPos = " + mFocus_folderPos);
-			FolderUi.selectFolder(mFocus_folderPos);
+			System.out.println("MainAct / _onResumeFragments / getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
+			FolderUi.selectFolder(FolderUi.getFocus_folderPos());
 			setTitle(mFolderTitle);
 		}
     }
@@ -749,9 +749,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             {
                 setTitle(mFolderTitle);
 
-                int pgsCnt = FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos);
+                int pgsCnt = FolderUi.getFolder_pagesCount(FolderUi.getFocus_folderPos());
                 String preStr = "MainAct / _onPrepareOptionsMenu / ";
-                System.out.println(preStr + "MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
+                System.out.println(preStr + "FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
 
                 int notesCnt = 0;
                 System.out.println(preStr + "DB_page.getFocusPage_tableId() = " + DB_page.getFocusPage_tableId());
@@ -890,7 +890,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) //??? java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
     {
-		MainUi.setMenuUiState(item.getItemId());
+		setMenuUiState(item.getItemId());
 
 		// Go back: check if Configure fragment now
 		if( (item.getItemId() == android.R.id.home ))
@@ -917,7 +917,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                     if (bEnableConfig) {
                         initConfigFragment();
                         initActionBar();
-                        mFolderTitle = mDb_drawer.getFolderTitle(mFocus_folderPos,true);
+                        mFolderTitle = mDb_drawer.getFolderTitle(FolderUi.getFocus_folderPos(),true);
                         setTitle(mFolderTitle);
                         mDrawer.closeDrawer();
                     }
@@ -988,7 +988,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return true;
 
 			case MenuId.ADD_NEW_NOTE:
-				MainUi.addNewNote(this);
+				New_noteOption.addNewNote(this);
 				return true;
 
         	case MenuId.OPEN_PLAY_SUBMENU:
@@ -1032,9 +1032,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 					// update page table Id
 					mPlaying_pageTableId = TabsHost.mNow_pageTableId;
 					// update playing tab index
-					mPlaying_pagePos = TabsHost.mCurrPagePos;
+					mPlaying_pagePos = PageUi.getFocus_pagePos();
 					// update playing drawer position
-				    mPlaying_folderPos = mFocus_folderPos;
+				    mPlaying_folderPos = FolderUi.getFocus_folderPos();
         		}
         		return true;
 
@@ -1085,7 +1085,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         		return true;
 
             case MenuId.ADD_NEW_PAGE:
-            	int pgCnt = FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos);
+            	int pgCnt = FolderUi.getFolder_pagesCount(FolderUi.getFocus_folderPos());
 //				PageUi.addNewPage(mAct, TabsHost.mLastPos_pageTableId + 1);
 				PageUi.addNewPage(mAct, pgCnt + 1);
 
@@ -1291,6 +1291,12 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             }
         }
     };
+
+    static int mMenuUiState;
+
+    public static void setMenuUiState(int mMenuState) {
+        mMenuUiState = mMenuState;
+    }
 
     /**
      *  launch next YouTube intent

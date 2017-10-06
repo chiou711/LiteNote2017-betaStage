@@ -1,8 +1,10 @@
 package com.cw.litenote.util.audio;
 
+import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.note.Note;
 import com.cw.litenote.util.Util;
@@ -328,8 +330,7 @@ public class AudioPlayer
 
 							// set highlight of playing tab
 							if ((getPlayMode() == CONTINUE_MODE) &&
-								(MainAct.mPlaying_folderPos ==
-								 MainAct.mFocus_folderPos)  )
+								(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos())  )
 								TabsHost.setAudioPlayingTab_WithHighlight(true);
 							else
 								TabsHost.setAudioPlayingTab_WithHighlight(false);
@@ -399,11 +400,8 @@ public class AudioPlayer
 			return;
 
 		// check playing drawer and playing tab
-//		System.out.println("---------------- TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos = " + (TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos));
-//		System.out.println("---------------- MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos = " + (MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos));
-//		System.out.println("---------------- Page.mDndListView.getChildAt(0) != null = " + (Page.mDndListView.getChildAt(0) != null));
-		if( (TabsHost.mCurrPagePos == MainAct.mPlaying_pagePos) &&
-			(MainAct.mPlaying_folderPos == MainAct.mFocus_folderPos) &&
+		if( (PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos) &&
+			(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()) &&
 			(Page.mDndListView.getChildAt(0) != null)                   )
 		{
 			int itemHeight = Page.mDndListView.getChildAt(0).getHeight();

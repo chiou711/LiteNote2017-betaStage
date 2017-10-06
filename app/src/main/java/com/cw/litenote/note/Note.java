@@ -9,6 +9,7 @@ import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
@@ -70,7 +71,6 @@ public class Note extends FragmentActivity
     public DB_page mDb_page;
     public static Long mNoteId;
     int mEntryPosition;
-    public static int mCurrentPosition;
     int EDIT_CURRENT_VIEW = 5;
     int MAIL_CURRENT_VIEW = 6;
     static int mStyle;
@@ -97,7 +97,7 @@ public class Note extends FragmentActivity
 
 		// set current selection
 		mEntryPosition = getIntent().getExtras().getInt("POSITION");
-		mCurrentPosition = mEntryPosition;
+		NoteUi.setFocus_notePos(mEntryPosition);
 
 		// init video
 		UtilVideo.mPlayVideoPosition = 0;   // not played yet
@@ -146,9 +146,9 @@ public class Note extends FragmentActivity
 
 		// Instantiate a ViewPager and a PagerAdapter.
 		mPager = (ViewPager) findViewById(R.id.pager);
-		mPagerAdapter = new NoteAdapter(mPager,this);
+		mPagerAdapter = new Note_adapter(mPager,this);
 		mPager.setAdapter(mPagerAdapter);
-		mPager.setCurrentItem(mCurrentPosition);
+		mPager.setCurrentItem(NoteUi.getFocus_notePos());
 
 		// tab style
 		if(TabsHost.mDbFolder != null)
@@ -156,10 +156,10 @@ public class Note extends FragmentActivity
 
 		TabsHost.mDbFolder = new DB_folder(act,Util.getPref_focusView_folder_tableId(act));
 
-		mStyle = TabsHost.mDbFolder.getPageStyle(TabsHost.mCurrPagePos, true);
+		mStyle = TabsHost.mDbFolder.getPageStyle(PageUi.getFocus_pagePos(), true);
 
 		if(mDb_page != null) {
-			mNoteId = mDb_page.getNoteId(mCurrentPosition, true);
+			mNoteId = mDb_page.getNoteId(NoteUi.getFocus_notePos(), true);
 			mAudioUriInDB = mDb_page.getNoteAudioUri_byId(mNoteId);
 		}
 
@@ -270,9 +270,9 @@ public class Note extends FragmentActivity
 			if(AudioPlayer.getPlayMode()  == AudioPlayer.ONE_TIME_MODE)
 				UtilAudio.stopAudioPlayer();
 
-			mCurrentPosition = mPager.getCurrentItem();
+			NoteUi.setFocus_notePos(mPager.getCurrentItem());
 			System.out.println("Note / _onPageSelected");
-			System.out.println("    mCurrentPosition = " + mCurrentPosition);
+			System.out.println("    NoteUi.getFocus_notePos() = " + NoteUi.getFocus_notePos());
 			System.out.println("    nextPosition = " + nextPosition);
 
 			mIsViewModeChanged = false;
@@ -291,10 +291,10 @@ public class Note extends FragmentActivity
 			else
 				audioBlock.setVisibility(View.GONE);
 
-			if((nextPosition == mCurrentPosition+1) || (nextPosition == mCurrentPosition-1))
+			if((nextPosition == NoteUi.getFocus_notePos() +1) || (nextPosition == NoteUi.getFocus_notePos() -1))
 			{
 				if(AudioPlayer.getPlayMode() == AudioPlayer.ONE_TIME_MODE)
-					AudioPlayer.mAudioPos = mCurrentPosition;//update Audio index
+					AudioPlayer.mAudioPos = NoteUi.getFocus_notePos();//update Audio index
 			}
 
 			// stop video when changing note
@@ -537,7 +537,7 @@ public class Note extends FragmentActivity
 
 		// menu item: checked status
 		// get checked or not
-		int isChecked = mDb_page.getNoteMarking(mCurrentPosition,true);
+		int isChecked = mDb_page.getNoteMarking(NoteUi.getFocus_notePos(),true);
 		if( isChecked == 0)
 			menu.findItem(R.id.VIEW_NOTE_CHECK).setIcon(R.drawable.btn_check_off_holo_dark);
 		else
@@ -599,7 +599,7 @@ public class Note extends FragmentActivity
             	return true;
 
 			case R.id.VIEW_NOTE_CHECK:
-				int markingNow = Page.toggleNoteMarking(mCurrentPosition);
+				int markingNow = Page.toggleNoteMarking(NoteUi.getFocus_notePos());
 
 				// update marking
 				if(markingNow == 1)
@@ -627,14 +627,14 @@ public class Note extends FragmentActivity
             case R.id.ACTION_PREVIOUS:
                 // Go to the previous step in the wizard. If there is no previous step,
                 // setCurrentItem will do nothing.
-            	Note.mCurrentPosition--;
+            	NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
             	mPager.setCurrentItem(mPager.getCurrentItem() - 1);
                 return true;
 
             case R.id.ACTION_NEXT:
                 // Advance to the next step in the wizard. If there is no next step, setCurrentItem
                 // will do nothing.
-            	Note.mCurrentPosition++;
+				NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
             	mPager.setCurrentItem(mPager.getCurrentItem() + 1);
             	
             	//TO
@@ -733,7 +733,7 @@ public class Note extends FragmentActivity
 	{   @Override
 		public void run()
 		{
-            String tagStr = "current"+ Note.mCurrentPosition +"pictureView";
+            String tagStr = "current"+ NoteUi.getFocus_notePos() +"pictureView";
             ViewGroup pictureGroup = (ViewGroup) mPager.findViewWithTag(tagStr);
             System.out.println("Note / _showPictureViewUI / tagStr = " + tagStr);
 
@@ -744,22 +744,22 @@ public class Note extends FragmentActivity
                 picView_back_button.performClick();
             }
 
-			if(NoteAdapter.mIntentView != null)
-				NoteAdapter.mIntentView = null;
+			if(Note_adapter.mIntentView != null)
+				Note_adapter.mIntentView = null;
 		}
 	};
     
     // get current picture string
     public String getCurrentPictureString()
     {
-		return mDb_page.getNotePictureUri(mCurrentPosition,true);
+		return mDb_page.getNotePictureUri(NoteUi.getFocus_notePos(),true);
     }
 
     static void playAudioInPager(FragmentActivity act, String audioStr)
     {
 		if(UtilAudio.hasAudioExtension(audioStr))
 		{
-    		AudioPlayer.mAudioPos = mCurrentPosition;
+    		AudioPlayer.mAudioPos = NoteUi.getFocus_notePos();
     		// new instance
     		if(AudioPlayer.mMediaPlayer == null)
     		{
@@ -1009,11 +1009,11 @@ public class Note extends FragmentActivity
 	   					VideoPlayer.cancelMediaController();
 	   			}
 	   		}
-   			NoteAdapter.mLastPosition = -1;
+   			Note_adapter.mLastPosition = -1;
    		}
 
     	if(mPagerAdapter != null)
-    		mPagerAdapter.notifyDataSetChanged(); // will call NoteAdapter / _setPrimaryItem
+    		mPagerAdapter.notifyDataSetChanged(); // will call Note_adapter / _setPrimaryItem
     }
     
     public static int mPositionOfChangeView;
@@ -1077,7 +1077,7 @@ public class Note extends FragmentActivity
 					 setTransientPicViewUI();
 
 				 //1st touch to turn off UI (primary)
-				 if(NoteAdapter.picUI_primary != null)
+				 if(Note_adapter.picUI_primary != null)
 					 setTransientPicViewUI();
     	  	  	 break;
 
@@ -1137,7 +1137,7 @@ public class Note extends FragmentActivity
     // Show full screen picture when device orientation and image orientation are the same
     boolean canShowFullScreenPicture()
     {
-        String pictureStr = mDb_page.getNotePictureUri(mCurrentPosition,true);
+        String pictureStr = mDb_page.getNotePictureUri(NoteUi.getFocus_notePos(),true);
 		System.out.println(" Note / _canShowFullPicture / pictureStr = " +pictureStr);
 //		System.out.println(" Note / _canShowFullPicture / Util.isLandscapeOrientation(act) = " +Util.isLandscapeOrientation(act));
 //		System.out.println(" Note / _canShowFullPicture / UtilImage.isLandscapePicture(pictureStr) = " +UtilImage.isLandscapePicture(pictureStr));

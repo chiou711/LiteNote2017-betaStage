@@ -49,7 +49,7 @@ public class Drawer {
 
                     public void onDrawerClosed(View view)
                     {
-                        System.out.println("Drawer / _onDrawerClosed / MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
+                        System.out.println("Drawer / _onDrawerClosed / MainAct.mFocus_folderPos = " + FolderUi.getFocus_folderPos());
 
                         MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
 
@@ -65,7 +65,7 @@ public class Drawer {
 
                                 // add for deleting folder condition
                                 if (TabsHost.mTabsHost == null)
-                                    FolderUi.selectFolder(MainAct.mFocus_folderPos);
+                                    FolderUi.selectFolder(FolderUi.getFocus_folderPos());
                             } else
                                 MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.INVISIBLE);
                         }
@@ -89,10 +89,5 @@ public class Drawer {
     public boolean isDrawerOpen()
     {
         return drawerLayout.isDrawerOpen(MainAct.mFolder.listView);
-    }
-
-    public static int getFocusFolderPosition()
-    {
-        return MainAct.mFocus_folderPos;
     }
 }

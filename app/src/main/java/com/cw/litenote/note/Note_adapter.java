@@ -45,7 +45,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-class NoteAdapter extends FragmentStatePagerAdapter
+class Note_adapter extends FragmentStatePagerAdapter
 {
 	static int mLastPosition;
 	private static LayoutInflater inflater;
@@ -54,7 +54,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 	private ViewPager pager;
 	DB_page db_page;
 
-    NoteAdapter(ViewPager viewPager, FragmentActivity activity)
+    Note_adapter(ViewPager viewPager, FragmentActivity activity)
     {
     	super(activity.getFragmentManager());
 		pager = viewPager;
@@ -62,7 +62,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
         inflater = act.getLayoutInflater();
         mLastPosition = -1;
 		db_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
-        System.out.println("NoteAdapter / constructor / mLastPosition = " + mLastPosition);
+        System.out.println("Note_adapter / constructor / mLastPosition = " + mLastPosition);
     }
     
 	@Override
@@ -74,7 +74,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 	@Override
 	public Object instantiateItem(ViewGroup container, final int position) 
     {
-    	System.out.println("NoteAdapter / instantiateItem / position = " + position);
+    	System.out.println("Note_adapter / instantiateItem / position = " + position);
     	// Inflate the layout containing 
     	// 1. picture group: image,video, thumb nail, control buttons
     	// 2. text group: title, body, time 
@@ -126,7 +126,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
     	// picture only
 	  	if(Note.isPictureMode())
 	  	{
-			System.out.println("NoteAdapter / _instantiateItem / isPictureMode ");
+			System.out.println("Note_adapter / _instantiateItem / isPictureMode ");
 	  		pictureGroup.setVisibility(View.VISIBLE);
 	  	    showPictureView(position,imageView,videoView,linkWebView,spinner);
 
@@ -136,7 +136,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 	    // text only
 	  	else if(Note.isTextMode())
 	  	{
-			System.out.println("NoteAdapter / _instantiateItem / isTextMode ");
+			System.out.println("Note_adapter / _instantiateItem / isTextMode ");
 	  		pictureGroup.setVisibility(View.GONE);
 
 	  		line_view.setVisibility(View.VISIBLE);
@@ -153,7 +153,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
   		// picture and text
 	  	else if(Note.isViewAllMode())
 	  	{
-			System.out.println("NoteAdapter / _instantiateItem / isViewAllMode ");
+			System.out.println("Note_adapter / _instantiateItem / isViewAllMode ");
 
 			// picture
 			pictureGroup.setVisibility(View.VISIBLE);
@@ -196,7 +196,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
     // show text web view
     private void showTextWebView(int position,CustomWebView textWebView)
     {
-    	System.out.println("NoteAdapter/ _showTextView / position = " + position);
+    	System.out.println("Note_adapter/ _showTextView / position = " + position);
 
     	int viewPort;
     	// load text view data
@@ -225,7 +225,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
     	if(Util.isEmptyString(pictureUri) && Util.isYouTubeLink(linkUri) )
     	{
 			pictureUri = "http://img.youtube.com/vi/"+Util.getYoutubeId(linkUri)+"/0.jpg";//??? how to get this for playlist
-			System.out.println("NoteAdapter / _showPictureView / YouTube pictureUri = " + pictureUri);
+			System.out.println("Note_adapter / _showPictureView / YouTube pictureUri = " + pictureUri);
 		}
 
         // show image view
@@ -234,7 +234,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
   		     Util.isEmptyString(audioUri)&& 
   		     Util.isEmptyString(linkUri)      )             ) // for wrong path icon
   		{
-			System.out.println("NoteAdapter / _showPictureView / show image view");
+			System.out.println("Note_adapter / _showPictureView / show image view");
   			videoView.setVisibility(View.GONE);
   			linkWebView.setVisibility(View.GONE);
   			UtilVideo.mVideoView = null;
@@ -244,7 +244,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
   		// show video view
   		else if(UtilVideo.hasVideoExtension(pictureUri, act))
   		{
-			System.out.println("NoteAdapter / _showPictureView / show video view");
+			System.out.println("Note_adapter / _showPictureView / show video view");
   			linkWebView.setVisibility(View.GONE);
   			imageView.setVisibility(View.GONE);
   			videoView.setVisibility(View.VISIBLE);
@@ -253,7 +253,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
   		else if(Util.isEmptyString(pictureUri)&& 
   				!Util.isEmptyString(audioUri)    )
   		{
-			System.out.println("NoteAdapter / _showPictureView / show audio thumb nail view");
+			System.out.println("Note_adapter / _showPictureView / show audio thumb nail view");
   			videoView.setVisibility(View.GONE);
   			UtilVideo.mVideoView = null;
   			linkWebView.setVisibility(View.GONE);
@@ -270,7 +270,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 			}
 			catch(Exception e)
 			{
-				System.out.println("NoteAdapter / _AsyncTaskAudioBitmap / exception");
+				System.out.println("Note_adapter / _AsyncTaskAudioBitmap / exception");
 			}
   		}
   		// show link thumb view
@@ -278,14 +278,14 @@ class NoteAdapter extends FragmentStatePagerAdapter
   				Util.isEmptyString(audioUri)  &&
   				!Util.isEmptyString(linkUri))
   		{
-			System.out.println("NoteAdapter / _showPictureView / show link thumb view");
+			System.out.println("Note_adapter / _showPictureView / show link thumb view");
   			videoView.setVisibility(View.GONE);
   			UtilVideo.mVideoView = null;
   			imageView.setVisibility(View.GONE);
   			linkWebView.setVisibility(View.VISIBLE);
   		}
 		else
-			System.out.println("NoteAdapter / _showPictureView / show none");
+			System.out.println("Note_adapter / _showPictureView / show none");
     }
     
     
@@ -324,8 +324,8 @@ class NoteAdapter extends FragmentStatePagerAdapter
 		// set primary item only
 	    if(mLastPosition != position)
 		{
-			System.out.println("NoteAdapter / _setPrimaryItem / mLastPosition = " + mLastPosition);
-            System.out.println("NoteAdapter / _setPrimaryItem / position = " + position);
+			System.out.println("Note_adapter / _setPrimaryItem / mLastPosition = " + mLastPosition);
+            System.out.println("Note_adapter / _setPrimaryItem / position = " + position);
 
 			String lastPictureStr = null;
 			String lastLinkUri = null;
@@ -385,7 +385,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 						CustomWebView linkWebView = (CustomWebView) pager.findViewWithTag(tagStr);
 						linkWebView.setVisibility(View.VISIBLE);
                         setWebView(linkWebView,object,CustomWebView.LINK_VIEW);
-						System.out.println("NoteAdapter / _setPrimaryItem / load linkUri = " + linkUri);
+						System.out.println("Note_adapter / _setPrimaryItem / load linkUri = " + linkUri);
 						linkWebView.loadUrl(linkUri);
 
 						//Add for non-stop showing of full screen web view
@@ -454,7 +454,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 							UtilVideo.setVideoViewLayout(pictureStr);
 
 							if (!UtilVideo.hasMediaControlWidget) {
-								NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+								NoteUi.updateVideoPlayButtonState(pager, NoteUi.getFocus_notePos());
 								picUI_primary.tempShow_picViewUI(5003,pictureStr);
                             }
 
@@ -541,7 +541,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 	            public void onScaleChanged(WebView web_view, float oldScale, float newScale)
 	            {
 	                super.onScaleChanged(web_view, oldScale, newScale);
-	//                System.out.println("NoteAdapter / onScaleChanged");
+	//                System.out.println("Note_adapter / onScaleChanged");
 	//                System.out.println("    oldScale = " + oldScale);
 	//                System.out.println("    newScale = " + newScale);
 
@@ -549,7 +549,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 	                pref_web_view.edit().putInt("KEY_WEB_VIEW_SCALE",newDefaultScale).apply();
 
 	                //update current position
-	                Note.mCurrentPosition = pager.getCurrentItem();
+	                NoteUi.setFocus_notePos(pager.getCurrentItem());
 	            }
 
 	            @Override
@@ -595,9 +595,9 @@ class NoteAdapter extends FragmentStatePagerAdapter
 			        if (!TextUtils.isEmpty(title) &&
 			        	!title.equalsIgnoreCase("about:blank"))
 			        {
-			        	System.out.println("NoteAdapter / _onReceivedTitle / title = " + title);
+			        	System.out.println("Note_adapter / _onReceivedTitle / title = " + title);
 
-						int position = Note.mCurrentPosition;
+						int position = NoteUi.getFocus_notePos();
 				    	String tag = "current"+position+"textWebView";
 				    	CustomWebView textWebView = (CustomWebView) pager.findViewWithTag(tag);
 
@@ -626,7 +626,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
     {
     	int mStyle = Note.mStyle;
     	
-    	System.out.println("NoteAdapter / _getHtmlStringWithViewPort");
+    	System.out.println("Note_adapter / _getHtmlStringWithViewPort");
     	String strTitle = db_page.getNoteTitle(position,true);
     	String strBody = db_page.getNoteBody(position,true);
     	String linkUri = db_page.getNoteLinkUri(position,true);
@@ -754,7 +754,7 @@ class NoteAdapter extends FragmentStatePagerAdapter
 			}
 			catch(Exception e)
 			{
-				Log.e("NoteAdapter", "UtilImage_bitmapLoader error");
+				Log.e("Note_adapter", "UtilImage_bitmapLoader error");
 			}
         }
     }

@@ -1,4 +1,4 @@
-package com.cw.litenote.note;
+package com.cw.litenote.note_add;
 
 import android.app.Activity;
 import android.app.AlertDialog;

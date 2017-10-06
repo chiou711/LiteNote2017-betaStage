@@ -1,9 +1,10 @@
-package com.cw.litenote.note;
+package com.cw.litenote.note_common;
 
 import java.util.Date;
 
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.image.TouchImageView;
@@ -31,35 +32,35 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-class Note_common {
+public class Note_common {
 
-	TextView audioTextView;
-    
-    ImageView picImageView;
-    String pictureUriInDB;
-    String audioUriInDB;
-    String oriPictureUri;
-    String currPictureUri;
-    String currAudioUri;
+	public TextView audioTextView;
 
-    String oriAudioUri;
-    String oriDrawingUri;
-    String oriLinkUri;
+	public ImageView picImageView;
+	public String pictureUriInDB;
+	public String audioUriInDB;
+	public String oriPictureUri;
+	public String currPictureUri;
+	public String currAudioUri;
 
-    EditText linkEditText;
-    EditText titleEditText;
-    EditText bodyEditText;
-    String oriTitle;
-    String oriBody;
-    
-    Long noteId;
-	Long oriCreatedTime;
-	Long oriMarking;
-    
-    boolean bRollBackData;
-    boolean bRemovePictureUri = false;
-    boolean bRemoveAudioUri = false;
-    boolean bEditPicture = false;
+	public String oriAudioUri;
+	public String oriDrawingUri;
+	public String oriLinkUri;
+
+	public EditText linkEditText;
+	public EditText titleEditText;
+	public EditText bodyEditText;
+	public String oriTitle;
+	public String oriBody;
+
+	public Long noteId;
+	public Long oriCreatedTime;
+	public Long oriMarking;
+
+	public boolean bRollBackData;
+	public boolean bRemovePictureUri = false;
+	public boolean bRemoveAudioUri = false;
+	public boolean bEditPicture = false;
 
     private DB_page dB;
     Activity act;
@@ -68,7 +69,7 @@ class Note_common {
     ProgressBar progressBarExpand;
 	TouchImageView enlargedImage;
 
-    Note_common(Activity act,Long noteId,String strTitle, String pictureUri, String audioUri, String drawingUri, String linkUri, String strBody, Long createdTime)
+	public Note_common(Activity act,Long noteId,String strTitle, String pictureUri, String audioUri, String drawingUri, String linkUri, String strBody, Long createdTime)
     {
     	this.act = act;
     	this.noteId = noteId;
@@ -92,14 +93,14 @@ class Note_common {
 		bEditPicture = true;
 		bShowEnlargedImage = false;
     }
-    
-    Note_common(Activity act)
+
+	public Note_common(Activity act)
     {
     	this.act = act;
     	dB = Page.mDb_page;
     }
-    
-    void UI_init()
+
+	public void UI_init()
     {
 
 		UI_init_text();
@@ -110,28 +111,28 @@ class Note_common {
 
         progressBar = (ProgressBar) act.findViewById(R.id.edit_progress_bar);
         progressBarExpand = (ProgressBar) act.findViewById(R.id.edit_progress_bar_expand);
-        		
-		style = TabsHost.mDbFolder.getPageStyle(TabsHost.mCurrPagePos, true);
+
+		style = TabsHost.mDbFolder.getPageStyle(PageUi.getFocus_pagePos(), true);
 
 		enlargedImage = (TouchImageView)act.findViewById(R.id.expanded_image);
 
 		//set audio color
 //		audioTextView.setTextColor(Util.mText_ColorArray[style]);
 //		audioTextView.setBackgroundColor(Util.mBG_ColorArray[style]);
-		
+
 		//set link color
 		if(linkEditText != null)
 		{
 			linkEditText.setTextColor(ColorSet.mText_ColorArray[style]);
 			linkEditText.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
 		}
-		
+
 		picImageView.setBackgroundColor(ColorSet.mBG_ColorArray[style]);//??? add new text 已不需此
-		
+
 	    final InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
-		
+
 		// set thumb nail listener
-        picImageView.setOnClickListener(new View.OnClickListener()
+        picImageView.setOnClickListener(new OnClickListener()
         {
             @Override
             public void onClick(View view) {
@@ -141,19 +142,19 @@ class Note_common {
             		// show soft input
             		if (act.getCurrentFocus() != null)
             		    imm.showSoftInput(act.getCurrentFocus(), 0);
-            	}	
+            	}
             	else
                 {
             		// hide soft input
             		if (act.getCurrentFocus() != null)
             			imm.hideSoftInputFromWindow(act.getCurrentFocus().getWindowToken(), 0);
-            		
+
                 	System.out.println("Note_common / pictureUriInDB = " + pictureUriInDB);
                 	if(!Util.isEmptyString(pictureUriInDB))
                 	{
                 		bRemovePictureUri = false;
                 		System.out.println("picImageView.setOnClickListener / pictureUriInDB = " + pictureUriInDB);
-                		
+
                 		// check if pictureUri has scheme
                 		if(Util.isUriExisted(pictureUriInDB, act))
                 		{
@@ -174,10 +175,10 @@ class Note_common {
                 	else
             			Toast.makeText(act,R.string.file_is_not_created,Toast.LENGTH_SHORT).show();
 
-				} 
+				}
             }
         });
-        
+
 		// set thumb nail long click listener
         picImageView.setOnLongClickListener(new View.OnLongClickListener()
         {
@@ -190,9 +191,9 @@ class Note_common {
         });
     }
 
-	void UI_init_text()
+	public void UI_init_text()
 	{
-		style = TabsHost.mDbFolder.getPageStyle(TabsHost.mCurrPagePos, true);
+		style = TabsHost.mDbFolder.getPageStyle(PageUi.getFocus_pagePos(), true);
 
 		LinearLayout block = (LinearLayout) act.findViewById(R.id.edit_title_block);
 		if(block != null)
@@ -216,7 +217,7 @@ class Note_common {
 	}
 
     // set image close listener
-    void setCloseImageListeners(EditText editText)
+	public void setCloseImageListeners(EditText editText)
     {
     	editText.setOnClickListener(new OnClickListener()
     	{   @Override
@@ -236,17 +237,17 @@ class Note_common {
             } 
     	});   
     }
-    
-    
-    boolean bShowEnlargedImage;
-    void closeEnlargedImage()
+
+
+	public boolean bShowEnlargedImage;
+	public void closeEnlargedImage()
     {
     	System.out.println("closeExpandImage");
 		enlargedImage.setVisibility(View.GONE);
 		bShowEnlargedImage = false;
     }
-    
-    void openSetPictureDialog() 
+
+	public void openSetPictureDialog()
     {
 		AlertDialog.Builder builder = new AlertDialog.Builder(act);
 		builder.setTitle(R.string.edit_note_set_picture_dlg_title)
@@ -319,8 +320,8 @@ class Note_common {
 		Dialog dialog = builder.create();
 		dialog.show();
     }
-    
-    void deleteNote(Long rowId)
+
+	public void deleteNote(Long rowId)
     {
     	System.out.println("Note_common / _deleteNote");
         // for Add new note (noteId is null first), but decide to cancel
@@ -329,7 +330,7 @@ class Note_common {
     }
     
     // populate text fields
-	void populateFields_text(Long rowId)
+	public void populateFields_text(Long rowId)
 	{
 		if (rowId != null) {
 			// title
@@ -366,7 +367,7 @@ class Note_common {
 	}
 
     // populate all fields
-    void populateFields_all(Long rowId)
+	public void populateFields_all(Long rowId)
     {
     	if (rowId != null) 
     	{
@@ -461,36 +462,36 @@ class Note_common {
 			}
     	}
     }
-    
-    boolean isLinkUriModified()
+
+	public boolean isLinkUriModified()
     {
     	return !oriLinkUri.equals(linkEditText.getText().toString());
-    }    
+    }
 
-    boolean isTitleModified()
+	public boolean isTitleModified()
     {
     	return !oriTitle.equals(titleEditText.getText().toString());
     }
-    
-    boolean isPictureModified()
+
+	public boolean isPictureModified()
     {
     	return !oriPictureUri.equals(pictureUriInDB);
     }
-    
-    boolean isAudioModified()
+
+	public boolean isAudioModified()
     {
     	if(oriAudioUri == null)
     		return false;
     	else
     		return !oriAudioUri.equals(audioUriInDB);
-    }    
-    
-    boolean isBodyModified()
+    }
+
+	public boolean isBodyModified()
     {
     	return !oriBody.equals(bodyEditText.getText().toString());
     }
-    
-    boolean isNoteModified()
+
+	public boolean isNoteModified()
     {
     	boolean bModified = false;
 //		System.out.println("Note_common / _isNoteModified / isTitleModified() = " + isTitleModified());
@@ -512,8 +513,8 @@ class Note_common {
     	
     	return bModified;
     }
-    
-    boolean isTextAdded()
+
+	public boolean isTextAdded()
     {
     	boolean bEdit = false;
     	String curTitle = titleEditText.getText().toString();
@@ -530,7 +531,7 @@ class Note_common {
     	return bEdit;
     }
 
-	Long saveStateInDB(Long rowId,boolean enSaveDb, String pictureUri, String audioUri, String drawingUri)
+	public Long saveStateInDB(Long rowId,boolean enSaveDb, String pictureUri, String audioUri, String drawingUri)
 	{
 		String linkUri = "";
 		if(linkEditText != null)
@@ -612,7 +613,7 @@ class Note_common {
 		return rowId;
 	}
 
-	Long savePictureStateInDB(Long rowId,boolean enSaveDb, String pictureUri, String audioUri, String drawingUri, String linkUri)
+	public Long savePictureStateInDB(Long rowId,boolean enSaveDb, String pictureUri, String audioUri, String drawingUri, String linkUri)
 	{
 		boolean mEnSaveDb = enSaveDb;
         if(mEnSaveDb)
@@ -660,7 +661,7 @@ class Note_common {
 	}
 	
 	// for confirmation condition
-	void removePictureStringFromOriginalNote(Long rowId) {
+	public void removePictureStringFromOriginalNote(Long rowId) {
     	dB.updateNote(rowId,
 				oriTitle,
     				   "",
@@ -671,8 +672,8 @@ class Note_common {
 				oriMarking,
 				oriCreatedTime, true );
 	}
-	
-	void removePictureStringFromCurrentEditNote(Long rowId) {
+
+	public void removePictureStringFromCurrentEditNote(Long rowId) {
         String linkUri = linkEditText.getText().toString();
         String title = titleEditText.getText().toString();
         String body = bodyEditText.getText().toString();
@@ -687,8 +688,8 @@ class Note_common {
 				oriMarking,
 				oriCreatedTime, true );
 	}
-	
-	void removeAudioStringFromOriginalNote(Long rowId) {
+
+	public void removeAudioStringFromOriginalNote(Long rowId) {
     	dB.updateNote(rowId,
 				oriTitle,
 				oriPictureUri,
@@ -698,9 +699,9 @@ class Note_common {
 				oriBody,
 				oriMarking,
 				oriCreatedTime, true );
-	}	
-	
-	void removeAudioStringFromCurrentEditNote(Long rowId) {
+	}
+
+	public void removeAudioStringFromCurrentEditNote(Long rowId) {
         String linkUri = linkEditText.getText().toString();
         String title = titleEditText.getText().toString();
         String body = bodyEditText.getText().toString();
@@ -713,9 +714,9 @@ class Note_common {
     				   body,
 				oriMarking,
 				oriCreatedTime, true );
-	}	
-	
-	void removeLinkUriFromCurrentEditNote(Long rowId) {
+	}
+
+	public void removeLinkUriFromCurrentEditNote(Long rowId) {
         String title = titleEditText.getText().toString();
         String body = bodyEditText.getText().toString();
         dB.updateNote(rowId,
@@ -727,9 +728,9 @@ class Note_common {
     				   body,
 				oriMarking,
 				oriCreatedTime, true );
-	}	
-	
-	int getCount()
+	}
+
+	public int getCount()
 	{
 		int noteCount = dB.getNotesCount(true);
 		return noteCount;

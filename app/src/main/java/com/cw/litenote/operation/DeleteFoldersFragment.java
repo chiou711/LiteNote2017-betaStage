@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
+import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.util.ColorSet;
@@ -106,8 +107,8 @@ public class DeleteFoldersFragment extends Fragment{
 							// delete folder row
                             dbDrawer.deleteFolderId(folderId,false);
 
-                            // change focus //TODO
-                            MainAct.mFocus_folderPos=0;
+                            // change focus
+                            FolderUi.setFocus_folderPos(0);
                         }
                     }
 

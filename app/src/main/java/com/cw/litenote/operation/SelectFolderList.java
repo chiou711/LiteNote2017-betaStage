@@ -13,7 +13,7 @@ import android.widget.ListView;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
-import com.cw.litenote.drawer.Drawer;
+import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.util.ColorSet;
 
 import java.util.ArrayList;
@@ -201,7 +201,7 @@ public class SelectFolderList
             // Show current page
             //??? how to set left padding of text view of a CheckedTextview
             // workaround: set single line to true and add one space in front of the text
-            if(position == Drawer.getFocusFolderPosition())
+            if(position == FolderUi.getFocus_folderPos())
             {
                 chkTV.setTypeface(chkTV.getTypeface(), Typeface.BOLD_ITALIC);
                 chkTV.setText( " " + mList.get(position) + "*" );

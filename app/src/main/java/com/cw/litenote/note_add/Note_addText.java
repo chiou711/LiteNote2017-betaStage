@@ -1,5 +1,6 @@
-package com.cw.litenote.note;
+package com.cw.litenote.note_add;
 
+import com.cw.litenote.note_common.Note_common;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;

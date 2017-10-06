@@ -143,7 +143,7 @@ public class VideoPlayer
 						if(!UtilVideo.hasMediaControlWidget)
 						{
 							if( NoteUi.showSeekBarProgress )
-								NoteUi.primaryVideoSeekBarProgressUpdater(pager,Note.mCurrentPosition,UtilVideo.mPlayVideoPosition,mCurrentPicStr);
+								NoteUi.primaryVideoSeekBarProgressUpdater(pager,NoteUi.getFocus_notePos(),UtilVideo.mPlayVideoPosition,mCurrentPicStr);
 
 							// final play
 							int diff = Math.abs(UtilVideo.mPlayVideoPosition - NoteUi.videoFileLength_inMilliSeconds);
@@ -216,7 +216,7 @@ public class VideoPlayer
 				UtilVideo.mVideoView.requestFocus();
 
 				if(!UtilVideo.hasMediaControlWidget)
-					NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+					NoteUi.updateVideoPlayButtonState(pager, NoteUi.getFocus_notePos());
 			}
 			// from Pause to Play
 			else if((UtilVideo.mPlayVideoPosition > 0) &&
@@ -228,7 +228,7 @@ public class VideoPlayer
 				UtilVideo.mVideoView.requestFocus();
 
 				if(!UtilVideo.hasMediaControlWidget)
-					NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+					NoteUi.updateVideoPlayButtonState(pager, NoteUi.getFocus_notePos());
 			}
 		}
 		
@@ -255,7 +255,7 @@ public class VideoPlayer
 				UtilVideo.mVideoView.pause();
 				UtilVideo.mVideoView.requestFocus();
 				if(!UtilVideo.hasMediaControlWidget)
-					NoteUi.updateVideoPlayButtonState(pager, Note.mCurrentPosition);
+					NoteUi.updateVideoPlayButtonState(pager, NoteUi.getFocus_notePos());
 			}
 			// keep pausing
 			else if(!UtilVideo.mVideoView.isPlaying())
@@ -281,10 +281,9 @@ public class VideoPlayer
 			{
 				public void onClick(View v) 
 				{
-	            	Note.mCurrentPosition++;
-	            	
-	            	if(Note.mCurrentPosition >= Note.mPagerAdapter.getCount())
-	            		Note.mCurrentPosition--;
+					NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
+	            	if(NoteUi.getFocus_notePos() >= Note.mPagerAdapter.getCount())
+						NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
 	            	else
 						Note.changeToNext(pager);
 				}
@@ -294,10 +293,10 @@ public class VideoPlayer
 			{
 				public void onClick(View v) 
 				{
-					Note.mCurrentPosition--;
+					NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
             	
-	            	if(Note.mCurrentPosition <0 )
-	            		Note.mCurrentPosition++;
+	            	if(NoteUi.getFocus_notePos() <0 )
+						NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
 	            	else
 						Note.changeToPrevious(pager);
 				}

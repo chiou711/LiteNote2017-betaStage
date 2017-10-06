@@ -59,7 +59,7 @@ public class Export_toSDCardFragment extends Fragment {
 				mSelectPageList.selectAllPages(false);
 		}
 		});
-		mStyle = Util.getCurrentPageStyle(mContext);
+		mStyle = Util.getCurrentPageStyle();
 
 		// list view: selecting which pages to send
 		mListView = (ListView)rootView.findViewById(R.id.listView1);

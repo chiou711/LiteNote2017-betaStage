@@ -9,7 +9,6 @@ import java.net.URLConnection;
 import java.util.Locale;
 
 import com.cw.litenote.R;
-import com.cw.litenote.note.Note;
 import com.cw.litenote.note.NoteUi;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.Util;
@@ -78,7 +77,7 @@ public class UtilVideo
 
         	if(!hasMediaControlWidget) {
 				NoteUi ui = new NoteUi(act,viewPager,position);
-                NoteUi.updateVideoPlayButtonState(viewPager, Note.mCurrentPosition);
+                NoteUi.updateVideoPlayButtonState(viewPager, NoteUi.getFocus_notePos());
 				ui.tempShow_picViewUI(5006,strPicture);
 			}
         	else
@@ -492,7 +491,7 @@ public class UtilVideo
 				if(!hasMediaControlWidget)
 				{
 					NoteUi.updateVideoPlayButtonState(pager,mPlayVideoPosition);
-					NoteUi.primaryVideoSeekBarProgressUpdater(pager,Note.mCurrentPosition,UtilVideo.mPlayVideoPosition,picString);
+					NoteUi.primaryVideoSeekBarProgressUpdater(pager,NoteUi.getFocus_notePos(),UtilVideo.mPlayVideoPosition,picString);
 					mp.setOnSeekCompleteListener(new OnSeekCompleteListener()
 					{
 						@Override

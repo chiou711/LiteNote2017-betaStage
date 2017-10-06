@@ -1,24 +1,16 @@
 package com.cw.litenote.folder;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
-import com.cw.litenote.db.DB_folder;
-import com.cw.litenote.db.DB_page;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.tabs.TabsHost;
-import com.cw.litenote.util.audio.AudioPlayer;
-import com.cw.litenote.util.ColorSet;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.util.Util;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
@@ -45,7 +37,6 @@ public class Folder
     // initialize folder list view
     public SimpleDragSortCursorAdapter initFolder()
     {
-
         // set Folder title
         if(MainAct.mDb_drawer.getFoldersCount(true) == 0)
         {
@@ -78,7 +69,7 @@ public class Folder
         String[] from = new String[] { DB_drawer.KEY_FOLDER_TITLE};
         int[] to = new int[] { R.id.folderText};
 
-        adapter = new Adapter(
+        adapter = new Folder_adapter(
                 act,
                 R.layout.folder_row,
                 cursor,
@@ -152,46 +143,7 @@ public class Folder
         }
     };
 
-    // List all folder tables
-    public static void listAllFolderTables(FragmentActivity act)
-    {
-        // list all folder tables
-        int foldersCount = MainAct.mDb_drawer.getFoldersCount(true);
-        for(int folderPos=0; folderPos<foldersCount; folderPos++)
-        {
-            String folderTitle = MainAct.mDb_drawer.getFolderTitle(folderPos,true);
-            MainAct.mFocus_folderPos = folderPos;
 
-            // list all folder tables
-            int folderTableId = MainAct.mDb_drawer.getFolderTableId(folderPos,true);
-            System.out.println("--- folder table Id = " + folderTableId +
-                               ", folder title = " + folderTitle);
-
-            DB_folder db_folder = new DB_folder(act,folderTableId);
-
-            int pagesCount = db_folder.getPagesCount(true);
-
-            for(int pagePos=0; pagePos<pagesCount; pagePos++)
-            {
-                TabsHost.mCurrPagePos = pagePos;
-                int pageId = db_folder.getPageId(pagePos, true);
-                int pageTableId = db_folder.getPageTableId(pagePos, true);
-                String pageTitle = db_folder.getPageTitle(pagePos, true);
-                System.out.println("   --- page Id = " + pageId);
-                System.out.println("   --- page table Id = " + pageTableId);
-                System.out.println("   --- page title = " + pageTitle);
-
-                MainAct.mLastOkTabId = pageId;
-
-                try {
-                    DB_page db_page = new DB_page(act,pageTableId);
-                    db_page.open();
-                    db_page.close();
-                } catch (Exception e) {
-                }
-            }
-        }
-    }
 
     /**
      * Called in onCreateView. Override this to provide a custom
@@ -209,78 +161,6 @@ public class Folder
         return controller;
     }
 
-    static class Adapter extends SimpleDragSortCursorAdapter
-    {
-        Adapter(Context context, int layout, Cursor c,
-                       String[] from, int[] to, int flags)
-        {
-            super(context, layout, c, from, to, flags);
-        }
-
-        @Override
-        public int getCount() {
-            DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-            int count = db_drawer.getFoldersCount(true);
-            return count;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return position;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent)
-        {
-            ViewHolder viewHolder; // holds references to current item's GUI
-
-            // if convertView is null, inflate GUI and create ViewHolder;
-            // otherwise, get existing ViewHolder
-            if (convertView == null)
-            {
-                convertView = MainAct.mAct.getLayoutInflater().inflate(R.layout.folder_row, parent, false);
-
-                // set up ViewHolder for this ListView item
-                viewHolder = new ViewHolder();
-                viewHolder.drawerTitle = (TextView) convertView.findViewById(R.id.folderText);
-                viewHolder.imageDragger = (ImageView) convertView.findViewById(R.id.folder_dragger);
-                convertView.setTag(viewHolder); // store as View's tag
-            }
-            else // get the ViewHolder from the convertView's tag
-                viewHolder = (ViewHolder) convertView.getTag();
-
-            // set highlight of selected drawer
-            if((AudioPlayer.mMediaPlayer != null) &&
-                  (MainAct.mPlaying_folderPos == position) )
-                viewHolder.drawerTitle.setTextColor(ColorSet.getHighlightColor(MainAct.mAct));
-            else
-                viewHolder.drawerTitle.setTextColor(Color.argb(0xff, 0xff, 0xff, 0xff));
-
-            DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-            viewHolder.drawerTitle.setText(db_drawer.getFolderTitle(position,true));
-
-            // dragger
-            SharedPreferences pref = MainAct.mAct.getSharedPreferences("show_note_attribute", 0);;
-            if(pref.getString("KEY_ENABLE_FOLDER_DRAGGABLE", "no").equalsIgnoreCase("yes"))
-                viewHolder.imageDragger.setVisibility(View.VISIBLE);
-            else
-                viewHolder.imageDragger.setVisibility(View.GONE);
-
-            return convertView;
-        }
-    }
-
-    private static class ViewHolder
-    {
-        TextView drawerTitle; // refers to ListView item's ImageView
-        ImageView imageDragger;
-    }
-
     /**
      * Listeners for folder ListView
      *
@@ -292,7 +172,7 @@ public class Folder
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
         {
             System.out.println("Folder / _onItemClickListener / position = " + position);
-            MainAct.mFocus_folderPos = position;
+            FolderUi.setFocus_folderPos(position);
 
             DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
             Util.setPref_focusView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position,true) );

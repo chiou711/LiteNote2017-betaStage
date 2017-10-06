@@ -20,10 +20,12 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.cw.litenote.R;
+import com.cw.litenote.db.DB_page;
 import com.cw.litenote.operation.Import_fileView;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.main.MainAct;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.preference.Define;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.Util;
@@ -41,6 +43,16 @@ public class FolderUi
 	public static Folder.FolderListener_click folderClick;
 	public static Folder.FolderListener_longClick folderLongClick;
 
+    // setter and getter of focus folder position
+    public static int mFocus_folderPos;
+    public static void setFocus_folderPos(int pos)
+    {
+        mFocus_folderPos = pos;
+    }
+    public static int getFocus_folderPos()
+    {
+        return mFocus_folderPos;
+    }
 
 	public static void addFolderListeners()
 	{
@@ -180,12 +192,12 @@ public class FolderUi
 
                     // update focus folder position
                     if(db_drawer.getFoldersCount(false)==1)
-                        MainAct.mFocus_folderPos = 0;
+                        setFocus_folderPos(0);
                     else
-                        MainAct.mFocus_folderPos++;
+                        setFocus_folderPos(getFocus_folderPos()+1);
 
                     // update focus folder table Id for Add to top
-                    Util.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(MainAct.mFocus_folderPos,false) );
+                    Util.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(getFocus_folderPos(),false) );
 
                     // update playing highlight if needed
                     if(AudioPlayer.mMediaPlayer != null)
@@ -213,7 +225,7 @@ public class FolderUi
 	public static int mLastExist_folderTableId;
 	private static void deleteFolder(int position, final Activity act) {
 
-        System.out.println("MainUi / _deleteFolder");
+        System.out.println("FolderUi / _deleteFolder");
         // Before delete: renew first FolderId and last FolderId
         renewFirstAndLast_folderId();
 
@@ -256,23 +268,23 @@ public class FolderUi
 
         // get new focus position
         // if focus item is deleted, set focus to new first existing folder
-        if (MainAct.mFocus_folderPos == position)
+        if (getFocus_folderPos() == position)
         {
             for (int i = 0; i < foldersCount; i++)
             {
                 if (db_drawer.getFolderId(i,true) == mFirstExist_folderId)
-                    MainAct.mFocus_folderPos = i;
+                    setFocus_folderPos(i);
             }
-        } else if (position < MainAct.mFocus_folderPos)
-            MainAct.mFocus_folderPos--;
+        } else if (position < getFocus_folderPos())
+            setFocus_folderPos(getFocus_folderPos()-1);
 
-//		System.out.println("MainUi / MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
+//		System.out.println("FolderUi / MainAct.mFocus_folderPos = " + MainAct.mFocus_folderPos);
 
         // set new focus position
-        MainAct.mFolder.listView.setItemChecked(MainAct.mFocus_folderPos, true);
+        MainAct.mFolder.listView.setItemChecked(getFocus_folderPos(), true);
 
         if (foldersCount > 0) {
-            int focusFolderTableId = db_drawer.getFolderTableId(MainAct.mFocus_folderPos,true);
+            int focusFolderTableId = db_drawer.getFolderTableId(getFocus_folderPos(),true);
             // update folder table Id of focus view
             Util.setPref_focusView_folder_tableId(act, focusFolderTableId);
             // update folder table Id of new focus (error will cause first folder been deleted)
@@ -291,7 +303,7 @@ public class FolderUi
                 // update
                 if (foldersCount > 0)
                 {
-                    selectFolder(MainAct.mFocus_folderPos); // select folder to clear old playing view
+                    selectFolder(getFocus_folderPos()); // select folder to clear old playing view
                     MainAct.setFolderTitle(MainAct.mFolderTitle);
                 }
             }
@@ -474,8 +486,8 @@ public class FolderUi
     	{
         	if(	db_drawer.getFolderTableId(i,true)== iLastView_folderTableId)
         	{
-        		MainAct.mFocus_folderPos =  i;
-				MainAct.mFolder.listView.setItemChecked(MainAct.mFocus_folderPos, true);
+        		setFocus_folderPos(i);
+				MainAct.mFolder.listView.setItemChecked(getFocus_folderPos(), true);
         	}
     	}
     	
@@ -484,7 +496,7 @@ public class FolderUi
     // select folder
     public static void selectFolder(final int position)
     {
-    	System.out.println("MainUi / _selectFolder / position = " + position);
+    	System.out.println("FolderUi / _selectFolder / position = " + position);
     	MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(position,true);
 
 		// update selected item and title, then close the drawer
@@ -504,7 +516,7 @@ public class FolderUi
 
 				// set focus folder table Id
 				int folderTableId = Util.getPref_focusView_folder_tableId(act);
-				System.out.println("MainUi / _selectFolder / folderTableId = " + folderTableId);
+				System.out.println("FolderUi / _selectFolder / folderTableId = " + folderTableId);
 				DB_folder.setFocusFolder_tableId(folderTableId);
 
 				// set tab Id
@@ -582,7 +594,47 @@ public class FolderUi
         }
         return  pagesCount;
     }
-    
+
+    // List all folder tables
+    public static void listAllFolderTables(FragmentActivity act)
+    {
+        // list all folder tables
+        int foldersCount = MainAct.mDb_drawer.getFoldersCount(true);
+        for(int folderPos=0; folderPos<foldersCount; folderPos++)
+        {
+            String folderTitle = MainAct.mDb_drawer.getFolderTitle(folderPos,true);
+            FolderUi.setFocus_folderPos(folderPos);
+
+            // list all folder tables
+            int folderTableId = MainAct.mDb_drawer.getFolderTableId(folderPos,true);
+            System.out.println("--- folder table Id = " + folderTableId +
+                    ", folder title = " + folderTitle);
+
+            DB_folder db_folder = new DB_folder(act,folderTableId);
+
+            int pagesCount = db_folder.getPagesCount(true);
+
+            for(int pagePos=0; pagePos<pagesCount; pagePos++)
+            {
+                PageUi.setFocus_pagePos(pagePos);
+                int pageId = db_folder.getPageId(pagePos, true);
+                int pageTableId = db_folder.getPageTableId(pagePos, true);
+                String pageTitle = db_folder.getPageTitle(pagePos, true);
+                System.out.println("   --- page Id = " + pageId);
+                System.out.println("   --- page table Id = " + pageTableId);
+                System.out.println("   --- page title = " + pageTitle);
+
+                MainAct.mLastOkTabId = pageId;
+
+                try {
+                    DB_page db_page = new DB_page(act,pageTableId);
+                    db_page.open();
+                    db_page.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
 }
 
 

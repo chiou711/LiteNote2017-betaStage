@@ -144,7 +144,7 @@ public class DeletePagesFragment extends Fragment{
         btnSelPageCancel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            if(FolderUi.getFolder_pagesCount(MainAct.mFocus_folderPos) == 0)
+            if(FolderUi.getFolder_pagesCount(FolderUi.getFocus_folderPos()) == 0)
             {
                 getActivity().finish();
                 Intent intent  = new Intent(act,MainAct.class);

@@ -78,8 +78,8 @@ public class DB_page
 
 			// since the page table does not exist, delete the tab in folder table
 //			System.out.println("   getFocusFolder_tableName() = " + getFocusFolder_tableName());
-//			System.out.println("   TabsHost.mCurrentTabIndex = " + TabsHost.mCurrPagePos);
-//			deletePage( TabsHost.mCurrPagePos, MainAct.mAct);
+//			System.out.println("   TabsHost.mCurrentTabIndex = " + PageUi.getFocus_pagePos());
+//			deletePage( PageUi.getFocus_pagePos(), MainAct.mAct);
 //
 //			DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
 //			db_drawer.open();

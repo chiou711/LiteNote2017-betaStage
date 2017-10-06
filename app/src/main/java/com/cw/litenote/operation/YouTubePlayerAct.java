@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.note.Note;
+import com.cw.litenote.note.NoteUi;
 import com.cw.litenote.util.Util;
 import com.google.android.youtube.player.YouTubePlayerView;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -45,10 +46,10 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         previous_btn.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
-                Note.mCurrentPosition--;
+                NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
                 // leftmost boundary check
-                if(Note.mCurrentPosition <0) {
-                    Note.mCurrentPosition++;
+                if(NoteUi.getFocus_notePos() <0) {
+                    NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
                     Toast.makeText(act,R.string.toast_leftmost,Toast.LENGTH_SHORT).show();
                 }
                 else
@@ -63,10 +64,10 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         next_btn.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view) {
-                Note.mCurrentPosition++;
+                NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
                 // rightmost boundary check
-                if(Note.mCurrentPosition >= Note.mPagerAdapter.getCount()) {
-                    Note.mCurrentPosition--;
+                if(NoteUi.getFocus_notePos() >= Note.mPagerAdapter.getCount()) {
+                    NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
                     Toast.makeText(act,R.string.toast_rightmost,Toast.LENGTH_SHORT).show();
                 }
                 else
@@ -100,10 +101,10 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
                     btn_group.setVisibility(View.VISIBLE);
 
                     previous_btn.setVisibility(View.VISIBLE);
-                    previous_btn.setAlpha(Note.mCurrentPosition == 0?0.3f:1.0f);
+                    previous_btn.setAlpha(NoteUi.getFocus_notePos() == 0?0.3f:1.0f);
 
                     next_btn.setVisibility(View.VISIBLE);
-                    next_btn.setAlpha(Note.mCurrentPosition == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+                    next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
 
                     bShow_landscape_prev_next_control = true;
                 }
@@ -136,7 +137,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         youTubePlayer.setShowFullscreenButton(true);
 
         DB_page db_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
-        String linkUri = db_page.getNoteLinkUri(Note.mCurrentPosition,true);
+        String linkUri = db_page.getNoteLinkUri(NoteUi.getFocus_notePos(),true);
         System.out.println("YouTubePlayerAct / _prepare_play_YouTube / linkUri = " + linkUri);
 
         // check Id string first
@@ -196,10 +197,10 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
                 btn_group.setVisibility(View.VISIBLE);
 
                 previous_btn.setVisibility(View.VISIBLE);
-                previous_btn.setAlpha(Note.mCurrentPosition == 0?0.3f:1.0f);
+                previous_btn.setAlpha(NoteUi.getFocus_notePos() == 0?0.3f:1.0f);
 
                 next_btn.setVisibility(View.VISIBLE);
-                next_btn.setAlpha(Note.mCurrentPosition == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+                next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
             }
         }
         // not full screen
@@ -209,10 +210,10 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
             btn_group.setVisibility(View.VISIBLE);
 
             previous_btn.setVisibility(View.VISIBLE);
-            previous_btn.setAlpha(Note.mCurrentPosition == 0?0.3f:1.0f);
+            previous_btn.setAlpha(NoteUi.getFocus_notePos() == 0?0.3f:1.0f);
 
             next_btn.setVisibility(View.VISIBLE);
-            next_btn.setAlpha(Note.mCurrentPosition == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+            next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
         }
     }
 }

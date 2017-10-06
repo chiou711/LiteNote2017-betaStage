@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
+import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
@@ -342,7 +343,7 @@ public class Util
 		mDbFolder = new DB_folder(MainAct.mAct, Util.getPref_focusView_folder_tableId(MainAct.mAct));
 	    ListView listView = ((AlertDialog) dialogInterface).getListView();
 	    final ListAdapter originalAdapter = listView.getAdapter();
-	    final int style = Util.getCurrentPageStyle(mAct);
+	    final int style = Util.getCurrentPageStyle();
         CheckedTextView textViewDefault = new CheckedTextView(mAct) ;
         defaultBgClr = textViewDefault.getDrawingCacheBackgroundColor();
         defaultTextClr = textViewDefault.getCurrentTextColor();
@@ -481,9 +482,9 @@ public class Util
     }
 	
     // get current page style
-	static public int getCurrentPageStyle(Context context)
+	static public int getCurrentPageStyle()
 	{
-		return TabsHost.mDbFolder.getPageStyle(TabsHost.mCurrPagePos, true);
+		return TabsHost.mDbFolder.getPageStyle(PageUi.getFocus_pagePos(), true);
 	}
 
 	// get style count
