@@ -3,7 +3,6 @@ package com.cw.litenote.main;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.cw.litenote.R;
@@ -21,7 +20,6 @@ import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
 import com.cw.litenote.operation.Export_toSDCardFragment;
 import com.cw.litenote.operation.Import_filesList;
@@ -59,13 +57,9 @@ import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,8 +69,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public static CharSequence mAppTitle;
     public Context mContext;
     public Config mConfigFragment;
-	public static boolean bEnableConfig;
-    static Menu mMenu;
+    public static Menu mMenu;
     public static DB_drawer mDb_drawer;
     public static DB_folder mDb_folder;
     public DB_page mDb_page;
@@ -92,6 +85,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public static Drawer mDrawer;
 	public static Folder mFolder;
     public static SimpleDragSortCursorAdapter folderAdapter;
+    public static MainUi mMainUi;
 
 	// Main Act onCreate
     @Override
@@ -116,6 +110,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         mAct = this;
         setContentView(R.layout.drawer);
 		mAppTitle = getTitle();
+        mMainUi = new MainUi();
 
 		// Show Api version
         if(Define.CODE_MODE == Define.DEBUG_MODE)
@@ -174,9 +169,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         System.out.println("MainAct / _onCreate / focusPage_tableId = " + focusPage_tableId);
         mDb_page = new DB_page(context,focusPage_tableId);
 
-		//Add note with the link got from other App
-		String intentLink = addNote_IntentLink(getIntent());
-		if(!Util.isEmptyString(intentLink) )
+		//Add note with the link which got from other App
+		String intentLink = mMainUi.addNote_IntentLink(getIntent(),mAct);
+        if(!Util.isEmptyString(intentLink))//TODO　??? handle each case
 		{
 			finish(); // LiteNote not running at first, keep closing
 		}
@@ -225,7 +220,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			getActionBar().setBackgroundDrawable(new ColorDrawable(ColorSet.getBarColor(mAct)));
 
 	        mContext = getBaseContext();
-	        bEnableConfig = false;
 
 			// add on back stack changed listener
 	        fragmentManager = getSupportFragmentManager();
@@ -248,166 +242,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
-        initConfigFragment();
-        setFolderTitle(title);
+        mMainUi.setFolderTitle(mAct,title,mMenu,mDrawer,mFolderTitle);
     }
 
-    /**
-     * Set folder title
-     */
-    public static void setFolderTitle(CharSequence title) {
-        if(title == null)
-        {
-            title = mFolderTitle;
-            initActionBar();
-            mDrawer.closeDrawer();
-        }
-        System.out.println("MainAct / _setFolderTitle / title = " + title);
-        mAct.getActionBar().setTitle(title);
-    }
-
-    /**
-     * initialize action bar
-     */
-    static void initActionBar()
-    {
-//		mConfigFragment = null;
-        bEnableConfig = false;
-        mMenu.setGroupVisible(R.id.group_notes, true);
-        mAct.getActionBar().setDisplayShowHomeEnabled(true);
-        mAct.getActionBar().setDisplayHomeAsUpEnabled(true);
-        mDrawer.drawerToggle.setDrawerIndicatorEnabled(true);
-    }
-
-    /**
-     * Add note with Intent link
-     */
-    String title;
-    String addNote_IntentLink(Intent intent)
-    {
-        Bundle extras = intent.getExtras();
-        String pathOri = null;
-        String path;
-        if(extras != null)
-            pathOri = extras.getString(Intent.EXTRA_TEXT);
-        else
-            System.out.println("MainAct / _addNote_IntentLink / extras == null");
-
-        path = pathOri;
-
-        if(!Util.isEmptyString(pathOri))
-        {
-            System.out.println("-------link path of Share 1 = " + pathOri);
-            // for SoundCloud case, path could contain other strings before URI path
-            if(pathOri.contains("http"))
-            {
-                String[] str = pathOri.split("http");
-
-                for(int i=0;i< str.length;i++)
-                {
-                    if(str[i].contains("://"))
-                        path = "http".concat(str[i]);
-                }
-            }
-
-            System.out.println("-------link path of Share 2 = " + path);
-            mDb_page.open();
-            final long rowId = mDb_page.insertNote("", "", "", "", path, "", 0, (long) 0);// add new note, get return row Id
-            mDb_page.close();
-
-            // save to top or to bottom
-            final String link =path;
-            int count = mDb_page.getNotesCount(true);
-            SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
-
-            // YouTube
-            if( Util.isYouTubeLink(path))
-            {
-                title = Util.getYouTubeTitle(path);
-
-                if(pref_show_note_attribute
-                        .getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
-                        .equalsIgnoreCase("yes"))
-                {
-                    Date now = new Date();
-                    mDb_page.updateNote(rowId, title, "", "", "", path, "", 0, now.getTime(), true); // update note
-                }
-
-                if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
-                        (count > 1)        )
-                {
-                    Page.swap(mDb_page);
-                }
-
-                Toast.makeText(this,
-                        getResources().getText(R.string.add_new_note_option_title) + title,
-                        Toast.LENGTH_SHORT)
-                        .show();
-            }
-            // Web page
-            else if(!Util.isEmptyString(path) &&
-                    path.startsWith("http")   &&
-                    !Util.isYouTubeLink(path)   )
-            {
-                title = path; //set default
-                final CustomWebView web = new CustomWebView(mAct);
-                web.loadUrl(path);
-                web.setVisibility(View.INVISIBLE);
-                web.setWebChromeClient(new WebChromeClient() {
-                    @Override
-                    public void onReceivedTitle(WebView view, String titleReceived) {
-                        super.onReceivedTitle(view, titleReceived);
-                        if (!TextUtils.isEmpty(titleReceived) &&
-                                !titleReceived.equalsIgnoreCase("about:blank"))
-                        {
-                            SharedPreferences pref_show_note_attribute = getSharedPreferences("add_new_note_option", 0);
-                            if(pref_show_note_attribute
-                                    .getString("KEY_ENABLE_LINK_TITLE_SAVE", "yes")
-                                    .equalsIgnoreCase("yes"))
-                            {
-                                Date now = new Date();
-                                mDb_page.updateNote(rowId, titleReceived, "", "", "", link, "", 0, now.getTime(), true); // update note
-                            }
-
-                            int count = mDb_page.getNotesCount(true);
-                            if( pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO","bottom").equalsIgnoreCase("top") &&
-                                    (count > 1)        )
-                            {
-                                Page.swap(mDb_page);
-                            }
-
-                            Toast.makeText(mAct,
-                                    getResources().getText(R.string.add_new_note_option_title) + titleReceived,
-                                    Toast.LENGTH_SHORT)
-                                    .show();
-                            CustomWebView.pauseWebView(web);
-                            CustomWebView.blankWebView(web);
-                            if(Page.mItemAdapter != null)
-                                Page.mItemAdapter.notifyDataSetChanged();
-                            title = titleReceived;
-                        }
-                    }
-                });
-            }
-            else // other
-            {
-                title = pathOri; //??? better way?
-                if (pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO", "bottom").equalsIgnoreCase("top") &&
-                        (count > 1)) {
-                    Page.swap(mDb_page);
-                }
-
-                Toast.makeText(this,
-                        getResources().getText(R.string.add_new_note_option_title) + title,
-                        Toast.LENGTH_SHORT)
-                        .show();
-            }
-
-            return title;
-        }
-        else
-            return null;
-    }
 
     /*********************************************************************************
      *
@@ -421,8 +258,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     {
         super.onNewIntent(intent);
 		System.out.println("MainAct / _onNewIntent");
-        addNote_IntentLink(intent);
-		Page.mItemAdapter.notifyDataSetChanged();
+        String intentLink = mMainUi.addNote_IntentLink(intent,mAct);
+        if(!Util.isEmptyString(intentLink) && intentLink.startsWith("http")) {
+            Page.mItemAdapter.notifyDataSetChanged();
+        }
     }
 
     // for Rotate screen
@@ -547,11 +386,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		mDrawer.drawerToggle.syncState();
     }
 
-    void initConfigFragment()
-    {
-        mConfigFragment = null;
-    }
-
     /**
      *  on Back button pressed
      */
@@ -587,7 +421,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         if(backStackEntryCount == 1) // Config fragment
         {
-            bEnableConfig = true;
             System.out.println("MainAct / _onBackStackChanged / Config");
             getActionBar().setDisplayShowHomeEnabled(false);
             getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -596,14 +429,12 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         else if(backStackEntryCount == 0) // Folder
         {
             onBackPressedListener = null;
-            bEnableConfig = false;
 
             if(mFolder.adapter!=null)
                 mFolder.adapter.notifyDataSetChanged();
 
             System.out.println("MainAct / _onBackStackChanged / Folder");
-            initConfigFragment();
-            initActionBar();
+            mMainUi.initActionBar(mAct,mMenu,mDrawer);
             setTitle(mFolderTitle);
             invalidateOptionsMenu();
         }
@@ -655,7 +486,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
             Page.currPlayPosition++;
 
-            String link = getYouTubeLink(Page.currPlayPosition);
+            String link = mMainUi.getYouTubeLink(this,Page.currPlayPosition);
             nextLinkTitle =  Util.getYouTubeTitle(link);
 
             countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
@@ -669,7 +500,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                         public void onClick(DialogInterface dialog1, int which1)
                         {
                             alertDlg.dismiss();
-                            cancelYouTubeHandler();
+                            mMainUi.cancelYouTubeHandler(handler,runCountDown);
                         }
                     })
                     .setPositiveButton(R.string.confirm_dialog_button_yes, new DialogInterface.OnClickListener()
@@ -677,8 +508,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                         @Override
                         public void onClick(DialogInterface dialog1, int which1) {
                             alertDlg.dismiss();
-                            cancelYouTubeHandler();
-                            launchNextYouTubeIntent();
+                            mMainUi.cancelYouTubeHandler(handler,runCountDown);
+                            mMainUi.launchNextYouTubeIntent(mAct,handler,runCountDown);
                         }
                     });
 
@@ -700,12 +531,37 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             recreate();
     }
 
+    /**
+     * runnable for counting down
+     */
+    Runnable runCountDown = new Runnable() {
+        public void run() {
+            // show count down
+            TextView messageView = (TextView) alertDlg.findViewById(android.R.id.message);
+            count--;
+            countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
+            countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
+            messageView.setText(nextLinkTitle + "\n\n" +countStr);
 
-	/***********************************************************************************
+            if(count>0)
+                handler.postDelayed(runCountDown,1000);
+            else
+            {
+                // launch next intent
+                alertDlg.dismiss();
+                mMainUi.cancelYouTubeHandler(handler,runCountDown);
+                mMainUi.launchNextYouTubeIntent(mAct,handler,runCountDown);
+            }
+        }
+    };
+
+
+
+    /***********************************************************************************
      *
-	 *                                          Menu
-	 *
-	 ***********************************************************************************/
+     *                                          Menu
+     *
+     ***********************************************************************************/
 
     /****************************************************
      *  On Prepare Option menu :
@@ -887,6 +743,12 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	public static int mPlaying_folderPos;
 	public static int mPlaying_folderTableId;
 
+    static int mMenuUiState;
+
+    public static void setMenuUiState(int mMenuState) {
+        mMenuUiState = mMenuState;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) //??? java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
     {
@@ -896,7 +758,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		if( (item.getItemId() == android.R.id.home ))
     	{
     		System.out.println("MainAct / _onOptionsItemSelected / Home key of Config is pressed / fragmentManager.getBackStackEntryCount() =" +
-                    fragmentManager.getBackStackEntryCount());
+            fragmentManager.getBackStackEntryCount());
 
             if(fragmentManager.getBackStackEntryCount() > 0 )
 			{
@@ -914,9 +776,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 }
                 else {
                     fragmentManager.popBackStack();//??? folders count = 1 : exception
-                    if (bEnableConfig) {
-                        initConfigFragment();
-                        initActionBar();
+                    {
+                        mMainUi.initActionBar(mAct,mMenu,mDrawer);
                         mFolderTitle = mDb_drawer.getFolderTitle(FolderUi.getFocus_folderPos(),true);
                         setTitle(mFolderTitle);
                         mDrawer.closeDrawer();
@@ -969,7 +830,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return true;
 
             case MenuId.DELETE_FOLDERS:
-                MainAct.bEnableConfig = true;
 //                mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
                 mDb_drawer = new DB_drawer(this);
                 if(mDb_drawer.getFoldersCount(true)>0)
@@ -1100,8 +960,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			return true;
 
 			case MenuId.DELETE_PAGES:
-				MainAct.bEnableConfig = true;
-
                 mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
 				if(mDb_folder.getPagesCount(true)>0)
 				{
@@ -1229,7 +1087,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             case MenuId.CONFIG:
             	mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
         		setTitle(R.string.settings);
-        		bEnableConfig = true;
 
             	mConfigFragment = new Config();
             	mFragmentTransaction = fragmentManager.beginTransaction();
@@ -1241,88 +1098,4 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    /****************************
-     *          YouTube
-     *
-     ****************************/
-	/**
-	 *  get YouTube link
-	 */
-	String getYouTubeLink(int pos)
-	{
-		mDb_page.open();
-		int count = mDb_page.getNotesCount(false);
-		mDb_page.close();
-
-		if(pos >= count)
-		{
-			pos = 0;
-			Page.currPlayPosition = 0;
-		}
-
-		String linkStr="";
-		if(pos < count)
-			linkStr =mDb_page.getNoteLinkUri(pos,true);
-
-		return linkStr;
-	}
-
-	/**
-	 * runnable for counting down
-	 */
-    Runnable runCountDown = new Runnable() {
-        public void run() {
-            // show count down
-            TextView messageView = (TextView) alertDlg.findViewById(android.R.id.message);
-            count--;
-			countStr = getResources().getString(R.string.message_continue_or_stop_YouTube_message);
-            countStr = countStr.replaceFirst("[0-9]",String.valueOf(count));
-            messageView.setText(nextLinkTitle + "\n\n" +countStr);
-
-            if(count>0)
-                handler.postDelayed(runCountDown,1000);
-            else
-            {
-                // launch next intent
-                alertDlg.dismiss();
-				cancelYouTubeHandler();
-                launchNextYouTubeIntent();
-            }
-        }
-    };
-
-    static int mMenuUiState;
-
-    public static void setMenuUiState(int mMenuState) {
-        mMenuUiState = mMenuState;
-    }
-
-    /**
-     *  launch next YouTube intent
-     */
-    void launchNextYouTubeIntent()
-    {
-        SharedPreferences pref_open_youtube;
-        pref_open_youtube = mAct.getSharedPreferences("show_note_attribute", 0);
-
-		String link = getYouTubeLink(Page.currPlayPosition);
-		if( Util.isYouTubeLink(link) &&
-            pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
-		{
-			Util.openLink_YouTube(mAct, link);
-			cancelYouTubeHandler();
-		}
-    }
-
-	/**
-	 *  cancel YouTube Handler
-	 */
-	void cancelYouTubeHandler()
-	{
-		if(handler != null) {
-			handler.removeCallbacks(runCountDown);
-			handler = null;
-		}
-	}
 }

@@ -302,10 +302,7 @@ public class FolderUi
                 UtilAudio.stopAudioPlayer();
                 // update
                 if (foldersCount > 0)
-                {
                     selectFolder(getFocus_folderPos()); // select folder to clear old playing view
-                    MainAct.setFolderTitle(MainAct.mFolderTitle);
-                }
             }
         }
 
@@ -421,8 +418,9 @@ public class FolderUi
                                            ,true);
 					// update
 					MainAct.folderAdapter.notifyDataSetChanged();
-	                MainAct.setFolderTitle(editText.getText().toString());
-	            }
+                    MainAct.mMainUi.setFolderTitle(MainAct.mAct, null, MainAct.mMenu,MainAct.mDrawer,editText.getText().toString());
+
+                }
 	        })	
 	        .setIcon(android.R.drawable.ic_menu_edit);
 	        

@@ -71,7 +71,7 @@ public class SelectPageList
 
         // list view: selecting which pages to send
         mListView = (ListView)view;
-        listForSelect(rootView);
+        showPageList(rootView);
     }
 
     // select all pages
@@ -111,7 +111,7 @@ public class SelectPageList
 
     // show list for Select
     public int mChkNum;
-    void listForSelect(View root)
+    void showPageList(View root)
     {
         mChkNum = 0;
         // set list view
@@ -120,6 +120,7 @@ public class SelectPageList
         {
             public void onItemClick(AdapterView<?> parent, View vw, int position, long id)
             {
+                System.out.println("SelectPageList / _showPageList / _onItemClick / position = " + position);
                 CheckedTextView chkTV = (CheckedTextView) vw.findViewById(R.id.checkTV);
                 chkTV.setChecked(!chkTV.isChecked());
                 mCheckedArr.set(position, chkTV.isChecked());

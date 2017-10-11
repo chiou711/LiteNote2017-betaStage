@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
+import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.util.BaseBackPressedListener;
@@ -161,21 +162,24 @@ public class DeleteFoldersFragment extends Fragment{
         btnSelPageCancel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            //TODO ??? need this?
-            DB_drawer dbDrawer = new DB_drawer(act);
-            int foldersCnt = dbDrawer.getFoldersCount(true);
+                System.out.println("DeleteFoldersFragment / _btnSelPageCancel");
+                DB_drawer db_drawer = new DB_drawer(act);
 
-            if(foldersCnt == 0)
-            {
-                getActivity().finish();
-                Intent intent  = new Intent(act,MainAct.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                getActivity().startActivity(intent);
-            }
-            else {
-                act.getSupportFragmentManager().popBackStack(); //TODO ??? exception
-            }
+                int focusFolder_tableId = Util.getPref_focusView_folder_tableId(act);
+                DB_folder db_folder = new DB_folder(act,focusFolder_tableId);
+                if((db_drawer.getFoldersCount(true) == 0) || (db_folder.getPagesCount(true) == 0))
+                {
+                    System.out.println("DeleteFoldersFragment / _btnSelPageCancel / will call MainAct");
+                    getActivity().finish();
+                    Intent intent  = new Intent(act,MainAct.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    getActivity().startActivity(intent);
+                }
+                else {
+                    System.out.println("DeleteFoldersFragment / _btnSelPageCancel / will do _popBackStack");
+                    act.getSupportFragmentManager().popBackStack();
+                }
                 // for pages count = 0 case
                 // java.lang.IllegalArgumentException: No view found for id 0x1020011 (android:id/tabcontent) for fragment Page{8ac28af #0 id=0x1020011 tab1}
             }

@@ -178,7 +178,6 @@ public class Folder
             Util.setPref_focusView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position,true) );
 
             FolderUi.selectFolder(position);
-            MainAct.setFolderTitle(MainAct.mFolderTitle);
         }
     }
 

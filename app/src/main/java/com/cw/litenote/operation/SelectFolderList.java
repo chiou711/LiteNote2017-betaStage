@@ -58,7 +58,7 @@ public class SelectFolderList
 
         // list view: selecting which pages to send
         mListView = (ListView)view;
-        listForSelect(rootView);
+        showFolderList(rootView);
     }
 
     // select all pages
@@ -98,7 +98,7 @@ public class SelectFolderList
 
     // show list for Select
     public int mChkNum;
-    void listForSelect(View root)
+    void showFolderList(View root)
     {
         mChkNum = 0;
         // set list view
@@ -107,8 +107,7 @@ public class SelectFolderList
         {
             public void onItemClick(AdapterView<?> parent, View vw, int position, long id)
             {
-                System.out.println("SelectFolderList / _onItemClick / position = " + position);
-                System.out.println("SelectFolderList / _onItemClick / id = " + id);
+                System.out.println("SelectFolderList / _showFolderList / _onItemClick / position = " + position);
                 CheckedTextView chkTV = (CheckedTextView) vw.findViewById(R.id.checkTV);
                 chkTV.setChecked(!chkTV.isChecked());
                 mCheckedArr.set(position, chkTV.isChecked());

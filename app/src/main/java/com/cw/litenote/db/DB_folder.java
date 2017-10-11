@@ -367,6 +367,7 @@ public class DB_folder
     
     public static int getFocusFolder_tableId()
     {
+//        System.out.println("DB_folder / _getFocusFolder_tableId / mTableId_folder = " + mTableId_folder);
     	return mTableId_folder;
     }
     

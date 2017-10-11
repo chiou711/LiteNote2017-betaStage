@@ -496,6 +496,7 @@ public class Util
     // set page table id of focus view
     public static void setPref_focusView_folder_tableId(Activity act, int folderTableId )
     {
+//		System.out.println("Util / _setPref_focusView_folder_tableId / folderTableId = " + folderTableId);
         SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
         String keyName = "KEY_FOCUS_VIEW_FOLDER_TABLE_ID";
         pref.edit().putInt(keyName, folderTableId).apply();
@@ -527,8 +528,7 @@ public class Util
 		int folderTableId = Util.getPref_focusView_folder_tableId(context);
 		String keyName = keyPrefix.concat(String.valueOf(folderTableId));
 		// page table Id: default is 1
-		return pref.getInt(keyName, 1); //??? why table is not found sometimes?
-//		return String.valueOf(6); //for testing Table not found issue
+		return pref.getInt(keyName, 1); //??? why table is not found sometimes? //TODO ??? handle no page case
 	}
 	
 	// remove key of focus view

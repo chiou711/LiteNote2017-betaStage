@@ -2,6 +2,7 @@ package com.cw.litenote.drawer;
 
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
@@ -43,30 +44,32 @@ public class Drawer {
                         act.invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 
                         if(MainAct.mFolder.listView.getCount() >0) {
-                            MainAct.setFolderTitle(MainAct.mAppTitle);
+                            MainAct.mMainUi.setFolderTitle(MainAct.mAct, MainAct.mAppTitle, MainAct.mMenu,MainAct.mDrawer,MainAct.mFolderTitle);
                         }
                     }
 
                     public void onDrawerClosed(View view)
                     {
-                        System.out.println("Drawer / _onDrawerClosed / MainAct.mFocus_folderPos = " + FolderUi.getFocus_folderPos());
+                        System.out.println("Drawer / _onDrawerClosed / FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
 
                         MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
 
-                        if( !MainAct.bEnableConfig ) {
+                        FragmentManager fragmentManager = act.getSupportFragmentManager();
+                        if(fragmentManager.getBackStackEntryCount() ==0 )
+                        {
                             act.invalidateOptionsMenu(); // creates a call to onPrepareOptionsMenu()
 
-//                            if(MainAct.mFolder.listView.getCount() >0)
                             if (MainAct.mDb_drawer.getFoldersCount(true) > 0)
                             {
                                 int pos = MainAct.mFolder.listView.getCheckedItemPosition();
                                 MainAct.mFolderTitle = MainAct.mDb_drawer.getFolderTitle(pos,true);
-                                MainAct.setFolderTitle(MainAct.mFolderTitle);
+                                MainAct.mMainUi.setFolderTitle(MainAct.mAct, null, MainAct.mMenu,MainAct.mDrawer,MainAct.mFolderTitle);
 
                                 // add for deleting folder condition
                                 if (TabsHost.mTabsHost == null)
                                     FolderUi.selectFolder(FolderUi.getFocus_folderPos());
-                            } else
+                            }
+                            else
                                 MainAct.mAct.findViewById(R.id.content_frame).setVisibility(View.INVISIBLE);
                         }
                     }
