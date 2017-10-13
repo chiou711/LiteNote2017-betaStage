@@ -23,7 +23,7 @@
     <uses-feature android:name="android.hardware.telephony"
                   android:required="false"/>
     <application
-        android:name=".util.UilApplication"
+        android:name=".util.uil.UilApplication"
         android:allowBackup="true"
 		android:largeHeap="true"        
         android:icon="@drawable/ic_launcher"
@@ -69,12 +69,12 @@
              onPause/onSaveInstanceState/onStop/onDestroy/
                                                 onCreate/onStart/onRestoreInstanceState/onResume    -->
 
-        <activity android:name=".operation.YouTubePlayerAct"
+        <activity android:name=".operation.youtube.YouTubePlayerAct"
                   android:configChanges="orientation|screenSize|keyboardHidden"/>
-        <activity android:name=".operation.Import_webAct"/>
-        <activity android:name=".util.image.GalleryGridAct" />
-        <activity android:name=".util.image.GalleryPagerAct" />
-      	<activity android:name=".util.image.SlideshowPlayer"
+        <activity android:name=".operation.import_export.Import_webAct"/>
+        <activity android:name=".operation.gallery.GalleryGridAct" />
+        <activity android:name=".operation.gallery.GalleryPagerAct" />
+      	<activity android:name=".operation.slideshow.SlideshowPlayer"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <receiver
             android:name=".util.DeleteFileAlarmReceiver"

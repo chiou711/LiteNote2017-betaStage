@@ -36,8 +36,9 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.note.Note;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
+import com.cw.litenote.util.preferences.Pref;
 import com.cw.litenote.util.video.UtilVideo;
-import com.cw.litenote.preference.Define;
+import com.cw.litenote.define.Define;
 import com.google.android.youtube.player.YouTubeIntents;
 
 import android.annotation.TargetApi;
@@ -235,11 +236,11 @@ public class Util
     	String curData = data;
     	
     	// folder
-    	int folderTableId = Util.getPref_focusView_folder_tableId(mContext);
+    	int folderTableId = Pref.getPref_focusView_folder_tableId(mContext);
     	mDbFolder = new DB_folder(mContext, folderTableId);
 
     	// page
-        int pageTableId = Util.getPref_focusView_page_tableId(mContext);
+        int pageTableId = Pref.getPref_focusView_page_tableId(mContext);
 		mDbPage = new DB_page(mContext,pageTableId);
 
     	int tabCount = mDbFolder.getPagesCount(true);
@@ -340,7 +341,7 @@ public class Util
     // add mark to current page
 	public void addMarkToCurrentPage(DialogInterface dialogInterface,final int action)
 	{
-		mDbFolder = new DB_folder(MainAct.mAct, Util.getPref_focusView_folder_tableId(MainAct.mAct));
+		mDbFolder = new DB_folder(MainAct.mAct, Pref.getPref_focusView_folder_tableId(MainAct.mAct));
 	    ListView listView = ((AlertDialog) dialogInterface).getListView();
 	    final ListAdapter originalAdapter = listView.getAdapter();
 	    final int style = Util.getCurrentPageStyle();
@@ -493,133 +494,6 @@ public class Util
 		return ColorSet.mBG_ColorArray.length;
 	}
 
-    // set page table id of focus view
-    public static void setPref_focusView_folder_tableId(Activity act, int folderTableId )
-    {
-//		System.out.println("Util / _setPref_focusView_folder_tableId / folderTableId = " + folderTableId);
-        SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-        String keyName = "KEY_FOCUS_VIEW_FOLDER_TABLE_ID";
-        pref.edit().putInt(keyName, folderTableId).apply();
-    }
-
-    // get page table id of focus view
-    public static int getPref_focusView_folder_tableId(Context context)
-    {
-        SharedPreferences pref = context.getSharedPreferences("focus_view", 0);
-        String keyName = "KEY_FOCUS_VIEW_FOLDER_TABLE_ID";
-        return pref.getInt(keyName, 1); // folder table Id: default is 1
-    }
-
-    // set page table id of focus view
-	public static void setPref_focusView_page_tableId(Activity act, int pageTableId )
-	{
-	  SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-	  String keyPrefix = "KEY_FOLDER_TABLE_ID_";
-	  int folderTableId = Util.getPref_focusView_folder_tableId(act);
-	  String keyName = keyPrefix.concat(String.valueOf(folderTableId));
-      pref.edit().putInt(keyName, pageTableId).apply();
-	}
-	
-	// get page table id of focus view
-	public static int getPref_focusView_page_tableId(Context context)
-	{
-		SharedPreferences pref = context.getSharedPreferences("focus_view", 0);
-		String keyPrefix = "KEY_FOLDER_TABLE_ID_";
-		int folderTableId = Util.getPref_focusView_folder_tableId(context);
-		String keyName = keyPrefix.concat(String.valueOf(folderTableId));
-		// page table Id: default is 1
-		return pref.getInt(keyName, 1); //??? why table is not found sometimes? //TODO ??? handle no page case
-	}
-	
-	// remove key of focus view
-	public static void removePref_focusView_key(Activity act, int drawerFolderTableId)
-	{
-		SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-		String keyPrefix = "KEY_FOLDER_TABLE_ID_";
-		String keyName = keyPrefix.concat(String.valueOf(drawerFolderTableId));
-		pref.edit().remove(keyName).apply();
-	}	
-	
-	// set scroll X of drawer of focus view
-	public static void setPref_focusView_scrollX_byFolderTableId(Activity act, int scrollX )
-	{
-	  SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-	  String keyPrefix = "KEY_FOLDER_TABLE_ID_";
-	  int tableId = Util.getPref_focusView_folder_tableId(act);
-	  String keyName = keyPrefix.concat(String.valueOf(tableId));
-	  keyName = keyName.concat("_SCROLL_X");
-      pref.edit().putInt(keyName, scrollX).apply(); //??? it could be not updated soon enough?
-	}
-	
-	// get scroll X of drawer of focus view
-	public static Integer getPref_focusView_scrollX_byFolderTableId(Activity act)
-	{
-		SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-		String keyPrefix = "KEY_FOLDER_TABLE_ID_";
-		int tableId = Util.getPref_focusView_folder_tableId(act);
-		String keyName = keyPrefix.concat(String.valueOf(tableId));
-		keyName = keyName.concat("_SCROLL_X");
-		return pref.getInt(keyName, 0); // default scroll X is 0
-	}	
-
-	// Set list view first visible Index of focus view
-	public static void setPref_focusView_list_view_first_visible_index(Activity act, int index )
-	{
-//		System.out.println("Util / _setPref_focusView_list_view_first_visible_index / index = " + index);
-		SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-		String keyName = "KEY_LIST_VIEW_FIRST_VISIBLE_INDEX";
-		String location = getCurrentListViewLocation(act);
-		keyName = keyName.concat(location);
-        pref.edit().putInt(keyName, index).apply(); //??? it could not updated soon enough?
-	}
-	
-	// Get list view first visible Index of focus view
-	public static Integer getPref_focusView_list_view_first_visible_index(Activity act)
-	{
-		SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-		String keyName = "KEY_LIST_VIEW_FIRST_VISIBLE_INDEX";
-		String location = getCurrentListViewLocation(act);
-		keyName = keyName.concat(location);		
-		return pref.getInt(keyName, 0); // default scroll X is 0
-	}	
-	
-	// Set list view first visible index Top of focus view
-	public static void setPref_focusView_list_view_first_visible_index_top(Activity act, int top )
-	{
-//        System.out.println("Util / _setPref_focusView_list_view_first_visible_index_top / top = " + top);
-		SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-		String keyName = "KEY_LIST_VIEW_FIRST_VISIBLE_INDEX_TOP";
-		String location = getCurrentListViewLocation(act);
-		keyName = keyName.concat(location);
-        pref.edit().putInt(keyName, top).apply(); //??? it could be not updated soon enough?
-	}
-	
-	// Get list view first visible index Top of focus view
-	public static Integer getPref_focusView_list_view_first_visible_index_top(Activity act)
-	{
-		SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-		String keyName = "KEY_LIST_VIEW_FIRST_VISIBLE_INDEX_TOP";
-		String location = getCurrentListViewLocation(act);
-		keyName = keyName.concat(location);		
-		return pref.getInt(keyName, 0);
-	}
-	
-	// set has default import
-	public static void setPref_has_default_import(Activity act, boolean has,int position )
-	{
-		SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-		String keyName = "KEY_HAS_DEFAULT_IMPORT"+position;
-		pref.edit().putBoolean(keyName, has).apply();
-	}
-	
-	// get has default import
-	public static boolean getPref_has_default_import(Context context,int position)
-	{
-		SharedPreferences pref = context.getSharedPreferences("focus_view", 0);
-		String keyName = "KEY_HAS_DEFAULT_IMPORT"+position;
-		return pref.getBoolean(keyName, false);
-	}
-
 //	static String strTitleEdit;
 	
 	// get Send String with XML tag
@@ -695,7 +569,7 @@ public class Util
 
                 if(i==0)
 		        {
-                    DB_folder db_folder = new DB_folder(MainAct.mAct, getPref_focusView_folder_tableId(MainAct.mAct));
+                    DB_folder db_folder = new DB_folder(MainAct.mAct, Pref.getPref_focusView_folder_tableId(MainAct.mAct));
                     sentString = sentString.concat(NEW_LINE + PAGE_TAG_B );
 		        	sentString = sentString.concat(NEW_LINE + PAGE_NAME_TAG_B + db_folder.getCurrentPageTitle() + PAGE_NAME_TAG_E );
 		        }
@@ -1105,20 +979,7 @@ public class Util
         });    	
     }    
     
-    // location about drawer table Id and page table Id
-    static String getCurrentListViewLocation(Activity act)
-    {
-    	String strLocation = "";
-    	// folder
-    	int folderTableId = getPref_focusView_folder_tableId(act);
-    	String strFolderTableId = String.valueOf(folderTableId);
-    	// page
-    	int pageTableId = getPref_focusView_page_tableId(act);
-        String strPageTableId = String.valueOf(pageTableId);
-    	strLocation = "_" + strFolderTableId + "_" + strPageTableId;
-    	return strLocation;
-    }
-    
+
 	// get Url array of directory files
     public final static int AUDIO = 0;
     public final static int IMAGE = 1;

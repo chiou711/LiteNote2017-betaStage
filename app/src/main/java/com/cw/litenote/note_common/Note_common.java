@@ -10,7 +10,7 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.image.TouchImageView;
 import com.cw.litenote.util.image.UtilImage_bitmapLoader;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.util.UilCommon;
+import com.cw.litenote.util.uil.UilCommon;
 import com.cw.litenote.util.Util;
 
 import android.app.Activity;

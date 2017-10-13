@@ -22,14 +22,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cw.litenote.R;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.AsyncTaskAudioBitmap;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.image.UtilImage_bitmapLoader;
 import com.cw.litenote.util.video.UtilVideo;
 import com.cw.litenote.util.CustomWebView;
-import com.cw.litenote.util.UilCommon;
+import com.cw.litenote.util.uil.UilCommon;
 import com.cw.litenote.util.Util;
 import com.cw.litenote.util.ColorSet;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;

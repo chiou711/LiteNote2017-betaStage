@@ -13,31 +13,32 @@ import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.folder.Folder;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.note_add.New_noteOption;
-import com.cw.litenote.operation.DeleteFoldersFragment;
-import com.cw.litenote.operation.DeletePagesFragment;
-import com.cw.litenote.operation.Import_webAct;
+import com.cw.litenote.operation.delete.DeleteFoldersFragment;
+import com.cw.litenote.operation.delete.DeletePagesFragment;
+import com.cw.litenote.operation.import_export.Import_webAct;
 import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
-import com.cw.litenote.operation.Export_toSDCardFragment;
-import com.cw.litenote.operation.Import_filesList;
+import com.cw.litenote.operation.import_export.Export_toSDCardFragment;
+import com.cw.litenote.operation.import_export.Import_filesList;
 import com.cw.litenote.db.DB_drawer;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.NoisyAudioStreamReceiver;
 import com.cw.litenote.util.audio.UtilAudio;
-import com.cw.litenote.util.image.GalleryGridAct;
-import com.cw.litenote.util.image.SlideshowInfo;
-import com.cw.litenote.util.image.SlideshowPlayer;
+import com.cw.litenote.operation.gallery.GalleryGridAct;
+import com.cw.litenote.operation.slideshow.SlideshowInfo;
+import com.cw.litenote.operation.slideshow.SlideshowPlayer;
 import com.cw.litenote.util.image.UtilImage;
-import com.cw.litenote.preference.Define;
+import com.cw.litenote.define.Define;
 import com.cw.litenote.util.EULA_dlg;
-import com.cw.litenote.operation.MailNotes;
+import com.cw.litenote.operation.mail.MailNotes;
 import com.cw.litenote.util.OnBackPressedListener;
-import com.cw.litenote.operation.MailPagesFragment;
+import com.cw.litenote.operation.mail.MailPagesFragment;
 import com.cw.litenote.util.Util;
-import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
+import com.cw.litenote.util.preferences.Pref;
+import com.mobeta.android.dslv.DragSortListView;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -70,21 +71,17 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public Context mContext;
     public Config mConfigFragment;
     public static Menu mMenu;
-    public static DB_drawer mDb_drawer;
-    public static DB_folder mDb_folder;
-    public DB_page mDb_page;
     public static List<String> mFolderTitles;
 	static NoisyAudioStreamReceiver noisyAudioStreamReceiver;
 	static IntentFilter intentFilter;
-    public static FragmentActivity mAct;
+    public static FragmentActivity mAct;//TODO remove static
 	public static FragmentManager fragmentManager;
 	public static FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener;
 	public static int mLastOkTabId = 1;
 	static SharedPreferences mPref_show_note_attribute;
 	OnBackPressedListener onBackPressedListener;
-    public static Drawer mDrawer;
-	public static Folder mFolder;
-    public static SimpleDragSortCursorAdapter folderAdapter;
+    public Drawer drawer;
+	public Folder mFolder;
     public static MainUi mMainUi;
 
 	// Main Act onCreate
@@ -154,20 +151,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         mFolderTitles = new ArrayList<>();
 
-		Context context = getApplicationContext();
-
-        // init Drawer DB
-        mDb_drawer = new DB_drawer(context);
-
-        // init Folder DB
-        int focusFolder_tableId = Util.getPref_focusView_folder_tableId(context);
-        System.out.println("MainAct / _onCreate / focusFolder_tableId = " + focusFolder_tableId);
-        mDb_folder = new DB_folder(context, focusFolder_tableId);
-
-        // init Page DB
-        int focusPage_tableId = Util.getPref_focusView_page_tableId(context);
-        System.out.println("MainAct / _onCreate / focusPage_tableId = " + focusPage_tableId);
-        mDb_page = new DB_page(context,focusPage_tableId);
+//		Context context = getApplicationContext();
 
 		//Add note with the link which got from other App
 		String intentLink = mMainUi.addNote_IntentLink(getIntent(),mAct);
@@ -185,18 +169,18 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 FolderUi.listAllFolderTables(mAct);
 
 				// recover focus
-				focusFolder_tableId = Util.getPref_focusView_folder_tableId(this);
-	    		DB_folder.setFocusFolder_tableId(focusFolder_tableId);
-				focusPage_tableId = Util.getPref_focusView_page_tableId(this);
-				DB_page.setFocusPage_tableId(focusPage_tableId);
+	    		DB_folder.setFocusFolder_tableId(Pref.getPref_focusView_folder_tableId(this));
+				DB_page.setFocusPage_tableId(Pref.getPref_focusView_page_tableId(this));
 			}//if(ENABLE_DB_CHECK)
 
 	        // get focus folder table Id, default folder table Id: 1
+            DB_drawer dB_drawer = new DB_drawer(this);
+            dB_drawer.open();
 	        if (savedInstanceState == null)
 	        {
-	        	for(int i = 0; i< mDb_drawer.getFoldersCount(true); i++)
+	        	for(int i = 0; i< dB_drawer.getFoldersCount(false); i++)
 	        	{
-		        	if(mDb_drawer.getFolderTableId(i,true)==Util.getPref_focusView_folder_tableId(this))
+		        	if(dB_drawer.getFolderTableId(i,false)==Pref.getPref_focusView_folder_tableId(this))
 		        	{
                         FolderUi.setFocus_folderPos(i);
 		    			System.out.println("MainAct / _onCreate /  FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
@@ -205,14 +189,14 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	        	AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
 	        	UtilAudio.mIsCalledWhilePlayingAudio = false;
 	        }
+            dB_drawer.close();
 
             // new drawer
-            mDrawer = new Drawer(mAct);
-            mDrawer.initDrawer();
+            drawer = new Drawer(mAct);
+            drawer.initDrawer();
 
             // new folder
             mFolder = new Folder(mAct);
-            folderAdapter = mFolder.initFolder();
 
 	        // enable ActionBar app icon to behave as action to toggle nav drawer
 	        getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -242,9 +226,18 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
-        mMainUi.setFolderTitle(mAct,title,mMenu,mDrawer,mFolderTitle);
     }
 
+    /**
+     * initialize action bar
+     */
+    void initActionBar(Menu mMenu,Drawer drawer)
+    {
+        mMenu.setGroupVisible(R.id.group_notes, true);
+        getActionBar().setDisplayShowHomeEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        drawer.drawerToggle.setDrawerIndicatorEnabled(true);
+    }
 
     /*********************************************************************************
      *
@@ -326,9 +319,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		// fix: home button failed after power off/on in Config fragment
 		fragmentManager.popBackStack();
 
-		if(mDb_drawer.getFoldersCount(true)>0) {
+        DB_drawer dB_drawer = new DB_drawer(this);
+		if(dB_drawer.getFoldersCount(true)>0) {
 			System.out.println("MainAct / _onResumeFragments / getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
-			FolderUi.selectFolder(FolderUi.getFocus_folderPos());
+			FolderUi.selectFolder(this,FolderUi.getFocus_folderPos());
 			setTitle(mFolderTitle);
 		}
     }
@@ -373,7 +367,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         super.onPostCreate(savedInstanceState);
 //        System.out.println("MainAct / onPostCreate");
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawer.drawerToggle.syncState();
+        drawer.drawerToggle.syncState();
     }
 
     @Override
@@ -381,9 +375,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         super.onConfigurationChanged(newConfig);
         System.out.println("MainAct / _onConfigurationChanged");
         // Pass any configuration change to the drawer toggles
-        mDrawer.drawerToggle.onConfigurationChanged(newConfig);
+        drawer.drawerToggle.onConfigurationChanged(newConfig);
 
-		mDrawer.drawerToggle.syncState();
+		drawer.drawerToggle.syncState();
     }
 
     /**
@@ -419,22 +413,22 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         int backStackEntryCount = fragmentManager.getBackStackEntryCount();
         System.out.println("MainAct / _onBackStackChanged / backStackEntryCount = " + backStackEntryCount);
 
-        if(backStackEntryCount == 1) // Config fragment
+        if(backStackEntryCount == 1) // fragment
         {
-            System.out.println("MainAct / _onBackStackChanged / Config");
+            System.out.println("MainAct / _onBackStackChanged / fragment");
             getActionBar().setDisplayShowHomeEnabled(false);
             getActionBar().setDisplayHomeAsUpEnabled(true);
-            mDrawer.drawerToggle.setDrawerIndicatorEnabled(false);
+            drawer.drawerToggle.setDrawerIndicatorEnabled(false);
         }
-        else if(backStackEntryCount == 0) // Folder
+        else if(backStackEntryCount == 0) // init
         {
             onBackPressedListener = null;
 
             if(mFolder.adapter!=null)
                 mFolder.adapter.notifyDataSetChanged();
 
-            System.out.println("MainAct / _onBackStackChanged / Folder");
-            mMainUi.initActionBar(mAct,mMenu,mDrawer);
+            System.out.println("MainAct / _onBackStackChanged / init");
+            initActionBar(mMenu, drawer);
             setTitle(mFolderTitle);
             invalidateOptionsMenu();
         }
@@ -572,7 +566,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         System.out.println("MainAct / _onPrepareOptionsMenu");
 
         //??? why still got here even already call finish()after having got YouTube link
-        if((mDrawer == null) || (mDrawer.drawerLayout == null))
+        if((drawer == null) || (drawer.drawerLayout == null))
             return false;
 
         DB_drawer db_drawer = new DB_drawer(this);
@@ -582,7 +576,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
          * Folder group
          */
         // If the navigation drawer is open, hide action items related to the content view
-        if(mDrawer.isDrawerOpen())
+        if(drawer.isDrawerOpen())
         {
             mMenu.setGroupVisible(R.id.group_folders, true);
 
@@ -592,7 +586,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             mMenu.setGroupVisible(R.id.group_pages_and_more, false);
             mMenu.setGroupVisible(R.id.group_notes, false);
         }
-        else if(!mDrawer.isDrawerOpen())
+        else if(!drawer.isDrawerOpen())
         {
             mMenu.setGroupVisible(R.id.group_folders, false);
 
@@ -605,19 +599,23 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             {
                 setTitle(mFolderTitle);
 
-                int pgsCnt = FolderUi.getFolder_pagesCount(FolderUi.getFocus_folderPos());
+                // pages count
+                int pgsCnt = FolderUi.getFolder_pagesCount(this,FolderUi.getFocus_folderPos());
                 String preStr = "MainAct / _onPrepareOptionsMenu / ";
                 System.out.println(preStr + "FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
 
+                // notes count
                 int notesCnt = 0;
                 System.out.println(preStr + "DB_page.getFocusPage_tableId() = " + DB_page.getFocusPage_tableId());
-                if(Page.mDb_page != null){
+
+                DB_page dB_page = new DB_page(this,Pref.getPref_focusView_page_tableId(this));
+                if(dB_page != null){
                     try {
-                        notesCnt = Page.mDb_page.getNotesCount(true);
+                        notesCnt = dB_page.getNotesCount(true);
                     }
                     catch (Exception e)
                     {
-                        System.out.println(preStr + "Page.mDb_page.getNotesCount(false) error / 0 page ");
+                        System.out.println(preStr + "dB_page.getNotesCount(false) error / 0 page ");
                         notesCnt = 0;
                     }
                 }
@@ -753,17 +751,20 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public boolean onOptionsItemSelected(MenuItem item) //??? java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
     {
 		setMenuUiState(item.getItemId());
+        DB_folder dB_folder = new DB_folder(this, Pref.getPref_focusView_folder_tableId(this));
+        DB_page dB_page = new DB_page(this,Pref.getPref_focusView_page_tableId(this));
 
 		// Go back: check if Configure fragment now
 		if( (item.getItemId() == android.R.id.home ))
     	{
-    		System.out.println("MainAct / _onOptionsItemSelected / Home key of Config is pressed / fragmentManager.getBackStackEntryCount() =" +
+
+            System.out.println("MainAct / _onOptionsItemSelected / Home key of Config is pressed / fragmentManager.getBackStackEntryCount() =" +
             fragmentManager.getBackStackEntryCount());
 
             if(fragmentManager.getBackStackEntryCount() > 0 )
 			{
-                DB_drawer dbDrawer = new DB_drawer(this);
-                int foldersCnt = dbDrawer.getFoldersCount(true);
+                DB_drawer dB_drawer = new DB_drawer(this);
+                int foldersCnt = dB_drawer.getFoldersCount(true);
                 System.out.println("MainAct / _onOptionsItemSelected / Home key of Config is pressed / foldersCnt = " + foldersCnt);
 
                 if(foldersCnt == 0)
@@ -777,10 +778,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 else {
                     fragmentManager.popBackStack();//??? folders count = 1 : exception
                     {
-                        mMainUi.initActionBar(mAct,mMenu,mDrawer);
-                        mFolderTitle = mDb_drawer.getFolderTitle(FolderUi.getFocus_folderPos(),true);
+                        initActionBar(mMenu, drawer);
+                        mFolderTitle = dB_drawer.getFolderTitle(FolderUi.getFocus_folderPos(),true);
                         setTitle(mFolderTitle);
-                        mDrawer.closeDrawer();
+                        drawer.closeDrawer();
                     }
                 }
 				return true;
@@ -790,7 +791,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
     	// The action bar home/up action should open or close the drawer.
     	// ActionBarDrawerToggle will take care of this.
-    	if (mDrawer.drawerToggle.onOptionsItemSelected(item))
+    	if (drawer.drawerToggle.onOptionsItemSelected(item))
     	{
     		System.out.println("MainAct / _onOptionsItemSelected / drawerToggle.onOptionsItemSelected(item) == true ");
     		return true;
@@ -800,7 +801,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         {
 	    	case MenuId.ADD_NEW_FOLDER:
 	    		FolderUi.renewFirstAndLast_folderId();
-                FolderUi.addNewFolder(mAct, FolderUi.mLastExist_folderTableId +1);
+                FolderUi.addNewFolder(mAct, FolderUi.mLastExist_folderTableId +1, mFolder.getAdapter());
 				return true;
 
 	    	case MenuId.ENABLE_FOLDER_DRAG_AND_DROP:
@@ -809,7 +810,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             	{
             		mPref_show_note_attribute.edit().putString("KEY_ENABLE_FOLDER_DRAGGABLE","no")
             								 .apply();
-					mFolder.listView.setDragEnabled(false);
+                    DragSortListView listView = (DragSortListView) findViewById(R.id.left_drawer);
+					listView.setDragEnabled(false);
                     Toast.makeText(mAct,getResources().getString(R.string.drag_folder)+
                                         ": " +
                                         getResources().getString(R.string.set_disable),
@@ -819,22 +821,22 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             	{
             		mPref_show_note_attribute.edit().putString("KEY_ENABLE_FOLDER_DRAGGABLE","yes")
             								 .apply();
-					mFolder.listView.setDragEnabled(true);
+                    DragSortListView listView = (DragSortListView) findViewById(R.id.left_drawer);
+					listView.setDragEnabled(true);
                     Toast.makeText(mAct,getResources().getString(R.string.drag_folder) +
                                         ": " +
                                         getResources().getString(R.string.set_enable),
                                    Toast.LENGTH_SHORT).show();
             	}
-                folderAdapter.notifyDataSetChanged();
+                mFolder.getAdapter().notifyDataSetChanged();
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 return true;
 
             case MenuId.DELETE_FOLDERS:
-//                mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
-                mDb_drawer = new DB_drawer(this);
-                if(mDb_drawer.getFoldersCount(true)>0)
+                DB_drawer dB_drawer = new DB_drawer(this);
+                if(dB_drawer.getFoldersCount(true)>0)
                 {
-                    mDrawer.closeDrawer();
+                    drawer.closeDrawer();
                     mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
                     DeleteFoldersFragment delFoldersFragment = new DeleteFoldersFragment();
                     mFragmentTransaction = fragmentManager.beginTransaction();
@@ -901,29 +903,26 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         	case MenuId.SLIDE_SHOW:
         		slideshowInfo = new SlideshowInfo();
 
-        		int pageTableId = Util.getPref_focusView_page_tableId(this);
-    			DB_page.setFocusPage_tableId(pageTableId);
-
         		// add images for slide show
-    			mDb_page.open();
-                int count = mDb_page.getNotesCount(false);
-        		for(int position = 0; position < mDb_page.getNotesCount(false) ; position++)
+    			dB_page.open();
+                int count = dB_page.getNotesCount(false);
+        		for(int position = 0; position < dB_page.getNotesCount(false) ; position++)
         		{
-        			if(mDb_page.getNoteMarking(position,false) == 1)
+        			if(dB_page.getNoteMarking(position,false) == 1)
         			{
-						String pictureUri = mDb_page.getNotePictureUri(position,false);
-						String linkUri = mDb_page.getNoteLinkUri(position,false);
+						String pictureUri = dB_page.getNotePictureUri(position,false);
+						String linkUri = dB_page.getNoteLinkUri(position,false);
 
                         // replace picture path
 						if(Util.isEmptyString(pictureUri) && UtilImage.hasImageExtension(linkUri,this))
                             pictureUri = linkUri;
 
-                        String title = mDb_folder.getCurrentPageTitle();
+                        String title = dB_folder.getCurrentPageTitle();
                         title = title.concat(" " + "(" + (position+1) + "/" + count + ")");
-						String text = mDb_page.getNoteTitle(position,false);
+						String text = dB_page.getNoteTitle(position,false);
 
-						if(!Util.isEmptyString(mDb_page.getNoteBody(position,false)))
-							text += " : " + mDb_page.getNoteBody(position,false);
+						if(!Util.isEmptyString(dB_page.getNoteBody(position,false)))
+							text += " : " + dB_page.getNoteBody(position,false);
 
 						if( (!Util.isEmptyString(pictureUri) && UtilImage.hasImageExtension(pictureUri,this)) ||
                             !(Util.isEmptyString(text)) 														) // skip empty
@@ -932,7 +931,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 						}
         			}
         		}
-        		mDb_page.close();
+        		dB_page.close();
 
         		if(slideshowInfo.showItemsSize() > 0)
         		{
@@ -945,7 +944,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         		return true;
 
             case MenuId.ADD_NEW_PAGE:
-            	int pgCnt = FolderUi.getFolder_pagesCount(FolderUi.getFocus_folderPos());
+            	int pgCnt = FolderUi.getFolder_pagesCount(this,FolderUi.getFocus_folderPos());
 //				PageUi.addNewPage(mAct, TabsHost.mLastPos_pageTableId + 1);
 				PageUi.addNewPage(mAct, pgCnt + 1);
 
@@ -960,8 +959,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			return true;
 
 			case MenuId.DELETE_PAGES:
-                mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
-				if(mDb_folder.getPagesCount(true)>0)
+				if(dB_folder.getPagesCount(true)>0)
 				{
                     mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
 					DeletePagesFragment delPgsFragment = new DeletePagesFragment();
@@ -1034,8 +1032,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 			case MenuId.EXPORT_TO_SD_CARD:
 				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
-                mDb_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
-				if(mDb_folder.getPagesCount(true)>0)
+				if(dB_folder.getPagesCount(true)>0)
 				{
 					Export_toSDCardFragment exportFragment = new Export_toSDCardFragment();
 					FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -1065,8 +1062,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			case MenuId.SEND_PAGES:
 				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
 
-				DB_folder dbFolderMail = new DB_folder(this,DB_folder.getFocusFolder_tableId());
-				if(dbFolderMail.getPagesCount(true)>0)
+				if(dB_folder.getPagesCount(true)>0)
 				{
 					MailPagesFragment mailFragment = new MailPagesFragment();
 					FragmentTransaction transactionMail = getSupportFragmentManager().beginTransaction();

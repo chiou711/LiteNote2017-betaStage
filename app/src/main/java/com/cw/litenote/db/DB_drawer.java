@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.R;
-import com.cw.litenote.preference.Define;
+import com.cw.litenote.define.Define;
 
 import android.content.ContentValues;
 import android.content.Context;

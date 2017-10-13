@@ -2,13 +2,14 @@ package com.cw.litenote.note;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
-import com.cw.litenote.util.UilCommon;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.util.uil.UilCommon;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.AsyncTaskAudioBitmap;
 import com.cw.litenote.util.image.TouchImageView;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.image.UtilImage_bitmapLoader;
+import com.cw.litenote.util.preferences.Pref;
 import com.cw.litenote.util.video.UtilVideo;
 import com.cw.litenote.util.video.VideoViewCustom;
 import com.cw.litenote.util.ColorSet;
@@ -61,7 +62,7 @@ class Note_adapter extends FragmentStatePagerAdapter
     	act = activity;
         inflater = act.getLayoutInflater();
         mLastPosition = -1;
-		db_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
+		db_page = new DB_page(act, Pref.getPref_focusView_page_tableId(act));
         System.out.println("Note_adapter / constructor / mLastPosition = " + mLastPosition);
     }
     

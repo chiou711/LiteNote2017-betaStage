@@ -13,15 +13,16 @@ import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
+import com.cw.litenote.util.preferences.Pref;
 import com.cw.litenote.util.video.AsyncTaskVideoBitmapPager;
 import com.cw.litenote.util.video.UtilVideo;
 import com.cw.litenote.util.video.VideoPlayer;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.operation.MailNotes;
-import com.cw.litenote.util.UilCommon;
+import com.cw.litenote.operation.mail.MailNotes;
+import com.cw.litenote.util.uil.UilCommon;
 import com.cw.litenote.util.Util;
 
 import android.R.color;
@@ -142,7 +143,7 @@ public class Note extends FragmentActivity
 		UilCommon.init();
 
 		// DB
-		mDb_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
+		mDb_page = new DB_page(act, Pref.getPref_focusView_page_tableId(act));
 
 		// Instantiate a ViewPager and a PagerAdapter.
 		mPager = (ViewPager) findViewById(R.id.pager);
@@ -154,7 +155,7 @@ public class Note extends FragmentActivity
 		if(TabsHost.mDbFolder != null)
 			TabsHost.mDbFolder.close();
 
-		TabsHost.mDbFolder = new DB_folder(act,Util.getPref_focusView_folder_tableId(act));
+		TabsHost.mDbFolder = new DB_folder(act,Pref.getPref_focusView_folder_tableId(act));
 
 		mStyle = TabsHost.mDbFolder.getPageStyle(PageUi.getFocus_pagePos(), true);
 
@@ -763,7 +764,7 @@ public class Note extends FragmentActivity
     		// new instance
     		if(AudioPlayer.mMediaPlayer == null)
     		{
-    			MainAct.mPlaying_pageTableId = Util.getPref_focusView_page_tableId(act);
+    			MainAct.mPlaying_pageTableId = Pref.getPref_focusView_page_tableId(act);
         		AudioPlayer.setPlayMode(AudioPlayer.ONE_TIME_MODE);
     		}
     		// If Audio player is NOT at One time mode and media exists

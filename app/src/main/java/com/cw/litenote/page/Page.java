@@ -5,21 +5,23 @@ import java.util.List;
 import java.util.Locale;
 
 import com.cw.litenote.R;
+import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.note.Note;
-import com.cw.litenote.util.audio.AudioInfo;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.note.Note_edit;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.operation.MailNotes;
-import com.cw.litenote.util.UilCommon;
-import com.cw.litenote.util.UilListViewBaseFragment;
+import com.cw.litenote.operation.mail.MailNotes;
+import com.cw.litenote.util.uil.UilCommon;
+import com.cw.litenote.util.uil.UilListViewBaseFragment;
 import com.cw.litenote.util.Util;
+import com.cw.litenote.util.preferences.Pref;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 
@@ -355,12 +357,12 @@ public class Page extends UilListViewBaseFragment
     @Override
     public void onResume() {
     	super.onResume();
-		mDb_page = new DB_page(getActivity(),Util.getPref_focusView_page_tableId(getActivity()));
+		mDb_page = new DB_page(getActivity(), Pref.getPref_focusView_page_tableId(getActivity()));
     	System.out.println(mClassName + " / _onResume");
 
         // recover scroll Y
-        mFirstVisibleIndex = Util.getPref_focusView_list_view_first_visible_index(getActivity());
-        mFirstVisibleIndexTop = Util.getPref_focusView_list_view_first_visible_index_top(getActivity());
+        mFirstVisibleIndex = Pref.getPref_focusView_list_view_first_visible_index(getActivity());
+        mFirstVisibleIndexTop = Pref.getPref_focusView_list_view_first_visible_index_top(getActivity());
 
         // init audio block for TV dongle case
 		if(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
@@ -525,8 +527,8 @@ public class Page extends UilListViewBaseFragment
 			else
             {
 				// keep index and top position
-				Util.setPref_focusView_list_view_first_visible_index(getActivity(), mFirstVisibleIndex);
-				Util.setPref_focusView_list_view_first_visible_index_top(getActivity(), mFirstVisibleIndexTop);
+				Pref.setPref_focusView_list_view_first_visible_index(getActivity(), mFirstVisibleIndex);
+				Pref.setPref_focusView_list_view_first_visible_index_top(getActivity(), mFirstVisibleIndexTop);
 			}
 		}
 		
@@ -728,7 +730,8 @@ public class Page extends UilListViewBaseFragment
 					// update playing folder position
 				    MainAct.mPlaying_folderPos = FolderUi.getFocus_folderPos();
 				    // update playing folder table Id
-					MainAct.mPlaying_folderTableId = MainAct.mDb_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
+					DB_drawer dB_drawer = new DB_drawer(mAct);
+					MainAct.mPlaying_folderTableId = dB_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
 					
 		            mItemAdapter.notifyDataSetChanged();
 				}
@@ -1022,9 +1025,9 @@ public class Page extends UilListViewBaseFragment
 		    		mDb_page.close();
 		           
 		    		if(item.getItemId() == MOVE_CHECKED_NOTE)
-		    			operateCheckedTo(copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, MOVE_TO); // move to
+		    			operateCheckedTo(mAct,copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, MOVE_TO); // move to
 		    		else if(item.getItemId() == COPY_CHECKED_NOTE)
-			    		operateCheckedTo(copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, COPY_TO);// copy to
+			    		operateCheckedTo(mAct,copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, COPY_TO);// copy to
 		    			
 	        	}
 	        	else
@@ -1184,12 +1187,13 @@ public class Page extends UilListViewBaseFragment
      *   operate checked to: move to, copy to
      * 
      */
-	void operateCheckedTo(final String[] copyItems, final String[] copyItemsPicture, final String[] copyItemsLink, 
+	void operateCheckedTo(FragmentActivity act,final String[] copyItems, final String[] copyItemsPicture, final String[] copyItemsLink,
 						  final String[] copyItemsAudio, final String[] copyItemsBody,
 						  final Long[] copyItemsTime, final int action)
 	{
 		//list all pages
-		DB_folder db_folder = MainAct.mDb_folder;
+		int focusFolder_tableId = Pref.getPref_focusView_folder_tableId(act);
+		DB_folder db_folder = new DB_folder(act, focusFolder_tableId);
 		db_folder.open();
 		int tabCount = db_folder.getPagesCount(false);
 		final String[] pageNames = new String[tabCount];

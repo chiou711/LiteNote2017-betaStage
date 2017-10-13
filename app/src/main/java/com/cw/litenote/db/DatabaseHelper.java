@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.preference.Define;
+import com.cw.litenote.define.Define;
 
 // Data Base Helper 
 class DatabaseHelper extends SQLiteOpenHelper

@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.preference.Define;
-import com.cw.litenote.util.Util;
+import com.cw.litenote.define.Define;
+import com.cw.litenote.util.preferences.Pref;
 
 import java.util.Date;
 
@@ -74,7 +74,7 @@ public class DB_folder
             if( mCursor_page.getCount() == 0)
             {
                 if(Define.HAS_PREFERENCE &&
-                   !Util.getPref_has_default_import(MainAct.mAct, FolderUi.getFocus_folderPos()) )
+                   !Pref.getPref_has_default_import(MainAct.mAct, FolderUi.getFocus_folderPos()) )
                 {
                     // importing preference
                 }

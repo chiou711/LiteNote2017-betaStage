@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.page.PageUi;

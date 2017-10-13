@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 import com.cw.litenote.R;
 import com.cw.litenote.util.video.AsyncTaskVideoBitmap;
 import com.cw.litenote.util.video.UtilVideo;
-import com.cw.litenote.util.UilCommon;
+import com.cw.litenote.util.uil.UilCommon;
 import com.cw.litenote.util.Util;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.FailReason;

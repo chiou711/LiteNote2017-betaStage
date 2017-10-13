@@ -3,17 +3,19 @@ package com.cw.litenote.tabs;
 import java.util.ArrayList;
 
 import com.cw.litenote.R;
+import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.page.PageUi;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
+import com.cw.litenote.util.preferences.Pref;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -71,7 +73,7 @@ public class TabsHost extends Fragment
         super.onCreate(savedInstanceState);
         // get final viewed table Id
 		mAct = getActivity();
-		int tableId = Util.getPref_focusView_page_tableId(mAct);
+		int tableId = Pref.getPref_focusView_page_tableId(mAct);
 		mClassName = getClass().getSimpleName();
 		//System.out.println("TabsHost / onCreate / strFinalPageViewed_tableId = " + tableId);
         System.out.println(mClassName + " / onCreate / strFinalPageViewed_tableId = " + tableId);
@@ -83,7 +85,7 @@ public class TabsHost extends Fragment
     	System.out.println("TabsHost / _onCreateView");
 		View rootView;
 
-        if(FolderUi.getFolder_pagesCount(FolderUi.getFocus_folderPos()) == 0) {
+        if(FolderUi.getFolder_pagesCount(mAct,FolderUi.getFocus_folderPos()) == 0) {
             rootView = inflater.inflate(R.layout.page_view_blank, container, false);
             System.out.println("TabsHost / _onCreateView / rootView is empty TextView");
         }
@@ -100,7 +102,8 @@ public class TabsHost extends Fragment
 		if(mDbFolder != null)
 			mDbFolder.close();
 
-		int folderTableId = MainAct.mDb_drawer.getFolderTableId(FolderUi.getFocus_folderPos(),true);
+		DB_drawer dB_drawer = new DB_drawer(mAct);
+		int folderTableId = dB_drawer.getFolderTableId(FolderUi.getFocus_folderPos(),true);
 		mDbFolder = new DB_folder(mAct,folderTableId);
 
         mDbFolder.open();
@@ -168,7 +171,7 @@ public class TabsHost extends Fragment
 		//for audio layout configuration change
 		if( (AudioPlayer.mMediaPlayer != null) &&
 			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)) {
-			FolderUi.selectFolder(FolderUi.getFocus_folderPos());
+			FolderUi.selectFolder(mAct,FolderUi.getFocus_folderPos());
 		}
     }
 
@@ -229,10 +232,11 @@ public class TabsHost extends Fragment
 //		System.out.println("TabsHost / _setTabIndicator / folderTableId = " + folderTableId);
 		
 		// get final viewed table Id
-        int tableId = Util.getPref_focusView_page_tableId(act);
+        int tableId = Pref.getPref_focusView_page_tableId(act);
         System.out.println("TabsHost / _setTabIndicator / final viewed tableId = " + tableId);
 
-        int folderTableId = MainAct.mDb_drawer.getFolderTableId(FolderUi.getFocus_folderPos(),true);
+        DB_drawer dB_drawer = new DB_drawer(act);
+        int folderTableId = dB_drawer.getFolderTableId(FolderUi.getFocus_folderPos(),true);
 
         if(mDbFolder != null)
             mDbFolder = null;
@@ -372,7 +376,7 @@ public class TabsHost extends Fragment
 	        @Override
 	        public void run() {
 		        mPref_FinalPageViewed = act.getSharedPreferences("focus_view", 0);
-		        int scrollX = Util.getPref_focusView_scrollX_byFolderTableId(act);
+		        int scrollX = Pref.getPref_focusView_scrollX_byFolderTableId(act);
 	        	mHorScrollView.scrollTo(scrollX, 0);
 	            updateTabSpec(mTabsHost.getCurrentTabTag(),act);
 	        } 
@@ -463,7 +467,7 @@ public class TabsHost extends Fragment
 		
 		//update final page currently viewed: scroll x
         mPref_FinalPageViewed = activity.getSharedPreferences("focus_view", 0);
-    	Util.setPref_focusView_scrollX_byFolderTableId(activity, scrollX );
+		Pref.setPref_focusView_scrollX_byFolderTableId(activity, scrollX );
 		
     	mDbFolder.open();
 		int pagesCount = mDbFolder.getPagesCount(false);
@@ -477,10 +481,10 @@ public class TabsHost extends Fragment
 	    	{
 	    		PageUi.setFocus_pagePos(i);
 	    		//update final page currently viewed: tab Id
-	    		Util.setPref_focusView_page_tableId(activity,pageTableId);
+				Pref.setPref_focusView_page_tableId(activity,pageTableId);
 
 				// get current playing page table Id
-				mNow_pageTableId = Util.getPref_focusView_page_tableId(activity);
+				mNow_pageTableId = Pref.getPref_focusView_page_tableId(activity);
 	    		DB_page.setFocusPage_tableId(pageTableId);
 	    		System.out.println(mClassName + " / _updateTabSpec / tabSpec = " + tabSpec);
 	    	} 
@@ -563,7 +567,7 @@ public class TabsHost extends Fragment
 	        	}
 	        }
 	        System.out.println("--- after delete / newFirstPageTblId = " + newFirstPageTblId);
-	        Util.setPref_focusView_page_tableId(activity, newFirstPageTblId);
+			Pref.setPref_focusView_page_tableId(activity, newFirstPageTblId);
 		}
 //		else
 //		{
@@ -575,7 +579,7 @@ public class TabsHost extends Fragment
 		// set scroll X
 		int scrollX = 0; //over the last scroll X
         mPref_FinalPageViewed = activity.getSharedPreferences("focus_view", 0);
-    	Util.setPref_focusView_scrollX_byFolderTableId(activity, scrollX );
+		Pref.setPref_focusView_scrollX_byFolderTableId(activity, scrollX );
 	 	  
 		
 		// get page table Id for dropping
@@ -613,7 +617,7 @@ public class TabsHost extends Fragment
 	        @Override
 	        public void run() {
 	        	mHorScrollView.scrollTo(0, 0);
-	        	Util.setPref_focusView_scrollX_byFolderTableId(activity, 0 );
+				Pref.setPref_focusView_scrollX_byFolderTableId(activity, 0 );
 	        }
 	    });
 	}
@@ -700,7 +704,7 @@ public class TabsHost extends Fragment
                                                  true);
 	                        
 							// Before _recreate, store latest page number currently viewed
-							Util.setPref_focusView_page_tableId(act, pageTableId);
+							Pref.setPref_focusView_page_tableId(act, pageTableId);
 	                        
 	                        updateTabChange(act);
 	                    }
@@ -730,7 +734,7 @@ public class TabsHost extends Fragment
 	public static void updateTabChange(FragmentActivity act)
 	{
 		System.out.println("TabsHost / _updateChange ");
-            FolderUi.selectFolder(FolderUi.getFocus_folderPos());
+            FolderUi.selectFolder(mAct,FolderUi.getFocus_folderPos());
 //			if(mTabsHost != null)
 //            	mTabsHost.clearAllTabs(); //must add this in order to clear onTabChange event
 //            setTab(act);

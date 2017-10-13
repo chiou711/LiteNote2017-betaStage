@@ -13,7 +13,7 @@ import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
 
 /**

@@ -2,9 +2,10 @@ package com.cw.litenote.note;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
-import com.cw.litenote.operation.YouTubePlayerAct;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.youtube.YouTubePlayerAct;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.image.UtilImage;
+import com.cw.litenote.util.preferences.Pref;
 import com.cw.litenote.util.video.UtilVideo;
 import com.cw.litenote.util.video.VideoPlayer;
 import com.cw.litenote.util.CustomWebView;
@@ -60,7 +61,7 @@ public class NoteUi
         act = activity;
         mPosition = position;
 
-        DB_page db_page = new DB_page(act,Util.getPref_focusView_page_tableId(act));
+        DB_page db_page = new DB_page(act, Pref.getPref_focusView_page_tableId(act));
         String pictureUri = db_page.getNotePictureUri(position,true);
         String linkUri = db_page.getNoteLinkUri(position,true);
 

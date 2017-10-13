@@ -5,7 +5,7 @@ import java.io.File;
 
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.page.PageUi;
-import com.cw.litenote.util.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.main.MainAct;

@@ -10,13 +10,10 @@ import android.widget.AdapterView;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.page.PageUi;
-import com.cw.litenote.util.Util;
+import com.cw.litenote.util.preferences.Pref;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
-
-import static com.cw.litenote.folder.FolderUi.addFolderListeners;
 
 /**
  * Created by CW on 2016/8/23.
@@ -27,18 +24,22 @@ public class Folder
     public SimpleDragSortCursorAdapter adapter;
     DragSortController controller;
     FragmentActivity act;
+    DB_drawer dB_drawer;
+    SimpleDragSortCursorAdapter folderAdapter;
 
     public Folder(FragmentActivity act)
     {
         this.act = act;
         listView = (DragSortListView) act.findViewById(R.id.left_drawer);
+        dB_drawer = new DB_drawer(act);
+        folderAdapter = initFolder();
     }
 
     // initialize folder list view
-    public SimpleDragSortCursorAdapter initFolder()
+    SimpleDragSortCursorAdapter initFolder()
     {
         // set Folder title
-        if(MainAct.mDb_drawer.getFoldersCount(true) == 0)
+        if(dB_drawer.getFoldersCount(true) == 0)
         {
             // default: add 2 new folders
 //            for(int i = 0; i< Define.ORIGIN_FOLDERS_COUNT; i++)
@@ -47,15 +48,15 @@ public class Folder
 //                System.out.println("Folder/ _initFolder / insert folder "+ i) ;
 //                String folderTitle = Define.getFolderTitle(act,i);
 //                MainAct.mFolderTitles.add(folderTitle);
-//                MainAct.mDb_drawer.insertFolder(i+1, folderTitle );
+//                dB_drawer.insertFolder(i+1, folderTitle );
 //            }
         }
         else
         {
-            for(int i = 0; i< MainAct.mDb_drawer.getFoldersCount(true); i++)
+            for(int i = 0; i< dB_drawer.getFoldersCount(true); i++)
             {
                 MainAct.mFolderTitles.add(""); // init only
-                MainAct.mFolderTitles.set(i, MainAct.mDb_drawer.getFolderTitle(i,true));
+                MainAct.mFolderTitles.set(i, dB_drawer.getFolderTitle(i,true));
             }
         }
 
@@ -63,8 +64,8 @@ public class Folder
 //        DB_drawer.listFolders();
 
         // set adapter
-        MainAct.mDb_drawer.open();
-        Cursor cursor = DB_drawer.mCursor_folder;
+        dB_drawer.open();
+        Cursor cursor = dB_drawer.mCursor_folder;
 
         String[] from = new String[] { DB_drawer.KEY_FOLDER_TITLE};
         int[] to = new int[] { R.id.folderText};
@@ -78,15 +79,15 @@ public class Folder
                 0
         );
 
-        MainAct.mDb_drawer.close();
+        dB_drawer.close();
 
         listView.setAdapter(adapter);
 
         // set up click listener
-        addFolderListeners();//??? move to resume?
-        listView.setOnItemClickListener(FolderUi.folderClick);
+        listView.setOnItemClickListener(new Folder.FolderListener_click(act));
+
         // set up long click listener
-        listView.setOnItemLongClickListener(FolderUi.folderLongClick);
+        listView.setOnItemLongClickListener(new Folder.FolderListener_longClick(act,folderAdapter));
 
         controller = buildController(listView);
         listView.setFloatViewManager(controller);
@@ -103,6 +104,11 @@ public class Folder
         listView.setDragListener(onDrag);
         listView.setDropListener(onDrop);
 
+        return adapter;
+    }
+
+    public SimpleDragSortCursorAdapter getAdapter()
+    {
         return adapter;
     }
 
@@ -168,26 +174,38 @@ public class Folder
     // click
     public static class FolderListener_click implements AdapterView.OnItemClickListener
     {
+        FragmentActivity act;
+        FolderListener_click(FragmentActivity act_){act = act_;}
+
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
         {
             System.out.println("Folder / _onItemClickListener / position = " + position);
             FolderUi.setFocus_folderPos(position);
 
-            DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-            Util.setPref_focusView_folder_tableId(MainAct.mAct,db_drawer.getFolderTableId(position,true) );
+            DB_drawer db_drawer = new DB_drawer(act);
+            Pref.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(position,true) );
 
-            FolderUi.selectFolder(position);
+            FolderUi.selectFolder(act,position);
         }
     }
 
     // long click
     public static class FolderListener_longClick implements DragSortListView.OnItemLongClickListener
     {
+
+        FragmentActivity act;
+        SimpleDragSortCursorAdapter adapter;
+        FolderListener_longClick(FragmentActivity _act,SimpleDragSortCursorAdapter _adapter)
+        {
+            act = _act;
+            adapter = _adapter;
+        }
+
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
         {
-            FolderUi.editFolder(position);
+            FolderUi.editFolder(act,position, adapter);
             return true;
         }
     }

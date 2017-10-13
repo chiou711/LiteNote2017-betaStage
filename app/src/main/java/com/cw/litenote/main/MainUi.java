@@ -32,32 +32,6 @@ public class MainUi {
     MainUi(){}
 
     /**
-     * Set folder title
-     */
-    public static void setFolderTitle(FragmentActivity act, CharSequence title, Menu menu,Drawer drawer,CharSequence folderTitle) {
-        if(title == null)
-        {
-            title = folderTitle;
-            initActionBar(act,menu,drawer);
-            drawer.closeDrawer();
-        }
-        System.out.println("MainUi / _setFolderTitle / title = " + title);
-        act.getActionBar().setTitle(title);
-    }
-
-    /**
-     * initialize action bar
-     */
-    static void initActionBar(FragmentActivity act, Menu mMenu,Drawer drawer)
-    {
-//		mConfigFragment = null;
-        mMenu.setGroupVisible(R.id.group_notes, true);
-        act.getActionBar().setDisplayShowHomeEnabled(true);
-        act.getActionBar().setDisplayHomeAsUpEnabled(true);
-        drawer.drawerToggle.setDrawerIndicatorEnabled(true);
-    }
-
-    /**
      * Add note with Intent link
      */
     String title;

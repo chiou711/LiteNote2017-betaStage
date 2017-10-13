@@ -24,9 +24,10 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.preference.Define;
+import com.cw.litenote.define.Define;
 import com.cw.litenote.util.Util;
 import com.cw.litenote.util.image.UtilImage;
+import com.cw.litenote.util.preferences.Pref;
 
 import java.lang.reflect.Field;
 
@@ -170,7 +171,7 @@ public class PageUi
 	    	    }
 	    	    else
 	    	    {
-	    	    	Util.setPref_focusView_page_tableId(act, TabsHost.mDbFolder.getPageTableId(getFocus_pagePos(), true));
+					Pref.setPref_focusView_page_tableId(act, TabsHost.mDbFolder.getPageTableId(getFocus_pagePos(), true));
 	    	    	swapPage(getFocus_pagePos(),
                             getFocus_pagePos() -1);
 
@@ -240,7 +241,7 @@ public class PageUi
 	   	    	}
 	   	    	else
 	   	    	{
-	    	    	Util.setPref_focusView_page_tableId(act, db.getPageTableId(getFocus_pagePos(), true));
+					Pref.setPref_focusView_page_tableId(act, db.getPageTableId(getFocus_pagePos(), true));
 					swapPage(getFocus_pagePos(), getFocus_pagePos() +1);
 
                     // shift right when audio playing
@@ -441,7 +442,7 @@ public class PageUi
 		TabsHost.mPagesCount++;
 		
 		// commit: final page viewed
-		Util.setPref_focusView_page_tableId(act, newTblId);
+		Pref.setPref_focusView_page_tableId(act, newTblId);
 		
 	    // set scroll X
 		final int scrollX = (TabsHost.mPagesCount) * 60 * 5; //over the last scroll X
@@ -453,7 +454,7 @@ public class PageUi
 				@Override
 				public void run() {
 					TabsHost.mHorScrollView.scrollTo(scrollX, 0);
-					Util.setPref_focusView_scrollX_byFolderTableId(act, scrollX);
+					Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX);
 				}
 			});
 		}
@@ -495,7 +496,7 @@ public class PageUi
 	        @Override
 	        public void run() {
 	        	TabsHost.mHorScrollView.scrollTo(scrollX, 0);
-	        	Util.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
+	        	Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
 	        } 
 	    });
 		
@@ -512,7 +513,7 @@ public class PageUi
 	protected static void updateFinalPageViewed(FragmentActivity act)
 	{
 	    // get final viewed table Id
-	    int tableId = Util.getPref_focusView_page_tableId(act);
+	    int tableId = Pref.getPref_focusView_page_tableId(act);
 		DB_page.setFocusPage_tableId(tableId);
 	
 		DB_folder dbFolder = TabsHost.mDbFolder;
@@ -525,7 +526,7 @@ public class PageUi
 				setFocus_pagePos(i);
 			
 	    	if(	dbFolder.getPageId(i, false)== TabsHost.mFirstPos_PageId)
-	    		Util.setPref_focusView_page_tableId(act, dbFolder.getPageTableId(i, false) );
+	    		Pref.setPref_focusView_page_tableId(act, dbFolder.getPageTableId(i, false) );
 		}
 		dbFolder.close();
 	}
