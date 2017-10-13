@@ -1,6 +1,7 @@
 package com.cw.litenote.define;
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.cw.litenote.R;
 
@@ -33,7 +34,9 @@ public class Define {
      * - true: need to add preferred/assets/ in build.gradle
      * - false: need to remove preferred/assets/ in build.gradle
      */
-    public static boolean HAS_PREFERENCE = false;
+    public static boolean HAS_PREFERENCE = false;//false; //true;
+
+    public static boolean HAS_ORIGINAL_TABLES = true;//false; //true;
 
     // Apply system default for picture path
     public static boolean PICTURE_PATH_BY_SYSTEM_DEFAULT = true;
@@ -61,15 +64,15 @@ public class Define {
         return title;
     }
 
-    public static String getTabTitle(Activity act,Integer Id)
+    public static String getTabTitle(Context context, Integer Id)
     {
         String title;
 
         if(Define.HAS_PREFERENCE) {
-            title = act.getResources().getString(R.string.prefer_page_name).concat(String.valueOf(Id));
+            title = context.getResources().getString(R.string.prefer_page_name).concat(String.valueOf(Id));
         }
         else {
-            title = act.getResources().getString(R.string.default_page_name).concat(String.valueOf(Id));
+            title = context.getResources().getString(R.string.default_page_name).concat(String.valueOf(Id));
         }
         return title;
     }

@@ -45,7 +45,6 @@ public class DB_drawer
 	public DB_drawer(Context context)
     {
         mContext = context;
-//        mDb_drawer = DB_drawer.this;
     }
 
     /**
@@ -87,9 +86,9 @@ public class DB_drawer
 	}
 
     // insert folder table
-    public void insertFolderTable(DB_drawer dbDrawer, int id, boolean is_SQLiteOpenHelper_onCreate)
+    public void insertFolderTable(DB_drawer dbDrawer, int id, boolean enDbOpenClose)
     {
-    	if(!is_SQLiteOpenHelper_onCreate)
+    	if(enDbOpenClose)
             dbDrawer.open();
 
     	// table for folder
@@ -102,34 +101,7 @@ public class DB_drawer
 				DB_folder.KEY_PAGE_CREATED + " INTEGER);";
         mSqlDb.execSQL(DB_CREATE);
 
-        if(Define.HAS_PREFERENCE)
-        {
-        	// set default tab info
-	        if(!is_SQLiteOpenHelper_onCreate)
-	        {
-	    		String folder_table = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(id));
-        		DB_folder.insertPage(mSqlDb,
-                          folder_table,
-                          Define.getTabTitle(MainAct.mAct,1),
-                          1,
-                          Define.STYLE_PREFER);
-	        }
-        }
-        else
-        {
-//        	String folder_table = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(id));
-//        	DB_folder.insertPage(mSqlDb,
-//                      folder_table,
-//                      Define.getTabTitle(MainAct.mAct,1),
-//                      1,
-//                      Define.STYLE_DEFAULT);
-        	//insertPage(mSqlDb,folder_table,"N2",2,1);
-        	//insertPage(mSqlDb,folder_table,"N3",3,2);
-        	//insertPage(mSqlDb,folder_table,"N4",4,3);
-        	//insertPage(mSqlDb,folder_table,"N5",5,4);
-        }
-
-		if(!is_SQLiteOpenHelper_onCreate)
+		if(enDbOpenClose)
             dbDrawer.close();
     }
 

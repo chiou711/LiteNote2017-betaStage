@@ -145,7 +145,6 @@ public class FolderUi
             @Override
             public void onClick(View v) {
 				DB_drawer db_drawer = new DB_drawer(act);
-                db_drawer.open();
 
 				String folderTitle;
                 if (!Util.isEmptyString(editFolderName.getText().toString()))
@@ -155,21 +154,32 @@ public class FolderUi
 
                 MainAct.mFolderTitles.add(folderTitle);
                 // insert new drawer Id and Title
-                db_drawer.insertFolder(newTableId, folderTitle,false );
+                db_drawer.insertFolder(newTableId, folderTitle,true );
 
                 // insert folder table
-                db_drawer.insertFolderTable(db_drawer,newTableId, false);
+                db_drawer.insertFolderTable(db_drawer,newTableId, true);
 
-                // insert page table
-//                for(int i = 1; i<= Define.ORIGIN_PAGES_COUNT; i++)
-//                {
-//                    db_folder.insertPageTable(db_folder,newTableId, i, false);
-//                }
+                // insert original page table
+                if(Define.HAS_ORIGINAL_TABLES)
+                {
+                    for(int i = 1; i<= Define.ORIGIN_PAGES_COUNT; i++)
+                    {
+                        DB_folder dB_folder = new DB_folder(act,newTableId);
+                        int style = Util.getNewPageStyle(act);
+                        dB_folder.insertPage(DB_folder.getFocusFolder_tableName(),
+                                             Define.getTabTitle(act,1),
+                                             i,
+                                             style,
+                                             true );
+
+                        dB_folder.insertPageTable(dB_folder,newTableId, i, true);
+                    }
+                }
 
                 // add new folder to the top
                 if(mAddFolderAt == 0)
                 {
-                    int startCursor = db_drawer.getFoldersCount(false)-1;
+                    int startCursor = db_drawer.getFoldersCount(true)-1;
                     int endCursor = 0;
 
                     //reorder data base storage for ADD_NEW_TO_TOP option
@@ -184,19 +194,18 @@ public class FolderUi
                     }
 
                     // update focus folder position
-                    if(db_drawer.getFoldersCount(false)==1)
+                    if(db_drawer.getFoldersCount(true)==1)
                         setFocus_folderPos(0);
                     else
                         setFocus_folderPos(getFocus_folderPos()+1);
 
                     // update focus folder table Id for Add to top
-                    Pref.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(getFocus_folderPos(),false) );
+                    Pref.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(getFocus_folderPos(),true) );
 
                     // update playing highlight if needed
                     if(AudioPlayer.mMediaPlayer != null)
                         MainAct.mPlaying_folderPos++;
                 }
-                db_drawer.close();
 
                 folderAdapter.notifyDataSetChanged();
 

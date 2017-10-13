@@ -597,7 +597,7 @@ public class Config extends Fragment
 		   int version_code = 0;
            try 
            {
-        	   Context context = MainAct.mAct;
+        	   Context context = getActivity();
         	   pInfo = context.getPackageManager()
         			   		  .getPackageInfo(context.getPackageName(),PackageManager.GET_META_DATA);
            } catch (NameNotFoundException e) {

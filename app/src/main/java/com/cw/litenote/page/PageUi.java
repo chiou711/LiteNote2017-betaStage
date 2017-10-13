@@ -435,10 +435,10 @@ public class PageUi
 		DB_folder dbFolder = new DB_folder(act,DB_folder.getFocusFolder_tableId());
 	    // insert tab name
 		int style = Util.getNewPageStyle(act);
-		dbFolder.insertPage(DB_folder.getFocusFolder_tableName(),tabName,newTblId,style );
+		dbFolder.insertPage(DB_folder.getFocusFolder_tableName(),tabName,newTblId,style,true );
 		
 		// insert table for new tab
-		dbFolder.insertPageTable(dbFolder,DB_folder.getFocusFolder_tableId(),newTblId, false);
+		dbFolder.insertPageTable(dbFolder,DB_folder.getFocusFolder_tableId(),newTblId, true);
 		TabsHost.mPagesCount++;
 		
 		// commit: final page viewed
@@ -471,10 +471,10 @@ public class PageUi
 		
 	    // insert tab name
 		int style = Util.getNewPageStyle(act);
-		dbFolder.insertPage(DB_folder.getFocusFolder_tableName(),tabName, newTabId, style );
+		dbFolder.insertPage(DB_folder.getFocusFolder_tableName(),tabName, newTabId, style,true );
 		
 		// insert table for new tab
-		dbFolder.insertPageTable(dbFolder,DB_folder.getFocusFolder_tableId(),newTabId, false);
+		dbFolder.insertPageTable(dbFolder,DB_folder.getFocusFolder_tableId(),newTabId, true);
 		TabsHost.mPagesCount++;
 		
 		//change to leftmost tab Id

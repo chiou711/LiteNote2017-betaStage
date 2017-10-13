@@ -3,6 +3,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.cw.litenote.R;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.define.Define;
 
@@ -40,27 +41,39 @@ class DatabaseHelper extends SQLiteOpenHelper
 				DB_drawer.KEY_FOLDER_CREATED + " INTEGER);";
 		sqlDb.execSQL(DB_CREATE);
 
-		// Create Folder tables
-		for(int i = 1; i<= Define.ORIGIN_FOLDERS_COUNT; i++)
-		{
-			DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-			db_drawer.insertFolderTable(db_drawer, i, true);
-		}
+		// Create original folder tables and page tables
+    	if(Define.HAS_ORIGINAL_TABLES)
+    	{
+	    	for(int i = 1; i<= Define.ORIGIN_FOLDERS_COUNT; i++)
+	    	{
+                // folder tables
+	        	System.out.println("DatabaseHelper / _onCreate / will insert folder table " + i);
+                DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
+                String folderTitle = MainAct.mAct.getResources().getString(R.string.default_folder_name).concat(String.valueOf(i));
+                db_drawer.insertFolder(i, folderTitle,false ); // Note: must set false for DB creation stage
+                db_drawer.insertFolderTable(db_drawer, i, false);
 
-		// Create Page tables
-//    	if(!Define.HAS_PREFERENCE)
-//    	{
-//	    	for(int i = 1; i<= Define.ORIGIN_FOLDERS_COUNT; i++)
-//	    	{
-//	        	System.out.println("DatabaseHelper / _onCreate / will insert folder table " + i);
-//	        	for(int j = 1; j<= Define.ORIGIN_PAGES_COUNT; j++)
-//	        	{
-//	            	System.out.println("DatabaseHelper / _onCreate / will insert note table " + j);
-//					DB_folder db_folder = new DB_folder(MainAct.mAct,i);
-//					db_folder.insertPageTable(db_folder, i, j, true);
-//	        	}
-//	    	}
-//    	}
+                // page tables
+	        	for(int j = 1; j<= Define.ORIGIN_PAGES_COUNT; j++)
+	        	{
+	            	System.out.println("DatabaseHelper / _onCreate / will insert page table " + j);
+					DB_folder db_folder = new DB_folder(MainAct.mAct,i);
+					db_folder.insertPageTable(db_folder, i, j, false);
+
+                    String DB_FOLDER_TABLE_PREFIX = "Folder";
+                    String folder_table = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(i));
+                    db_folder.insertPage(sqlDb,
+                                         folder_table,
+                                         Define.getTabTitle(MainAct.mAct,1),
+                                         1,
+                                         Define.STYLE_DEFAULT);//Define.STYLE_PREFER
+                    //db_folder.insertPage(sqlDb,folder_table,"N2",2,1);
+                    //db_folder.insertPage(sqlDb,folder_table,"N3",3,2);
+                    //db_folder.insertPage(sqlDb,folder_table,"N4",4,3);
+                    //db_folder.insertPage(sqlDb,folder_table,"N5",5,4);
+	        	}
+	    	}
+    	}
 
     }
 

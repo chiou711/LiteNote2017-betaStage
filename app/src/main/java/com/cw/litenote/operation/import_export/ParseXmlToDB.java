@@ -106,12 +106,13 @@ class ParseXmlToDB {
 
                                 // style is not set in XML file, so insert default style instead
                                 mDb_folder.insertPage(DB_folder.getFocusFolder_tableName(),
-                                                        pageName,
-                                                        TabsHost.getLastPos_pageId() + 1,
-                                                        style );
+                                                      pageName,
+                                                      TabsHost.getLastPos_pageId() + 1,
+                                                      style ,
+                                                      true);
 
                                 // insert table for new tab
-                                mDb_folder.insertPageTable(mDb_folder,DB_folder.getFocusFolder_tableId(), TabsHost.getLastPos_pageId() + 1, false );
+                                mDb_folder.insertPageTable(mDb_folder,DB_folder.getFocusFolder_tableId(), TabsHost.getLastPos_pageId() + 1, true );
                                 // update last tab Id after Insert
                                 TabsHost.setLastPos_pageId(TabsHost.getLastPos_pageId() + 1);//??? logic error? should be max page Id?
 

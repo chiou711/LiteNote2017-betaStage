@@ -109,9 +109,9 @@ public class DB_folder
     // 1 SQLiteDatabase
     // 2 assigned drawer Id
     // 3 page table Id
-    public void insertPageTable(DB_folder db, int drawerId, int pageId, boolean is_SQLiteOpenHelper_onCreate)
+    public void insertPageTable(DB_folder db, int drawerId, int pageId, boolean enDbOpenClose)
     {   
-    	if(!is_SQLiteOpenHelper_onCreate)
+    	if(enDbOpenClose)
     		db.open();
 
         //format "Page1_2"
@@ -130,7 +130,7 @@ public class DB_folder
 									DB_page.KEY_NOTE_CREATED + " INTEGER);";
         mSqlDb.execSQL(dB_insert_table);
 
-        if(!is_SQLiteOpenHelper_onCreate)
+        if(enDbOpenClose)
         	db.close();
     }
 
@@ -200,9 +200,10 @@ public class DB_folder
     }
     
     // insert page
-    public long insertPage(String intoTable, String title, long ntId, int style)
+    public long insertPage(String intoTable, String title, long ntId, int style, boolean enDbOpenClose)
     {
-    	this.open();
+        if(enDbOpenClose)
+    	    this.open();
 
         Date now = new Date();
         ContentValues args = new ContentValues();
@@ -212,7 +213,8 @@ public class DB_folder
         args.put(KEY_PAGE_CREATED, now.getTime());
         long rowId = mSqlDb.insert(intoTable, null, args);
 
-        this.close();
+        if(enDbOpenClose)
+            this.close();
         return rowId;
     }
     
