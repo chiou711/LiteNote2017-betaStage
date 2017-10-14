@@ -68,31 +68,10 @@ public class DB_folder
         try
         {
             mCursor_page = this.getPageCursor_byFolderTableId(getFocusFolder_tableId());
-
-            // since no page is created in folder table, delete the folder Id
-            // but this is not for importing preference condition
-            if( mCursor_page.getCount() == 0)
-            {
-                if(Define.HAS_PREFERENCE &&
-                   !Pref.getPref_has_default_import(MainAct.mAct, FolderUi.getFocus_folderPos()) )
-                {
-                    // importing preference
-                }
-//                else {
-//                    DB_drawer db_drawer = new DB_drawer(mContext);
-//                    int folderId = (int) db_drawer.getFolderId(MainAct.mFocus_folderPos);
-//                    // since the folder table does not exist, delete the folder Id in drawer table
-//                    db_drawer.deleteFolderId(folderId);
-//                }
-            }
         }
         catch (Exception e)
         {
             System.out.println("DB_folder / open folder table NG! / table id = " + getFocusFolder_tableId());
-//            DB_drawer db_drawer = new DB_drawer(mContext);
-//            int folderId =  (int) db_drawer.getFolderId(MainAct.mFocus_folderPos);
-            // since the folder table does not exist, delete the folder Id in drawer table
-//            db_drawer.deleteFolderId(folderId);
         }
 
         return DB_folder.this;
@@ -187,7 +166,7 @@ public class DB_folder
     }
 
     // insert page with SqlDb parameter
-    public static long insertPage(SQLiteDatabase sqlDb, String intoTable, String title, long ntId, int style)
+    long insertPage(SQLiteDatabase sqlDb, String intoTable, String title, long ntId, int style)
     {
         Date now = new Date();
         ContentValues args = new ContentValues();

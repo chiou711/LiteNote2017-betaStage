@@ -41,47 +41,53 @@ class DatabaseHelper extends SQLiteOpenHelper
 				DB_drawer.KEY_FOLDER_CREATED + " INTEGER);";
 		sqlDb.execSQL(DB_CREATE);
 
-		// Create original folder tables and page tables
-    	if(Define.HAS_ORIGINAL_TABLES)
-    	{
-	    	for(int i = 1; i<= Define.ORIGIN_FOLDERS_COUNT; i++)
-	    	{
-                // folder tables
-	        	System.out.println("DatabaseHelper / _onCreate / will insert folder table " + i);
-                DB_drawer db_drawer = new DB_drawer(MainAct.mAct);
-                String folderTitle = MainAct.mAct.getResources().getString(R.string.default_folder_name).concat(String.valueOf(i));
-                db_drawer.insertFolder(i, folderTitle,false ); // Note: must set false for DB creation stage
-                db_drawer.insertFolderTable(db_drawer, i, false);
+		if(Define.HAS_PREFERRED_TABLES || Define.HAS_ORIGINAL_TABLES)
+		{
+			for(int i = 1; i<= Define.ORIGIN_FOLDERS_COUNT; i++)
+			{
+				/**
+				 * Create
+                 * preferred folder tables
+                 *           or
+                 * original folder tables
+				 */
+				System.out.println("DatabaseHelper / _onCreate / will insert folder table " + i);
+				DB_drawer dB_drawer = new DB_drawer(MainAct.mAct);
+				String folderTitle = MainAct.mAct.getResources().getString(R.string.default_folder_name).concat(String.valueOf(i));
+				dB_drawer.insertFolder(i, folderTitle, false); // Note: must set false for DB creation stage
+				dB_drawer.insertFolderTable(dB_drawer, i, false);
 
-                // page tables
-	        	for(int j = 1; j<= Define.ORIGIN_PAGES_COUNT; j++)
-	        	{
-	            	System.out.println("DatabaseHelper / _onCreate / will insert page table " + j);
-					DB_folder db_folder = new DB_folder(MainAct.mAct,i);
-					db_folder.insertPageTable(db_folder, i, j, false);
+                /**
+                 *  Create original page tables
+                 */
+                if(Define.HAS_ORIGINAL_TABLES)
+                {
+                    // page tables
+                    for(int j = 1; j<= Define.ORIGIN_PAGES_COUNT; j++)
+                    {
+                        System.out.println("DatabaseHelper / _onCreate / will insert page table " + j);
+                        DB_folder db_folder = new DB_folder(MainAct.mAct,i);
+                        db_folder.insertPageTable(db_folder, i, j, false);
 
-                    String DB_FOLDER_TABLE_PREFIX = "Folder";
-                    String folder_table = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(i));
-                    db_folder.insertPage(sqlDb,
-                                         folder_table,
-                                         Define.getTabTitle(MainAct.mAct,1),
-                                         1,
-                                         Define.STYLE_DEFAULT);//Define.STYLE_PREFER
-                    //db_folder.insertPage(sqlDb,folder_table,"N2",2,1);
-                    //db_folder.insertPage(sqlDb,folder_table,"N3",3,2);
-                    //db_folder.insertPage(sqlDb,folder_table,"N4",4,3);
-                    //db_folder.insertPage(sqlDb,folder_table,"N5",5,4);
-	        	}
-	    	}
-    	}
-
+                        String DB_FOLDER_TABLE_PREFIX = "Folder";
+                        String folder_table = DB_FOLDER_TABLE_PREFIX.concat(String.valueOf(i));
+                        db_folder.insertPage(sqlDb,
+                                             folder_table,
+                                             Define.getTabTitle(MainAct.mAct,1),
+                                             1,
+                                             Define.STYLE_DEFAULT);//Define.STYLE_PREFER
+                        //db_folder.insertPage(sqlDb,folder_table,"N2",2,1);
+                    }
+                }//if(Define.HAS_ORIGINAL_TABLES)
+			}
+		}
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     { //??? how to upgrade?
 //            db.execSQL("DROP DATABASE IF EXISTS "+DATABASE_TABLE); 
-//            System.out.println("DB / _onUpgrade / drop DB / DATABASE_NAME = " + DB_NAME);
+//        System.out.println("DatabaseHelper / _onUpgrade DATABASE_NAME = " + DB_NAME);
  	    onCreate(db);
     }
     
@@ -89,7 +95,8 @@ class DatabaseHelper extends SQLiteOpenHelper
     public void onDowngrade (SQLiteDatabase db, int oldVersion, int newVersion)
     { 
 //            db.execSQL("DROP DATABASE IF EXISTS "+DATABASE_TABLE); 
-//            System.out.println("DB / _onDowngrade / drop DB / DATABASE_NAME = " + DB_NAME);
+//        System.out.println("DatabaseHelper / _onDowngrade / DATABASE_NAME = " + DB_NAME);
  	    onCreate(db);
     }
+
 }

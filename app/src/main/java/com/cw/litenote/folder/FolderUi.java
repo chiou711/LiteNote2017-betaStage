@@ -159,7 +159,7 @@ public class FolderUi
                 // insert folder table
                 db_drawer.insertFolderTable(db_drawer,newTableId, true);
 
-                // insert original page table
+                // insert original page table after Add new folder
                 if(Define.HAS_ORIGINAL_TABLES)
                 {
                     for(int i = 1; i<= Define.ORIGIN_PAGES_COUNT; i++)
@@ -508,12 +508,13 @@ public class FolderUi
         // will call Drawer / _onDrawerClosed
         DrawerLayout drawerLayout = (DrawerLayout) act.findViewById(R.id.drawer_layout);
         drawerLayout.closeDrawer(listView);
-        
-		if(Define.HAS_PREFERENCE)
+
+        //TODO move?
+		if(Define.HAS_PREFERRED_TABLES)
 		{
-			// Create default tables
+			// Create preferred tables
 			if( (position < Define.ORIGIN_FOLDERS_COUNT) &&
-				!Pref.getPref_has_default_import(MainAct.mAct,position) )
+				!Pref.getPref_has_preferred_tables(MainAct.mAct,position) )
 			{
 				String fileName = "default"+ (position+1) + ".xml";
 
@@ -526,15 +527,15 @@ public class FolderUi
 				TabsHost.setLastPos_pageId(0);
 
 				// check DB: before importing
-//				DB_drawer.listFolders();
+                dB_drawer.listFolders();
 
 				// import default tables
 				Import_fileView.createDefaultTables(act,fileName);
 
 				// check DB: after importing
-//				DB_drawer.listFolders();
+				dB_drawer.listFolders();
 
-                Pref.setPref_has_default_import(act,true,position);
+                Pref.setPref_has_preferred_tables(act,true,position);
 
 				// add default image
 				String imageFileName = "local"+ (position+1) + ".jpg";

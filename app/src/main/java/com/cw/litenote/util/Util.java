@@ -1518,6 +1518,8 @@ public class Util
 	// Create assets file
 	public static File createAssetsFile(Activity act, String fileName)
 	{
+		System.out.println("Util / _createAssetsFile / fileName = " + fileName);
+
         File file = null;
 		AssetManager am = act.getAssets();
 		InputStream inputStream = null;

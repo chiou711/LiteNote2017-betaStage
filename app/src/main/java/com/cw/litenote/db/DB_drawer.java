@@ -228,8 +228,6 @@ public class DB_drawer
 
     }
 
-
-    
 	public String getFolderTitle(int position,boolean enDbOpenClose)
 	{
         if(enDbOpenClose)

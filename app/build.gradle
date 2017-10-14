@@ -18,10 +18,10 @@ android {
     }
     sourceSets {
         main {
-              // mark: for standard build
-              // un-mark: for preferred build
+              // mark: Has original tables
+              // un-mark: Has preferred tables
               // Apk file size will increase if assets directory is set at default location (src/main/assets)
-//            assets.srcDirs = ['preferred/assets/']
+            assets.srcDirs = ['preferred/assets/']
         }
     }
 

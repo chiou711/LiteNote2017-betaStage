@@ -29,14 +29,44 @@ public class Define {
      */
     public static boolean CODE_MODE = DEBUG_MODE; //DEBUG_MODE; //RELEASE_MODE;
 
-    /**
-     * Has preferred table
-     * - true: need to add preferred/assets/ in build.gradle
-     * - false: need to remove preferred/assets/ in build.gradle
-     */
-    public static boolean HAS_PREFERENCE = false;//false; //true;
 
-    public static boolean HAS_ORIGINAL_TABLES = true;//false; //true;
+    /****************************************************************************
+     *
+     * Flags for Default tables after App installation:
+     * - HAS_PREFERRED_TABLES
+     * - HAS_ORIGINAL_TABLES
+     * Note of flag setting: exclusive
+     *
+     ****************************************************************************/
+
+    /**
+     * Has preferred tables
+     * - true : un-mark preferred/assets/ line in build.gradle file
+     * - false:    mark preferred/assets/ line in build.gradle file
+     *
+     *
+     * android {
+     * ...
+     *    sourceSets {
+     *        main {
+     *      // mark: Has original tables
+     *      // un-mark: Has preferred tables
+     *      // Apk file size will increase if assets directory is set at default location (src/main/assets)
+     *           assets.srcDirs = ['preferred/assets/']
+     *      }
+     *    }
+     * }
+     *
+     */
+    public static boolean HAS_PREFERRED_TABLES = true; //true; //false;
+
+    /**
+     * Has original tables
+     * - folder tables: 2
+     * - page tables: 1
+     *
+     */
+    public static boolean HAS_ORIGINAL_TABLES = !HAS_PREFERRED_TABLES;
 
     // Apply system default for picture path
     public static boolean PICTURE_PATH_BY_SYSTEM_DEFAULT = true;
@@ -52,7 +82,7 @@ public class Define {
     public static String getFolderTitle(Activity act, Integer i)
     {
         String title = null;
-        if(Define.HAS_PREFERENCE) {
+        if(Define.HAS_PREFERRED_TABLES) {
             if (i == 0)
                 title = act.getResources().getString(R.string.prefer_folder_name_local);
             else if (i == 1)
@@ -68,7 +98,7 @@ public class Define {
     {
         String title;
 
-        if(Define.HAS_PREFERENCE) {
+        if(Define.HAS_PREFERRED_TABLES) {
             title = context.getResources().getString(R.string.prefer_page_name).concat(String.valueOf(Id));
         }
         else {

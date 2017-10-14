@@ -122,18 +122,18 @@ public class Pref {
     }
 
     // set has default import
-    public static void setPref_has_default_import(Activity act, boolean has,int position )
+    public static void setPref_has_preferred_tables(Activity act, boolean has, int position )
     {
         SharedPreferences pref = act.getSharedPreferences("focus_view", 0);
-        String keyName = "KEY_HAS_DEFAULT_IMPORT"+position;
+        String keyName = "KEY_HAS_PREFERRED_TABLES"+position;
         pref.edit().putBoolean(keyName, has).apply();
     }
 
     // get has default import
-    public static boolean getPref_has_default_import(Context context,int position)
+    public static boolean getPref_has_preferred_tables(Context context, int position)
     {
         SharedPreferences pref = context.getSharedPreferences("focus_view", 0);
-        String keyName = "KEY_HAS_DEFAULT_IMPORT"+position;
+        String keyName = "KEY_HAS_PREFERRED_TABLES"+position;
         return pref.getBoolean(keyName, false);
     }
 
