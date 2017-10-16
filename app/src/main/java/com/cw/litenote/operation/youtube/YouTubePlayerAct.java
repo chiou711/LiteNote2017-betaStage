@@ -18,7 +18,7 @@ import com.google.android.youtube.player.YouTubePlayer;
 public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
 {
     YouTubeFailureRecoveryActivity act;
-    Button previous_btn,next_btn;
+    Button previous_btn,next_btn,auto_play_btn;
     View btn_group;
     boolean bShow_landscape_prev_next_control;
 
@@ -75,6 +75,30 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
                     prepare_play_YouTube(youTube_player);
             }
         });
+
+        // image: auto play button
+        auto_play_btn = (Button) findViewById(R.id.btn_auto_play);
+        if(Pref.getPref_is_autoPlay_YouTubeApi(act))
+            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_on_holo_dark, 0, 0, 0);
+        else
+            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_off_holo_dark, 0, 0, 0);
+
+        // click to set auto play
+        auto_play_btn.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View view) {
+
+                // toggle setting
+                if(Pref.getPref_is_autoPlay_YouTubeApi(act)) {
+                    Pref.setPref_is_autoPlay_YouTubeApi(act,false);
+                    auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_off_holo_dark, 0, 0, 0);
+                }
+                else {
+                    Pref.setPref_is_autoPlay_YouTubeApi(act,true);
+                    auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_on_holo_dark, 0, 0, 0);
+                }
+            }
+        });
     }
 
     @Override
@@ -83,6 +107,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         bShow_landscape_prev_next_control = false;
         setLayout();
     }
+
 
     YouTubePlayer youTube_player;
     @Override
@@ -99,17 +124,33 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
                 if (!isFullScreen && Util.isLandscapeOrientation(act)) {
                     Util.setNotFullScreen(act);
                     youTube_player.setFullscreen(false);
-                    btn_group.setVisibility(View.VISIBLE);
-
-                    previous_btn.setVisibility(View.VISIBLE);
-                    previous_btn.setAlpha(NoteUi.getFocus_notePos() == 0?0.3f:1.0f);
-
-                    next_btn.setVisibility(View.VISIBLE);
-                    next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
-
+                    showButtons();
                     bShow_landscape_prev_next_control = true;
                 }
             }
+        });
+
+        youTube_player.setPlayerStateChangeListener(new YouTubePlayer.PlayerStateChangeListener() {
+            @Override
+            public void onLoading() {}
+
+            @Override
+            public void onLoaded(String s) {}
+
+            @Override
+            public void onAdStarted() {}
+
+            @Override
+            public void onVideoStarted() {}
+
+            @Override
+            public void onVideoEnded() {
+                if(Pref.getPref_is_autoPlay_YouTubeApi(act))
+                    playNext();
+            }
+
+            @Override
+            public void onError(YouTubePlayer.ErrorReason errorReason) {}
         });
 
         if (!wasRestored) {
@@ -172,7 +213,6 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         }
         else
             Toast.makeText(act,R.string.toast_no_link_found,Toast.LENGTH_SHORT).show();
-
     }
 
     /**
@@ -190,31 +230,53 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
                 btn_group.setVisibility(View.GONE);
                 previous_btn.setVisibility(View.GONE);
                 next_btn.setVisibility(View.GONE);
+                auto_play_btn.setVisibility(View.GONE);
             }
             else
             {
                 Util.setNotFullScreen(this);
                 youTube_player.setFullscreen(false);
-                btn_group.setVisibility(View.VISIBLE);
-
-                previous_btn.setVisibility(View.VISIBLE);
-                previous_btn.setAlpha(NoteUi.getFocus_notePos() == 0?0.3f:1.0f);
-
-                next_btn.setVisibility(View.VISIBLE);
-                next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+                showButtons();
             }
         }
         // not full screen
-        else {
+        else
+        {
             Util.setNotFullScreen(this);
             youTube_player.setFullscreen(false);
-            btn_group.setVisibility(View.VISIBLE);
-
-            previous_btn.setVisibility(View.VISIBLE);
-            previous_btn.setAlpha(NoteUi.getFocus_notePos() == 0?0.3f:1.0f);
-
-            next_btn.setVisibility(View.VISIBLE);
-            next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+            showButtons();
         }
+    }
+
+    void showButtons()
+    {
+        btn_group.setVisibility(View.VISIBLE);
+
+        previous_btn.setVisibility(View.VISIBLE);
+        previous_btn.setAlpha(NoteUi.getFocus_notePos() == 0?0.3f:1.0f);
+
+        next_btn.setVisibility(View.VISIBLE);
+        next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
+
+        auto_play_btn.setVisibility(View.VISIBLE);
+        auto_play_btn.setAlpha(1.0f);
+
+
+        if(Pref.getPref_is_autoPlay_YouTubeApi(YouTubePlayerAct.this))
+            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_on_holo_dark, 0, 0, 0);
+        else
+            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_off_holo_dark, 0, 0, 0);
+    }
+
+    void playNext()
+    {
+        NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
+        // leftmost boundary check
+        if(NoteUi.getFocus_notePos() <0) {
+            NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
+            Toast.makeText(act,R.string.toast_leftmost,Toast.LENGTH_SHORT).show();
+        }
+        else
+            prepare_play_YouTube(youTube_player);
     }
 }

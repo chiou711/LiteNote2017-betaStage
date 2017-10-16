@@ -152,5 +152,20 @@ public class Pref {
         return strLocation;
     }
 
+    // Get YouTube auto play in note view
+    public static boolean getPref_is_autoPlay_YouTubeApi(Context context)
+    {
+        SharedPreferences pref = context.getSharedPreferences("show_note_attribute", 0);
+        String keyName = "KEY_IS_AUTO_PLAY_YOUTUBE_API";
+        return pref.getBoolean(keyName, false);
+    }
+
+    // Set YouTube auto play in note view
+    public static void setPref_is_autoPlay_YouTubeApi(Context context, boolean isAuto)
+    {
+        SharedPreferences pref = context.getSharedPreferences("show_note_attribute", 0);
+        String keyName = "KEY_IS_AUTO_PLAY_YOUTUBE_API";
+        pref.edit().putBoolean(keyName, isAuto).apply();
+    }
 
 }

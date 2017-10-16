@@ -21,6 +21,7 @@
     <string name="view_note_mode_picture">Picture</string>
     <string name="view_note_mode_text">Text</string>
     <string name="view_note_slide_action_previous">Previous</string>
+    <string name="view_note_youtube_api_auto_play">Auto play</string>
     <string name="view_note_slide_action_next">Next</string>
     <string name="view_note_slide_action_finish">Last</string>
 </resources>
