@@ -603,7 +603,7 @@ public class TabsHost extends Fragment
     		{
     			UtilAudio.stopAudioPlayer();
 				AudioPlayer.mAudioPos = 0;
-				AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
+				AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
     		}    		
     	}
     	

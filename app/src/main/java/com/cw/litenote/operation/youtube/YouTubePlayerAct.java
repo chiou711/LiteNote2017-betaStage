@@ -18,7 +18,7 @@ import com.google.android.youtube.player.YouTubePlayer;
 public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
 {
     YouTubeFailureRecoveryActivity act;
-    Button previous_btn,next_btn,auto_play_btn;
+    Button previous_btn,next_btn;
     View btn_group;
     boolean bShow_landscape_prev_next_control;
 
@@ -76,29 +76,6 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
             }
         });
 
-        // image: auto play button
-        auto_play_btn = (Button) findViewById(R.id.btn_auto_play);
-        if(Pref.getPref_is_autoPlay_YouTubeApi(act))
-            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_on_holo_dark, 0, 0, 0);
-        else
-            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_off_holo_dark, 0, 0, 0);
-
-        // click to set auto play
-        auto_play_btn.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view) {
-
-                // toggle setting
-                if(Pref.getPref_is_autoPlay_YouTubeApi(act)) {
-                    Pref.setPref_is_autoPlay_YouTubeApi(act,false);
-                    auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_off_holo_dark, 0, 0, 0);
-                }
-                else {
-                    Pref.setPref_is_autoPlay_YouTubeApi(act,true);
-                    auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_on_holo_dark, 0, 0, 0);
-                }
-            }
-        });
     }
 
     @Override
@@ -230,7 +207,6 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
                 btn_group.setVisibility(View.GONE);
                 previous_btn.setVisibility(View.GONE);
                 next_btn.setVisibility(View.GONE);
-                auto_play_btn.setVisibility(View.GONE);
             }
             else
             {
@@ -258,23 +234,15 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         next_btn.setVisibility(View.VISIBLE);
         next_btn.setAlpha(NoteUi.getFocus_notePos() == (Note.mPagerAdapter.getCount() - 1)?0.3f:1.0f);
 
-        auto_play_btn.setVisibility(View.VISIBLE);
-        auto_play_btn.setAlpha(1.0f);
-
-
-        if(Pref.getPref_is_autoPlay_YouTubeApi(YouTubePlayerAct.this))
-            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_on_holo_dark, 0, 0, 0);
-        else
-            auto_play_btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btn_radio_off_holo_dark, 0, 0, 0);
     }
 
     void playNext()
     {
-        NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
-        // leftmost boundary check
-        if(NoteUi.getFocus_notePos() <0) {
-            NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
-            Toast.makeText(act,R.string.toast_leftmost,Toast.LENGTH_SHORT).show();
+        NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()+1);
+        // rightmost boundary check
+        if(NoteUi.getFocus_notePos() >= Note.mPagerAdapter.getCount()) {
+            NoteUi.setFocus_notePos(NoteUi.getFocus_notePos()-1);
+            Toast.makeText(act,R.string.toast_rightmost,Toast.LENGTH_SHORT).show();
         }
         else
             prepare_play_YouTube(youTube_player);

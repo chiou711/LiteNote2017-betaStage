@@ -29,9 +29,10 @@ public class UtilAudio {
 				AudioPlayer.mMediaPlayer.pause();
     		AudioPlayer.mMediaPlayer.release();
     		AudioPlayer.mMediaPlayer = null;
-    		AudioPlayer.mAudioHandler.removeCallbacks(AudioPlayer.mRunOneTimeMode); 
-    		AudioPlayer.mAudioHandler.removeCallbacks(AudioPlayer.mRunContinueMode); 
-    		AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
+
+            AudioPlayer.isRunnableOn = false;
+
+    		AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
     	}
     }
     
@@ -44,7 +45,7 @@ public class UtilAudio {
 		{
 			UtilAudio.stopAudioPlayer();
 			AudioPlayer.mAudioPos = 0;
-			AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
+			AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
 			if(MainAct.mSubMenuItemAudio != null)
 				MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);
 			Page.mItemAdapter.notifyDataSetChanged(); // disable focus
@@ -52,21 +53,21 @@ public class UtilAudio {
     }
     
     // update audio panel
-    public static void updateAudioPanel(ImageView playBtn, TextView title)
+    public static void updateAudioPanel(ImageView playBtn, TextView titleTextView)
     {
     	System.out.println("UtilAudio/ _updateAudioPanel / AudioPlayer.getPlayState() = " + AudioPlayer.getPlayState());
-		title.setBackgroundColor(ColorSet.color_black);
+		titleTextView.setBackgroundColor(ColorSet.color_black);
 		if(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY)
 		{
-			title.setTextColor(ColorSet.getHighlightColor(MainAct.mAct));
-			title.setSelected(true);
+			titleTextView.setTextColor(ColorSet.getHighlightColor(MainAct.mAct));
+			titleTextView.setSelected(true);
 			playBtn.setImageResource(R.drawable.ic_media_pause);
 		}
 		else if( (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PAUSE) ||
 				 (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_STOP)    )
 		{
-			title.setSelected(false);
-			title.setTextColor(ColorSet.getPauseColor(MainAct.mAct));
+			titleTextView.setSelected(false);
+			titleTextView.setTextColor(ColorSet.getPauseColor(MainAct.mAct));
 			playBtn.setImageResource(R.drawable.ic_media_play);
 		}
 
@@ -122,7 +123,10 @@ public class UtilAudio {
             	System.out.println("Incoming call:");
             	if(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY)
             	{
-            		AudioPlayer.runAudioState(MainAct.mAct);
+					AudioPlayer audioPlayer = new AudioPlayer(MainAct.mAct);
+					audioPlayer.prepareAudioInfo();
+					audioPlayer.runAudioState();
+
             		mIsCalledWhilePlayingAudio = true;
             	}
             } 
@@ -133,7 +137,10 @@ public class UtilAudio {
             	if( (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PAUSE) &&
             		mIsCalledWhilePlayingAudio )	
             	{
-            		AudioPlayer.runAudioState(MainAct.mAct); // pause => play
+					AudioPlayer audioPlayer = new AudioPlayer(MainAct.mAct);
+					audioPlayer.prepareAudioInfo();
+					audioPlayer.runAudioState();
+
             		mIsCalledWhilePlayingAudio = false;
             	}
             } 

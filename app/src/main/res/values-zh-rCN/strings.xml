@@ -18,8 +18,9 @@
     <string name="confirm_dialog_title">确认</string>
     <string name="confirm_dialog_message">您要删除这个笔记？</string>
     <string name="confirm_dialog_message_page">您要删除这个页面？</string>
-    <string name="confirm_dialog_message_drawer">您要删除这个文件夹？</string>
+    <string name="confirm_dialog_message_folder">您要删除这个文件夹？</string>
     <string name="confirm_dialog_message_file">您想删除这个文件？</string>
+    <string name="confirm_dialog_message_selection">要删除选择吗？</string>
     <string name="confirm_dialog_button_no">否</string>
     <string name="confirm_dialog_button_yes">是</string>
     <string name="footer_checked">勾选</string>

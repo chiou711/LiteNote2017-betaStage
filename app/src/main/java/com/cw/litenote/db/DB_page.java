@@ -67,10 +67,10 @@ public class DB_page
 		// workaround: to apply an existing page table that is found firstly
 		try
 		{
-			System.out.println("DB_page / _open / open page table Try / table name = " + DB_PAGE_TABLE_NAME);
-			System.out.println("DB_page / _open / open page table Try / getFocusPage_tableId() = " + getFocusPage_tableId());
+//			System.out.println("DB_page / _open / open page table Try / table name = " + DB_PAGE_TABLE_NAME);
+//			System.out.println("DB_page / _open / open page table Try / getFocusPage_tableId() = " + getFocusPage_tableId());
 			mCursor_note = this.getNoteCursor_byPageTableId(getFocusPage_tableId());
-			System.out.println("DB_page / _open / open page table OK / table name = " + DB_PAGE_TABLE_NAME);
+//			System.out.println("DB_page / _open / open page table OK / table name = " + DB_PAGE_TABLE_NAME);
 		}
 		catch(Exception e)
 		{

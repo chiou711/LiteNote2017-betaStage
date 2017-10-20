@@ -18,8 +18,9 @@
     <string name="confirm_dialog_title">確認</string>
     <string name="confirm_dialog_message">確定要刪除這一項記事？</string>
     <string name="confirm_dialog_message_page">確定要刪除這一頁記事？</string>
-    <string name="confirm_dialog_message_drawer">確定要刪除這一文件夾？</string>
+    <string name="confirm_dialog_message_folder">確定要刪除這一文件夾？</string>
     <string name="confirm_dialog_message_file">確定要刪除這個檔案?</string>
+    <string name="confirm_dialog_message_selection">要刪除選擇嗎？</string>
     <string name="confirm_dialog_button_no">否</string>
     <string name="confirm_dialog_button_yes">是</string>
     <string name="footer_checked">勾選</string>

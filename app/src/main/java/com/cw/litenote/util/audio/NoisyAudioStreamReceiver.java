@@ -20,12 +20,11 @@ public class NoisyAudioStreamReceiver extends BroadcastReceiver {
 			{
 				System.out.println("NoisyAudioStreamReceiver / play -> pause");
 				AudioPlayer.mMediaPlayer.pause();
-				AudioPlayer.mAudioHandler.removeCallbacks(AudioPlayer.mRunOneTimeMode); 
-				AudioPlayer.mAudioHandler.removeCallbacks(AudioPlayer.mRunContinueMode); 
-				AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_PAUSE);
+				AudioPlayer.isRunnableOn = false;
+				AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_PAUSE);
 
 				//update audio control state
-				UtilAudio.updateAudioPanel(Page.audioPanel_play_button, Page.audio_panel_title);
+				UtilAudio.updateAudioPanel(Page.audioPanel_play_button, Page.audio_panel_title_textView);
 
 				if(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
 					AudioPlayer.scrollHighlightAudioItemToVisible();

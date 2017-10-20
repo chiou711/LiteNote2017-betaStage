@@ -12,9 +12,9 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.folder.Folder;
 import com.cw.litenote.folder.FolderUi;
-import com.cw.litenote.note_add.New_noteOption;
-import com.cw.litenote.operation.delete.DeleteFoldersFragment;
-import com.cw.litenote.operation.delete.DeletePagesFragment;
+import com.cw.litenote.note_add.Add_note_option;
+import com.cw.litenote.operation.delete.DeleteFolders;
+import com.cw.litenote.operation.delete.DeletePages;
 import com.cw.litenote.operation.import_export.Import_webAct;
 import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
@@ -186,7 +186,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		    			System.out.println("MainAct / _onCreate /  FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
 		        	}
 	        	}
-	        	AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
+	        	AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
 	        	UtilAudio.mIsCalledWhilePlayingAudio = false;
 	        }
             dB_drawer.close();
@@ -285,7 +285,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             FolderUi.setFocus_folderPos(savedInstanceState.getInt("NowFolderPosition"));
     		mPlaying_pagePos = savedInstanceState.getInt("Playing_pageId");
     		mPlaying_folderPos = savedInstanceState.getInt("Playing_folderPos");
-    		AudioPlayer.setPlayState(savedInstanceState.getInt("AudioPlayerState"));
+    		AudioPlayer.setAudioState(savedInstanceState.getInt("AudioPlayerState"));
     		Page.mProgress = savedInstanceState.getInt("SeekBarProgress");
     		UtilAudio.mIsCalledWhilePlayingAudio = savedInstanceState.getBoolean("CalledWhilePlayingAudio");
     	}
@@ -838,7 +838,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 {
                     drawer.closeDrawer();
                     mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
-                    DeleteFoldersFragment delFoldersFragment = new DeleteFoldersFragment();
+                    DeleteFolders delFoldersFragment = new DeleteFolders();
                     mFragmentTransaction = fragmentManager.beginTransaction();
                     mFragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
                     mFragmentTransaction.replace(R.id.content_frame, delFoldersFragment).addToBackStack("delete_folders").commit();
@@ -850,7 +850,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return true;
 
 			case MenuId.ADD_NEW_NOTE:
-				New_noteOption.addNewNote(this);
+				Add_note_option.addNewNote(this);
 				return true;
 
         	case MenuId.OPEN_PLAY_SUBMENU:
@@ -882,21 +882,34 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         		}
         		else
         		{
+                    DB_page mDb_page = new DB_page(this, Pref.getPref_focusView_page_tableId(this));
         			AudioPlayer.setPlayMode(AudioPlayer.CONTINUE_MODE);
         			AudioPlayer.mAudioPos = 0;
-       				AudioPlayer.prepareAudioInfo();
+                    String uriString = mDb_page.getNoteAudioUri(AudioPlayer.mAudioPos,true);
 
-        			AudioPlayer.runAudioState(this);
+                    AudioPlayer audioPlayer = new AudioPlayer(this);
+                    AudioPlayer.prepareAudioInfo();
+                    audioPlayer.runAudioState();
+
+                    Page.initAudioBlock(audioPlayer); //todo static
+                    Page.showAudioPanel(uriString,true);//todo static //??? why not show?
+
+                    // set seek bar progress
+                    Page.update_audioPanel_progress(audioPlayer);//todo static
 
 					Page.mItemAdapter.notifyDataSetChanged();
-	        		Page.showFooter();
 
-					// update page table Id
-					mPlaying_pageTableId = TabsHost.mNow_pageTableId;
-					// update playing tab index
+					// update playing page position
 					mPlaying_pagePos = PageUi.getFocus_pagePos();
-					// update playing drawer position
+
+                    // update page table Id
+                    mPlaying_pageTableId = TabsHost.mNow_pageTableId;
+
+					// update playing folder position
 				    mPlaying_folderPos = FolderUi.getFocus_folderPos();
+
+                    dB_drawer = new DB_drawer(mAct);
+                    MainAct.mPlaying_folderTableId = dB_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
         		}
         		return true;
 
@@ -962,7 +975,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				if(dB_folder.getPagesCount(true)>0)
 				{
                     mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
-					DeletePagesFragment delPgsFragment = new DeletePagesFragment();
+					DeletePages delPgsFragment = new DeletePages();
 					mFragmentTransaction = fragmentManager.beginTransaction();
 					mFragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
 					mFragmentTransaction.replace(R.id.content_frame, delPgsFragment).addToBackStack("delete_pages").commit();
@@ -1031,7 +1044,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				return true;
 
 			case MenuId.EXPORT_TO_SD_CARD:
-				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
+                //hide the menu
+				mMenu.setGroupVisible(R.id.group_notes, false);
+                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
 				if(dB_folder.getPagesCount(true)>0)
 				{
 					Export_toSDCardFragment exportFragment = new Export_toSDCardFragment();
@@ -1046,8 +1061,11 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				return true;
 
 			case MenuId.IMPORT_FROM_SD_CARD:
-				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
-				Import_filesList importFragment = new Import_filesList();
+                //hide the menu
+				mMenu.setGroupVisible(R.id.group_notes, false);
+                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
+				// replace fragment
+                Import_filesList importFragment = new Import_filesList();
 				FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 				transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
 				transaction.replace(R.id.content_frame, importFragment,"import").addToBackStack(null).commit();

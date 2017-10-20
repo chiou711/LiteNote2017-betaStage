@@ -1,7 +1,5 @@
 package com.cw.litenote.note;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import com.cw.litenote.R;
@@ -79,7 +77,7 @@ public class Note extends FragmentActivity
     static SharedPreferences mPref_show_note_attribute;
 
     Button editButton;
-    Button sendButton;
+    Button optionButton;
     Button backButton;
 
 	public static String mAudioUriInDB;
@@ -215,28 +213,13 @@ public class Note extends FragmentActivity
 		});
 
 		// send note button
-		sendButton = (Button) findViewById(R.id.view_send);
-		sendButton.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_send, 0, 0, 0);
-		sendButton.setOnClickListener(new View.OnClickListener()
+		optionButton = (Button) findViewById(R.id.view_option);
+		optionButton.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_more, 0, 0, 0);
+		optionButton.setOnClickListener(new View.OnClickListener()
 		{
 			public void onClick(View view)
 			{
-				// set Sent string Id
-				List<Long> noteIdArray = new ArrayList<>();
-				noteIdArray.add(0, mNoteId);
-
-				String sentString = Util.getStringWithXmlTag(noteIdArray);
-				sentString = Util.addXmlTag(sentString);
-
-				String picFile = mDb_page.getNotePictureUri_byId(mNoteId);
-				System.out.println("-> picFile = " + picFile);
-				String[] picFileArray = null;
-				if( (picFile != null) &&
-						(picFile.length() > 0) )
-				{
-					picFileArray = new String[]{picFile};
-				}
-				new MailNotes(act,sentString,picFileArray);
+				View_note_option.note_option(act,mNoteId);
 			}
 		});
 
@@ -268,7 +251,7 @@ public class Note extends FragmentActivity
 		@Override
 		public void onPageSelected(int nextPosition)
 		{
-			if(AudioPlayer.getPlayMode()  == AudioPlayer.ONE_TIME_MODE)
+			if(AudioPlayer.getAudioMode()  == AudioPlayer.ONE_TIME_MODE)
 				UtilAudio.stopAudioPlayer();
 
 			NoteUi.setFocus_notePos(mPager.getCurrentItem());
@@ -287,14 +270,14 @@ public class Note extends FragmentActivity
 			if(UtilAudio.hasAudioExtension(mAudioUriInDB))
 			{
 				audioBlock.setVisibility(View.VISIBLE);
-				initAudioProgress(act,mAudioUriInDB);
+				initAudioProgress(act,mAudioUriInDB,mPager);
 			}
 			else
 				audioBlock.setVisibility(View.GONE);
 
 			if((nextPosition == NoteUi.getFocus_notePos() +1) || (nextPosition == NoteUi.getFocus_notePos() -1))
 			{
-				if(AudioPlayer.getPlayMode() == AudioPlayer.ONE_TIME_MODE)
+				if(AudioPlayer.getAudioMode() == AudioPlayer.ONE_TIME_MODE)
 					AudioPlayer.mAudioPos = NoteUi.getFocus_notePos();//update Audio index
 			}
 
@@ -756,7 +739,7 @@ public class Note extends FragmentActivity
 		return mDb_page.getNotePictureUri(NoteUi.getFocus_notePos(),true);
     }
 
-    static void playAudioInPager(FragmentActivity act, String audioStr)
+    static void playAudioInPager(FragmentActivity act, String audioStr, ViewPager pager)
     {
 		if(UtilAudio.hasAudioExtension(audioStr))
 		{
@@ -769,15 +752,17 @@ public class Note extends FragmentActivity
     		}
     		// If Audio player is NOT at One time mode and media exists
     		else if((AudioPlayer.mMediaPlayer != null) &&
-    				(AudioPlayer.getPlayMode() == AudioPlayer.CONTINUE_MODE))
+    				(AudioPlayer.getAudioMode() == AudioPlayer.CONTINUE_MODE))
     		{
         		AudioPlayer.setPlayMode(AudioPlayer.ONE_TIME_MODE);
         		UtilAudio.stopAudioPlayer();
     		}
 
-   			AudioPlayer.prepareAudioInfo();
 
-    		AudioPlayer.runAudioState(act);
+            AudioPlayer.setViewPager(pager);//TODO need review and improve the flexibility
+			AudioPlayer audioPlayer = new AudioPlayer(act);
+			audioPlayer.prepareAudioInfo();
+			audioPlayer.runAudioState();
 
             updateAudioPlayState(act);
 		}
@@ -817,7 +802,7 @@ public class Note extends FragmentActivity
 	public static boolean isPausedAtSeekerAnchor;
 	public static int mAnchorPosition; 
 
-    static void setAudioBlockListener(final FragmentActivity act,final String audioStr)
+    static void setAudioBlockListener(final FragmentActivity act, final String audioStr, final ViewPager _pager)
     {
         SeekBar seekBarProgress = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
         ImageView mPager_audio_play_button = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
@@ -830,7 +815,7 @@ public class Note extends FragmentActivity
 			{
 				isPausedAtSeekerAnchor = false;
             	TabsHost.setAudioPlayingTab_WithHighlight(false);// in case playing audio in pager
-            	playAudioInPager(act,audioStr);
+            	playAudioInPager(act,audioStr,_pager);
 			}
 		});   		
    		
@@ -850,14 +835,14 @@ public class Note extends FragmentActivity
 					// pause at seek bar anchor
 					isPausedAtSeekerAnchor = true;
 					mAnchorPosition = (int) (((float)(mediaFileLength / 100)) * seekBar.getProgress());
-					playAudioInPager(act,audioStr);
+					playAudioInPager(act,audioStr,_pager);
 				}
 			}
 			
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				// audio player is one time mode in pager
-				if(AudioPlayer.getPlayMode() == AudioPlayer.CONTINUE_MODE)
+				if(AudioPlayer.getAudioMode() == AudioPlayer.CONTINUE_MODE)
 					UtilAudio.stopAudioPlayer();
 			}
 			
@@ -880,6 +865,8 @@ public class Note extends FragmentActivity
 				}
 			}
 		});
+
+        AudioPlayer.setViewPager(_pager);
     }  
     
     public static void updateAudioProgress(FragmentActivity act)
@@ -909,11 +896,11 @@ public class Note extends FragmentActivity
      		seekBar.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
     }
     
-    public static void initAudioProgress(FragmentActivity act,String audioUriInDB)
+    public static void initAudioProgress(FragmentActivity act,String audioUriInDB,ViewPager _pager)
     {
         SeekBar seekBar = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
         ImageView mPager_audio_play_button = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
-        setAudioBlockListener(act,audioUriInDB);
+        setAudioBlockListener(act,audioUriInDB,_pager);
 
     	mProgress = 0;
 
@@ -967,7 +954,7 @@ public class Note extends FragmentActivity
     {
         ImageView audio_play_btn = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
 
-        if(AudioPlayer.getPlayMode() != AudioPlayer.ONE_TIME_MODE)
+        if(AudioPlayer.getAudioMode() != AudioPlayer.ONE_TIME_MODE)
             return;
 
         TextView audioTitle = (TextView) act.findViewById(R.id.pager_audio_title);
@@ -1119,7 +1106,7 @@ public class Note extends FragmentActivity
 
 	public static void stopAV()
 	{
-		if(AudioPlayer.getPlayMode() == AudioPlayer.ONE_TIME_MODE)
+		if(AudioPlayer.getAudioMode() == AudioPlayer.ONE_TIME_MODE)
 			UtilAudio.stopAudioPlayer();
 
 		VideoPlayer.stopVideo();

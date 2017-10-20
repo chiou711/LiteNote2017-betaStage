@@ -482,9 +482,9 @@ class Note_adapter extends FragmentStatePagerAdapter
 			// init audio block of pager
 			if(UtilAudio.hasAudioExtension(audioUri))
 			{
-				Note.initAudioProgress(act,audioUri);
+				Note.initAudioProgress(act,audioUri,pager);
 
-				if(AudioPlayer.getPlayMode() == AudioPlayer.ONE_TIME_MODE)
+				if(AudioPlayer.getAudioMode() == AudioPlayer.ONE_TIME_MODE)
 				{
 					if (AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
 						Note.updateAudioProgress(act);

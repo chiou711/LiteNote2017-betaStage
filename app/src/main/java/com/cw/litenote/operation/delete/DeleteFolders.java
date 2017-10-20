@@ -1,6 +1,8 @@
 package com.cw.litenote.operation.delete;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
@@ -25,11 +27,12 @@ import com.cw.litenote.operation.List_selectFolder;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.operation.audio.AudioPlayer;
+import com.cw.litenote.util.Util;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.preferences.Pref;
 
 
-public class DeleteFoldersFragment extends Fragment{
+public class DeleteFolders extends Fragment{
 	Context mContext;
 	CheckedTextView mCheckTvSelAll;
 	Button btnSelPageOK;
@@ -38,7 +41,7 @@ public class DeleteFoldersFragment extends Fragment{
 	View rootView;
     FragmentActivity act;
 
-	public DeleteFoldersFragment(){}
+	public DeleteFolders(){}
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -79,73 +82,27 @@ public class DeleteFoldersFragment extends Fragment{
             public void onClick(View v) {
                 if(list_selFolder.mChkNum > 0)
                 {
-					DB_drawer dbDrawer = new DB_drawer(act);
+                    Util util = new Util(act);
+                    util.vibrate();
 
-                    // drawer DB check
-                    boolean doDB_check = false;
-                    if(doDB_check) {
-                        dbDrawer.open();
-                        for (int i = 0; i < list_selFolder.count; i++) {
-                            int folderTableId = dbDrawer.getFolderTableId(i, false);
-                            System.out.println("DeleteFoldersFragment / _setOnClickListener / drawer DB check / folderTableId = " + folderTableId);
-
-                            int folderId = (int) dbDrawer.getFolderId(i, false);
-                            System.out.println("DeleteFoldersFragment / _setOnClickListener / drawer DB check / folderId = " + folderId);
-                        }
-                        dbDrawer.close();
-                    }
-
-                    dbDrawer.open();
-                    for(int i = 0; i< list_selFolder.count; i++)
-                    {
-                        if(list_selFolder.mCheckedArr.get(i))
-                        {
-							int folderTableId = dbDrawer.getFolderTableId(i,false);
-                            dbDrawer.dropFolderTable(folderTableId,false);
-
-							int folderId = (int)dbDrawer.getFolderId(i,false);
-							// delete folder row
-                            dbDrawer.deleteFolderId(folderId,false);
-
-                            // change focus
-                            FolderUi.setFocus_folderPos(0);
-                        }
-                    }
-
-                    // check if only one folder left
-                    int foldersCnt = dbDrawer.getFoldersCount(false);
-
-                    if(foldersCnt > 0)
-                    {
-                        int newFirstFolderTblId=0;
-                        int i=0;
-                        dbDrawer.open();
-                        Cursor folderCursor = dbDrawer.getFolderCursor();
-                        while(i < foldersCnt)
-                        {
-                            folderCursor.moveToPosition(i);
-                            if(folderCursor.isFirst())
-                                newFirstFolderTblId = dbDrawer.getFolderTableId(i,false);
-                            i++;
-                        }
-                        Pref.setPref_focusView_folder_tableId(act, newFirstFolderTblId);
-                    }
-                    else if(foldersCnt ==0)
-                        Pref.setPref_focusView_folder_tableId(act, 1);
-
-                    dbDrawer.close();
-
-                    // set scroll X //TODO　??? need this?
-                    int scrollX = 0; //over the last scroll X
-                    Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
-
-                    if(AudioPlayer.mMediaPlayer != null)
-                    {
-                        UtilAudio.stopAudioPlayer();
-                        AudioPlayer.mAudioPos = 0;
-                        AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
-                    }
-                    list_selFolder = new List_selectFolder(act,rootView , mListView);
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(act);
+                    builder1.setTitle(R.string.confirm_dialog_title)
+                            .setMessage(R.string.confirm_dialog_message_selection)
+                            .setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
+                            {   @Override
+                            public void onClick(DialogInterface dialog1, int which1)
+                            {
+                                    /*nothing to do*/
+                            }
+                            })
+                            .setPositiveButton(R.string.confirm_dialog_button_yes, new DialogInterface.OnClickListener()
+                            {   @Override
+                            public void onClick(DialogInterface dialog1, int which1)
+                            {
+                                doDeleteFolders();
+                            }
+                            })
+                            .show();//warning:end
                 }
                 else
                     Toast.makeText(act,
@@ -161,14 +118,14 @@ public class DeleteFoldersFragment extends Fragment{
         btnSelPageCancel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("DeleteFoldersFragment / _btnSelPageCancel");
+                System.out.println("DeleteFolders / _btnSelPageCancel");
                 DB_drawer db_drawer = new DB_drawer(act);
 
                 int focusFolder_tableId = Pref.getPref_focusView_folder_tableId(act);
                 DB_folder db_folder = new DB_folder(act,focusFolder_tableId);
                 if((db_drawer.getFoldersCount(true) == 0) || (db_folder.getPagesCount(true) == 0))
                 {
-                    System.out.println("DeleteFoldersFragment / _btnSelPageCancel / will call MainAct");
+                    System.out.println("DeleteFolders / _btnSelPageCancel / will call MainAct");
                     getActivity().finish();
                     Intent intent  = new Intent(act,MainAct.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -176,7 +133,7 @@ public class DeleteFoldersFragment extends Fragment{
                     getActivity().startActivity(intent);
                 }
                 else {
-                    System.out.println("DeleteFoldersFragment / _btnSelPageCancel / will do _popBackStack");
+                    System.out.println("DeleteFolders / _btnSelPageCancel / will do _popBackStack");
                     act.getSupportFragmentManager().popBackStack();
                 }
                 // for pages count = 0 case
@@ -196,5 +153,79 @@ public class DeleteFoldersFragment extends Fragment{
 	public void onPause() {
 		super.onPause();
 	}
+
+    /**
+     * Do delete folders
+     */
+	void doDeleteFolders()
+    {
+        DB_drawer dbDrawer = new DB_drawer(act);
+
+        // drawer DB check
+        boolean doDB_check = false;
+        if(doDB_check) {
+            dbDrawer.open();
+            for (int i = 0; i < list_selFolder.count; i++) {
+                int folderTableId = dbDrawer.getFolderTableId(i, false);
+                System.out.println("DeleteFolders / _setOnClickListener / drawer DB check / folderTableId = " + folderTableId);
+
+                int folderId = (int) dbDrawer.getFolderId(i, false);
+                System.out.println("DeleteFolders / _setOnClickListener / drawer DB check / folderId = " + folderId);
+            }
+            dbDrawer.close();
+        }
+
+        dbDrawer.open();
+        for(int i = 0; i< list_selFolder.count; i++)
+        {
+            if(list_selFolder.mCheckedArr.get(i))
+            {
+                int folderTableId = dbDrawer.getFolderTableId(i,false);
+                dbDrawer.dropFolderTable(folderTableId,false);
+
+                int folderId = (int)dbDrawer.getFolderId(i,false);
+                // delete folder row
+                dbDrawer.deleteFolderId(folderId,false);
+
+                // change focus
+                FolderUi.setFocus_folderPos(0);
+            }
+        }
+
+        // check if only one folder left
+        int foldersCnt = dbDrawer.getFoldersCount(false);
+
+        if(foldersCnt > 0)
+        {
+            int newFirstFolderTblId=0;
+            int i=0;
+            dbDrawer.open();
+            Cursor folderCursor = dbDrawer.getFolderCursor();
+            while(i < foldersCnt)
+            {
+                folderCursor.moveToPosition(i);
+                if(folderCursor.isFirst())
+                    newFirstFolderTblId = dbDrawer.getFolderTableId(i,false);
+                i++;
+            }
+            Pref.setPref_focusView_folder_tableId(act, newFirstFolderTblId);
+        }
+        else if(foldersCnt ==0)
+            Pref.setPref_focusView_folder_tableId(act, 1);
+
+        dbDrawer.close();
+
+        // set scroll X
+        int scrollX = 0; //over the last scroll X
+        Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
+
+        if(AudioPlayer.mMediaPlayer != null)
+        {
+            UtilAudio.stopAudioPlayer();
+            AudioPlayer.mAudioPos = 0;
+            AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+        }
+        list_selFolder = new List_selectFolder(act,rootView , mListView);
+    }
 
 }

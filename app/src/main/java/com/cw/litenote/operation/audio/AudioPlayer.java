@@ -2,6 +2,7 @@ package com.cw.litenote.operation.audio;
 
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
+import com.cw.litenote.note.NoteUi;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.page.PageUi;
@@ -20,42 +21,61 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Locale;
+
 public class AudioPlayer 
 {
 	private static final String TAG = "AUDIO_PLAYER"; // error logging tag
-	static final int DURATION_1S = 1000; // 1 seconds per slide
+	private static final int DURATION_1S = 1000; // 1 seconds per slide
 	static AudioInfo mAudioInfo; // slide show being played
 	public static Handler mAudioHandler; // used to update the slide show
 	public static int mAudioPos; // index of current media to play
-	public static int mPlaybackTime; // time in miniSeconds from which media should play 
+	private static int mPlaybackTime; // time in miniSeconds from which media should play
 	public static MediaPlayer mMediaPlayer; // plays the background music, if any
-	static FragmentActivity mAct;
 
-	public static int mAudioPlayMode;
-	static int mAudio_tryTimes; // use to avoid useless looping in Continue mode
+	private static int mAudioPlayMode;
+	private static int mAudio_tryTimes; // use to avoid useless looping in Continue mode
 	public final static int ONE_TIME_MODE = 0;
 	public final static int CONTINUE_MODE = 1;
 
-	public static int mPlayerState;
+	private static int mPlayerState;
 	public static int PLAYER_AT_STOP = 0;
 	public static int PLAYER_AT_PLAY = 1;
 	public static int PLAYER_AT_PAUSE = 2;
+    public static boolean willPlayNext;
+    public static boolean isRunnableOn;
 
+    FragmentActivity act;
+	private static ViewPager mNotePager;
+    public Async_audioUrlVerify mAudioUrlVerifyTask;
+
+
+    public AudioPlayer(FragmentActivity act){
+        this.act = act;
+        isRunnableOn = true;
+    }
+
+    /**
+     * Setters and Getters
+     *
+     */
+	// play state
 	public static int getPlayState() {
 		return mPlayerState;
 	}
 
-	public static void setPlayState(int mPlayerState) {
+	public static void setAudioState(int mPlayerState) {
 		AudioPlayer.mPlayerState = mPlayerState;
 	}
 
-
-	public static int getPlayMode() {
+	// play mode
+	public static int getAudioMode() {
 		return mAudioPlayMode;
 	}
 
@@ -63,25 +83,47 @@ public class AudioPlayer
 		AudioPlayer.mAudioPlayMode = mAudioPlayMode;
 	}
 
-	// Manage audio state
-	public static void runAudioState(FragmentActivity fragAct)
+	// view pager
+    public static void setViewPager(ViewPager _pager)
+    {
+        mNotePager = _pager;
+    }
+
+    private static ViewPager getViewPager()
+    {
+        return mNotePager;
+    }
+
+    /**
+     * prepare audio info
+     */
+    public static void prepareAudioInfo()
+    {
+        mAudioInfo = new AudioInfo();
+        mAudioInfo.updateAudioInfo();
+    }
+
+	/**
+     *  Run audio state
+     */
+    public void runAudioState()
 	{
+        mNotePager = getViewPager();
 	   	System.out.println("AudioPlayer / _manageAudioState ");
 	   	// if media player is null, set new fragment
 		if(mMediaPlayer == null)
 		{
 		 	// show toast if Audio file is not found or No selection of audio file
-			if( (AudioInfo.getAudioFilesSize() == 0) &&
-				(getPlayMode() == AudioPlayer.CONTINUE_MODE)        )
+			if( (AudioInfo.getAudioFilesCount() == 0) &&
+				(getAudioMode() == AudioPlayer.CONTINUE_MODE)        )
 			{
-				Toast.makeText(fragAct,R.string.audio_file_not_found,Toast.LENGTH_SHORT).show();
+				Toast.makeText(act,R.string.audio_file_not_found,Toast.LENGTH_SHORT).show();
 			}
 			else
 			{
 				mPlaybackTime = 0;
-				setPlayState(PLAYER_AT_PLAY);
+				setAudioState(PLAYER_AT_PLAY);
 				mAudio_tryTimes = 0;
-				mAct = fragAct;
 				startNewAudio();
 			}
 		}
@@ -94,7 +136,7 @@ public class AudioPlayer
 				mMediaPlayer.pause();
 				mAudioHandler.removeCallbacks(mRunOneTimeMode); 
 				mAudioHandler.removeCallbacks(mRunContinueMode);
-				setPlayState(PLAYER_AT_PAUSE);
+				setAudioState(PLAYER_AT_PAUSE);
 			}
 			else // from pause to play
 			{
@@ -102,27 +144,37 @@ public class AudioPlayer
 
 				mMediaPlayer.start();
 
-				if(getPlayMode() == ONE_TIME_MODE)
+				if(getAudioMode() == ONE_TIME_MODE)
 					mAudioHandler.post(mRunOneTimeMode);
-				else if(getPlayMode() == CONTINUE_MODE)
+				else if(getAudioMode() == CONTINUE_MODE)
 					mAudioHandler.post(mRunContinueMode);
 
-				setPlayState(PLAYER_AT_PLAY);
+				setAudioState(PLAYER_AT_PLAY);
 			}
 		}
 	}
 
-	//
-	// One time mode
-	//
-	public static Runnable mRunOneTimeMode = new Runnable()
+    /**
+     * One time mode runnable
+     */
+	public Runnable mRunOneTimeMode = new Runnable()
 	{   @Override
 		public void run()
 		{
+            if(!isRunnableOn)
+            {
+                if(mAudioHandler != null) {
+                    mAudioHandler.removeCallbacks(mRunOneTimeMode);
+                    mAudioHandler.removeCallbacks(mRunContinueMode);
+                    mAudioHandler = null;
+                }
+                return;
+            }
+
 	   		if(mMediaPlayer == null)
 	   		{
-	   			String audioStr = mAudioInfo.getAudioAt(mAudioPos);
-	   			if(AsyncTaskAudioUrlVerify.mIsOkUrl)
+	   			String audioStr = mAudioInfo.getAudioStringAt(mAudioPos);
+	   			if(Async_audioUrlVerify.mIsOkUrl)
 	   			{
 				    System.out.println("Runnable updateMediaPlay / play mode: OneTime");
 	   				
@@ -131,11 +183,12 @@ public class AudioPlayer
 	   				mMediaPlayer.reset();
 
 	   				//set audio player listeners
-	   				setAudioPlayerListeners();
+	   				setMediaPlayerListeners(getViewPager());
 	   				
 	   				try
 	   				{
-	   					mMediaPlayer.setDataSource(mAct, Uri.parse(audioStr));
+//						mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+	   					mMediaPlayer.setDataSource(act, Uri.parse(audioStr));
 	   					
 					    // prepare the MediaPlayer to play, this will delay system response 
    						mMediaPlayer.prepare();
@@ -146,41 +199,50 @@ public class AudioPlayer
 	   				}
 	   				catch(Exception e)
 	   				{
-	   					Toast.makeText(mAct,R.string.audio_message_could_not_open_file,Toast.LENGTH_SHORT).show();
+	   					Toast.makeText(act,R.string.audio_message_could_not_open_file,Toast.LENGTH_SHORT).show();
 	   					stopAudio();
 	   				}
 	   			}
 	   			else
 	   			{
-	   				Toast.makeText(mAct,R.string.audio_message_no_media_file_is_found,Toast.LENGTH_SHORT).show();
+	   				Toast.makeText(act,R.string.audio_message_no_media_file_is_found,Toast.LENGTH_SHORT).show();
    					stopAudio();
 	   			}
 	   		}
-	   		else if(mMediaPlayer != null)
+	   		else//mMediaPlayer != null
 	   		{
-//				if(getPlayMode() == ONE_TIME_MODE)
-	   				Note.updateAudioProgress(mAct);
+	   			Note.updateAudioProgress(act);
 				mAudioHandler.postDelayed(mRunOneTimeMode,DURATION_1S);
 	   		}		    		
 		} 
 	};
 
-	//
-	// Continue mode
-	//
+    /**
+     * Continue mode runnable
+     */
 	public static String mAudioStrContinueMode;
-	public static Runnable mRunContinueMode = new Runnable()
+	public Runnable mRunContinueMode = new Runnable()
 	{   @Override
 		public void run()
 		{
-	   		if( AudioInfo.getAudioMarking(mAudioPos) == 1 )
+            if(!isRunnableOn)
+            {
+                if(mAudioHandler != null) {
+                    mAudioHandler.removeCallbacks(mRunOneTimeMode);
+                    mAudioHandler.removeCallbacks(mRunContinueMode);
+                    mAudioHandler = null;
+                }
+                return;
+            }
+
+	   		if( AudioInfo.getCheckedAudio(mAudioPos) == 1 )
 	   		{ 
 	   			if(mMediaPlayer == null)
 	   			{
 		    		// check if audio file exists or not
-   					mAudioStrContinueMode = mAudioInfo.getAudioAt(mAudioPos);
+   					mAudioStrContinueMode = mAudioInfo.getAudioStringAt(mAudioPos);
 
-					if(!AsyncTaskAudioUrlVerify.mIsOkUrl)
+					if(!Async_audioUrlVerify.mIsOkUrl)
 					{
 						mAudio_tryTimes++;
 						playNextAudio();
@@ -207,12 +269,13 @@ public class AudioPlayer
 	   					});
    						
 	   					// set listeners
-   						setAudioPlayerListeners();
+   						setMediaPlayerListeners(getViewPager());
    						
    						try
    						{
    							// set data source
-							mMediaPlayer.setDataSource(mAct, Uri.parse(mAudioStrContinueMode));
+//							mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+							mMediaPlayer.setDataSource(act, Uri.parse(mAudioStrContinueMode));
    							
    							// prepare the MediaPlayer to play, could delay system response
    							mMediaPlayer.prepare();
@@ -226,14 +289,14 @@ public class AudioPlayer
    						}
    					}
 	   			}
-	   			else if(mMediaPlayer != null )
+	   			else//mMediaPlayer != null
 	   			{
 	   				// keep looping, do not set post() here, it will affect slide show timing
-	   				if(mAudio_tryTimes < AudioInfo.getAudioFilesSize())
+	   				if(mAudio_tryTimes < AudioInfo.getAudioFilesCount())
 	   				{
 
 						// update seek bar
-	   					Page.update_audioPanel_progress();
+	   					Page.update_audioPanel_progress(AudioPlayer.this); //todo static
 
 						if(mAudio_tryTimes == 0)
 							mAudioHandler.postDelayed(mRunContinueMode,DURATION_1S);
@@ -242,7 +305,7 @@ public class AudioPlayer
 	   				}
 	   			}
 	   		}
-	   		else if( AudioInfo.getAudioMarking(mAudioPos) == 0 )// for non-marking item
+	   		else if( AudioInfo.getCheckedAudio(mAudioPos) == 0 )// for non-marking item
 	   		{
 	   			System.out.println("--- for non-marking item");
 	   			// get next index
@@ -265,9 +328,13 @@ public class AudioPlayer
 	};	
 	
 	static boolean mIsPrepared;
-	static void setAudioPlayerListeners()	
+    public static int media_file_length;
+    /**
+     * Set audio player listeners
+     */
+	private void setMediaPlayerListeners(final ViewPager pager)
 	{
-			// - on completion listener
+			// On Completion listener
 			mMediaPlayer.setOnCompletionListener(new OnCompletionListener()
 			{	@Override
 				public void onCompletion(MediaPlayer mp) 
@@ -275,27 +342,38 @@ public class AudioPlayer
 					System.out.println("AudioPlayer / _setAudioPlayerListeners / onCompletion");
 					
 					if(mMediaPlayer != null)
-								mMediaPlayer.release();
+						mMediaPlayer.release();
 	
 					mMediaPlayer = null;
 					mPlaybackTime = 0;
 
 					// get next index
-					if(getPlayMode() == CONTINUE_MODE)
+					if(getAudioMode() == CONTINUE_MODE)
 					{
-						mAudio_tryTimes = 0; //reset try times
-						mAudioPos++;
-						if(mAudioPos == AudioInfo.getAudioList().size())
-							mAudioPos = 0;	// back to first index
-
-						startNewAudio();
+                        playNextAudio();
 						Page.mItemAdapter.notifyDataSetChanged();
 					}
 					else // one time mode
 					{
-	   					stopAudio();
-	   					Note.initAudioProgress(mAct, Note.mAudioUriInDB);
-                        Note.updateAudioPlayState(mAct);
+						if(Pref.getPref_is_autoPlay_YouTubeApi(act))
+						{
+                            //TODO need review and improve the flexibility
+                            int nextPos;
+                            if(NoteUi.getFocus_notePos()+1 >= NoteUi.getNotesCnt() )
+                                nextPos = 0;
+                            else
+                                nextPos = NoteUi.getFocus_notePos()+1;
+
+							NoteUi.setFocus_notePos(nextPos);
+                            pager.setCurrentItem(nextPos);
+                            playNextAudio();
+						}
+						else
+					    {
+							stopAudio();
+							Note.initAudioProgress(act, Note.mAudioUriInDB,pager);
+							Note.updateAudioPlayState(act);
+						}
 					}
 				}
 			});
@@ -307,20 +385,33 @@ public class AudioPlayer
 				{
 					System.out.println("AudioPlayer / _setAudioPlayerListeners / _onPrepared");
 
-					if (getPlayMode() == CONTINUE_MODE)
+					if (getAudioMode() == CONTINUE_MODE)
 					{
 						// media file length
-						Page.media_file_length = mMediaPlayer.getDuration(); // gets the song length in milliseconds from URL
+						media_file_length = mMediaPlayer.getDuration(); // gets the song length in milliseconds from URL
+                        System.out.println("AudioPlayer / _setAudioPlayerListeners / media_file_length = " + media_file_length);
 
 						// set footer message: media name
 						if (!Util.isEmptyString(mAudioStrContinueMode) &&
                             Page.mDndListView.isShown()                )
 						{
-                            Page.initAudioBlock();
-                            Page.showAudioPanel(mAudioStrContinueMode,true);
+							TextView audioPanel_file_length = (TextView) act.findViewById(R.id.audioPanel_file_length);
+							// show audio file length of playing
+							int fileHour = Math.round((float)(media_file_length / 1000 / 60 / 60));
+							int fileMin = Math.round((float)((media_file_length - fileHour * 60 * 60 * 1000) / 1000 / 60));
+							int fileSec = Math.round((float)((media_file_length - fileHour * 60 * 60 * 1000 - fileMin * 1000 * 60 )/ 1000));
+                            if(audioPanel_file_length != null) {
+                                audioPanel_file_length.setText(String.format(Locale.US, "%2d", fileHour) + ":" +
+                                        String.format(Locale.US, "%02d", fileMin) + ":" +
+                                        String.format(Locale.US, "%02d", fileSec));
+                            }
+
+                            Page.initAudioBlock(AudioPlayer.this);//todo static , this line must be here?
 
 							// set seek bar progress
-							Page.update_audioPanel_progress();
+							Page.update_audioPanel_progress(AudioPlayer.this);//todo static
+
+                            scrollHighlightAudioItemToVisible();
 						}
 
 						if (mMediaPlayer != null)
@@ -330,7 +421,7 @@ public class AudioPlayer
                             mMediaPlayer.seekTo(mPlaybackTime);
 
 							// set highlight of playing tab
-							if ((getPlayMode() == CONTINUE_MODE) &&
+							if ((getAudioMode() == CONTINUE_MODE) &&
 								(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos())  )
 								TabsHost.setAudioPlayingTab_WithHighlight(true);
 							else
@@ -341,11 +432,11 @@ public class AudioPlayer
                             Page.isOnAudioClick = false;
 
 							// add for calling runnable
-							if (getPlayMode() == CONTINUE_MODE)
+							if (getAudioMode() == CONTINUE_MODE)
 								mAudioHandler.postDelayed(mRunContinueMode, Util.oneSecond / 4);
 						}
 					}
-					else if (getPlayMode() == ONE_TIME_MODE)
+					else if (getAudioMode() == ONE_TIME_MODE)
 					{
                         if (mMediaPlayer != null)
                         {
@@ -360,7 +451,7 @@ public class AudioPlayer
                             {
                                 mMediaPlayer.seekTo(Note.mAnchorPosition);
                                 Note.mPager_audio_play_button.setImageResource(R.drawable.ic_media_play);
-								TextView audio_title_text_view = (TextView) mAct.findViewById(R.id.pager_audio_title);
+								TextView audio_title_text_view = (TextView) act.findViewById(R.id.pager_audio_title);
                                 audio_title_text_view.setSelected(false);
                             }
                         }
@@ -380,7 +471,7 @@ public class AudioPlayer
 			});
 	}
 
-	/*
+	/**
 	* Scroll highlight audio item to visible position
 	*
 	* At the following conditions
@@ -463,8 +554,10 @@ public class AudioPlayer
 		}
 	}
 
-	public static AsyncTaskAudioUrlVerify mAudioUrlVerifyTask;
-	static void startNewAudio()
+    /**
+     * Start new audio
+     */
+	private void startNewAudio()
 	{
 		// remove call backs to make sure next toast will appear soon
 		if(mAudioHandler != null)
@@ -476,96 +569,125 @@ public class AudioPlayer
 		// start a new handler
 		mAudioHandler = new Handler();
 		
-		if( (getPlayMode() == CONTINUE_MODE) && (AudioInfo.getAudioMarking(mAudioPos) == 0))
+		if( (getAudioMode() == CONTINUE_MODE) && (AudioInfo.getCheckedAudio(mAudioPos) == 0))
 		{
 			mAudioHandler.postDelayed(mRunContinueMode,Util.oneSecond/4);		}
 		else
 		{
-			mAudioUrlVerifyTask = new AsyncTaskAudioUrlVerify(mAct);
+			mAudioUrlVerifyTask = new Async_audioUrlVerify(act);
 			mAudioUrlVerifyTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"Searching media ...");
 		}
-	}
+
+		while(!Async_audioUrlVerify.mIsOkUrl)
+        {
+            //wait for Url verification
+        }
+
+
+        if(Async_audioUrlVerify.mIsOkUrl)
+        {
+            // launch handler
+            if(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) {
+                //Todo static issue
+                if(AudioPlayer.getAudioMode() == AudioPlayer.ONE_TIME_MODE)
+                    AudioPlayer.mAudioHandler.postDelayed(mRunOneTimeMode,Util.oneSecond/4);
+                else if(AudioPlayer.getAudioMode() == AudioPlayer.CONTINUE_MODE)
+                    AudioPlayer.mAudioHandler.postDelayed(mRunContinueMode, Util.oneSecond / 4);
+            }
+
+            // during audio Preparing
+            Async_audioPrepare mAsyncTaskAudioPrepare = new Async_audioPrepare(act);
+            mAsyncTaskAudioPrepare.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"Preparing to play ...");
+        }
+
+    }
 	
-	public static boolean willPlayNext;
-	public static void playNextAudio()
-	{		
-//		Toast.makeText(act,"Can not open file, try next one.",Toast.LENGTH_SHORT).show();
-		System.out.println("AudioPlayer / _playNextAudio");
-		if(mMediaPlayer != null)
-		{
-			mMediaPlayer.release();
-			mMediaPlayer = null;
-		}
-		mPlaybackTime = 0;
-   
-		// new audio index
-		mAudioPos++;
-		
-		if(mAudioPos >= AudioInfo.getAudioList().size())
-			mAudioPos = 0; //back to first index
 
-		// check try times,had tried or not tried yet, anyway the audio file is found
-		System.out.println("check mTryTimes = " + mAudio_tryTimes);
-		if(mAudio_tryTimes < AudioInfo.getAudioFilesSize())
-		{
-			startNewAudio();
-		}
-		else // try enough times: still no audio file is found 
-		{
-			Toast.makeText(mAct,R.string.audio_message_no_media_file_is_found,Toast.LENGTH_SHORT).show();
-			
-			// do not show highlight
-			if(MainAct.mSubMenuItemAudio != null)
-				MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);
-			TabsHost.setAudioPlayingTab_WithHighlight(false);
-			Page.mItemAdapter.notifyDataSetChanged();
-
-			// stop media player
-			stopAudio();
-		}		
-		System.out.println("Next mAudioPos = " + mAudioPos);
-	}
-
-	public static void stopAudio()
+    /**
+     * Stop audio
+     */
+	private void stopAudio()
 	{
 		System.out.println("AudioPlayer / _stopAudio");
-		if(mMediaPlayer != null)
-			mMediaPlayer.release();
-		mMediaPlayer = null;
 
+        // stop media player
+        if(mMediaPlayer != null)
+            mMediaPlayer.release();
+
+        // set flag to remove runnable
+        if(mAudioHandler != null)
+            isRunnableOn = false;
+
+        // stop handler
 		if(mAudioHandler != null) {
 			mAudioHandler.removeCallbacks(mRunOneTimeMode);
 			mAudioHandler.removeCallbacks(mRunContinueMode);
 			mAudioHandler = null;
 		}
 
-		setPlayState(PLAYER_AT_STOP);
-		
-		// make sure progress dialog will disappear
+		// stop async task
+        // make sure progress dialog will disappear
 	 	if( (mAudioUrlVerifyTask!= null) && (!mAudioUrlVerifyTask.isCancelled()) )
 	 	{
 	 		mAudioUrlVerifyTask.cancel(true);
-	 		
+
 	 		if( (mAudioUrlVerifyTask.mUrlVerifyDialog != null) &&
 	 		 	mAudioUrlVerifyTask.mUrlVerifyDialog.isShowing()	)
 	 		{
 	 			mAudioUrlVerifyTask.mUrlVerifyDialog.dismiss();
 	 		}
 
-	 		if( (mAudioUrlVerifyTask.mAudioPrepareTask != null) &&
-	 			(mAudioUrlVerifyTask.mAudioPrepareTask.mPrepareDialog != null) &&
-	 			mAudioUrlVerifyTask.mAudioPrepareTask.mPrepareDialog.isShowing()	)
+	 		if( (mAudioUrlVerifyTask.mAsyncTaskAudioPrepare != null) &&
+	 			(mAudioUrlVerifyTask.mAsyncTaskAudioPrepare.mPrepareDialog != null) &&
+	 			mAudioUrlVerifyTask.mAsyncTaskAudioPrepare.mPrepareDialog.isShowing()	)
 	 		{
-	 			mAudioUrlVerifyTask.mAudioPrepareTask.mPrepareDialog.dismiss();
+	 			mAudioUrlVerifyTask.mAsyncTaskAudioPrepare.mPrepareDialog.dismiss();
 	 		}
 	 	}
+
+		setAudioState(PLAYER_AT_STOP);
 	}
-	
-	// prepare audio info
-	public static void prepareAudioInfo()
-	{
-		mAudioInfo = new AudioInfo(); 
-		mAudioInfo.updateAudioInfo();
-	}
+
+    /**
+     * Play next audio
+     */
+    private void playNextAudio()
+    {
+//		Toast.makeText(act,"Can not open file, try next one.",Toast.LENGTH_SHORT).show();
+        System.out.println("AudioPlayer / _playNextAudio");
+        if(mMediaPlayer != null)
+        {
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+        mPlaybackTime = 0;
+
+        // new audio index
+        mAudioPos++;
+
+        if(mAudioPos >= AudioInfo.getAudioList().size())
+            mAudioPos = 0; //back to first index
+
+        // check try times,had tried or not tried yet, anyway the audio file is found
+        System.out.println("check mTryTimes = " + mAudio_tryTimes);
+        if(mAudio_tryTimes < AudioInfo.getAudioFilesCount() )
+        {
+            startNewAudio();
+        }
+        else // try enough times: still no audio file is found
+        {
+            Toast.makeText(act,R.string.audio_message_no_media_file_is_found,Toast.LENGTH_SHORT).show();
+
+            // do not show highlight
+            if(MainAct.mSubMenuItemAudio != null)
+                MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);
+            TabsHost.setAudioPlayingTab_WithHighlight(false);
+            Page.mItemAdapter.notifyDataSetChanged();
+
+            // stop media player
+            stopAudio();
+        }
+        System.out.println("Next mAudioPos = " + mAudioPos);
+    }
 
 }

@@ -14,26 +14,26 @@ import android.widget.Toast;
  * audio prepare task
  * 
  */
-public class AudioPrepareTask extends AsyncTask<String,Integer,String>
+public class Async_audioPrepare extends AsyncTask<String,Integer,String>
 {
-	 Activity mActivity;
+	 private Activity act;
 	 public ProgressDialog mPrepareDialog;
-	 int mProgress;
-	 public AudioPrepareTask(Activity act)
+
+	 Async_audioPrepare(Activity act)
 	 {
-		 mActivity = act;
+		 this.act = act;
 	 }	 
 	 
 	 @Override
 	 protected void onPreExecute() 
 	 {
 	 	super.onPreExecute();
-	 	System.out.println("AudioPrepareTask / onPreExecute" );
+	 	System.out.println("Async_audioPrepare / onPreExecute" );
 
-		mPrepareDialog = new ProgressDialog(mActivity);
+		mPrepareDialog = new ProgressDialog(act);
 	 	if (!Note.isPausedAtSeekerAnchor)
 		{
-			mPrepareDialog.setMessage(mActivity.getResources().getText(R.string.audio_message_preparing_to_play));
+			mPrepareDialog.setMessage(act.getResources().getText(R.string.audio_message_preparing_to_play));
 			mPrepareDialog.setCancelable(true); // set true for enabling Back button
 			mPrepareDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); //ProgressDialog.STYLE_HORIZONTAL
 			mPrepareDialog.show();
@@ -45,26 +45,28 @@ public class AudioPrepareTask extends AsyncTask<String,Integer,String>
 	 @Override
 	 protected String doInBackground(String... params) 
 	 {
+         System.out.println("Async_audioPrepare / doInBackground / params[0] = " + params[0] );
+
 		 boolean isTimeOut = false;
-		 mProgress = 0;
-		 System.out.println("AudioPrepareTask / doInBackground / params[0] = " + params[0] );
+		 int progress = 0;
 		 int count = 0;
+
 		 while(!AudioPlayer.mIsPrepared && !isTimeOut )
 		 {
-			 System.out.println("AudioPrepareTask / doInBackground / count = " + count);
+			 System.out.println("Async_audioPrepare / doInBackground / count = " + count);
 			 count++;
 			 
 			 if(count >= 40) // 10 seconds, 1/4 * 40
 				 isTimeOut = true;
 			 
-			 publishProgress(Integer.valueOf(mProgress));
+			 publishProgress(progress);
 			 
-			 mProgress =+ 20;
-			 if(mProgress >= 100)
-				 mProgress = 0;	
+			 progress =+ 20;
+			 if(progress >= 100)
+				 progress = 0;
 			 
 			 try {
-				Thread.sleep(Util.oneSecond/4); //??? java.lang.InterruptedException
+				Thread.sleep(Util.oneSecond/4);
 			 } catch (InterruptedException e) {
 				e.printStackTrace();
 			 } 
@@ -79,7 +81,7 @@ public class AudioPrepareTask extends AsyncTask<String,Integer,String>
 	 @Override
 	 protected void onProgressUpdate(Integer... progress) 
 	 { 
-//		 System.out.println("AudioPrepareTask / OnProgressUpdate / progress[0] " + progress[0] );
+//		 System.out.println("Async_audioPrepare / OnProgressUpdate / progress[0] " + progress[0] );
 	     super.onProgressUpdate(progress);
 	     
 	     if((mPrepareDialog != null) && mPrepareDialog.isShowing())
@@ -87,9 +89,10 @@ public class AudioPrepareTask extends AsyncTask<String,Integer,String>
 	 }
 	 
 	 // This is executed in the context of the main GUI thread
+	 @Override
 	 protected void onPostExecute(String result)
 	 {
-//	 	System.out.println("AudioPrepareTask / _onPostExecute / result = " + result);
+//	 	System.out.println("Async_audioPrepare / _onPostExecute / result = " + result);
 	 	
 	 	// dialog off
 		if((mPrepareDialog != null) && mPrepareDialog.isShowing())
@@ -100,14 +103,14 @@ public class AudioPrepareTask extends AsyncTask<String,Integer,String>
 		// show time out
 		if(result.equalsIgnoreCase("timeout"))
 		{
-			Toast toast = Toast.makeText(mActivity.getApplicationContext(), R.string.audio_message_preparing_time_out, Toast.LENGTH_SHORT);
+			Toast toast = Toast.makeText(act.getApplicationContext(), R.string.audio_message_preparing_time_out, Toast.LENGTH_SHORT);
 			toast.show();
 		}
 
 		// unlock orientation
-//		Util.unlockOrientation(mActivity);
-		// disable rotation
-//	 	mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+		Util.unlockOrientation(act);
+		// enable rotation
+//	 	act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 	 }
 	 
 }

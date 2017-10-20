@@ -217,7 +217,7 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 			(position == AudioPlayer.mAudioPos)  &&
 			(AudioPlayer.mMediaPlayer != null) &&
 			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) &&
-			(AudioPlayer.getPlayMode() == AudioPlayer.CONTINUE_MODE))
+			(AudioPlayer.getAudioMode() == AudioPlayer.CONTINUE_MODE))
 		{
 			Page.mHighlightPosition = position;
 			holder.audioBlock.setBackgroundResource(R.drawable.bg_highlight_border);

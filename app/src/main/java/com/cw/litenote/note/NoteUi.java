@@ -39,6 +39,17 @@ public class NoteUi
     private ViewPager pager;
     private FragmentActivity act;
 
+    public static int getNotesCnt() {
+        return notesCnt;
+    }
+
+    public static void setNotesCnt(int notesCnt) {
+        NoteUi.notesCnt = notesCnt;
+    }
+
+    public static int notesCnt;
+
+
 
     // getter and setter of focus note position
     public static int mFocus_notePos;
@@ -62,6 +73,7 @@ public class NoteUi
         mPosition = position;
 
         DB_page db_page = new DB_page(act, Pref.getPref_focusView_page_tableId(act));
+        setNotesCnt(db_page.getNotesCount(true));
         String pictureUri = db_page.getNotePictureUri(position,true);
         String linkUri = db_page.getNoteLinkUri(position,true);
 
@@ -218,7 +230,13 @@ public class NoteUi
                                        new DialogInterface.OnClickListener(){
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                AudioPlayer.stopAudio();
+                                                if(AudioPlayer.mMediaPlayer != null) {
+                                                    AudioPlayer.mMediaPlayer.release();
+                                                    AudioPlayer.mMediaPlayer = null;
+                                                }
+
+                                                AudioPlayer.isRunnableOn = false;
+
                                                 UtilVideo.changeVideoState();
                                                 UtilVideo.playOrPauseVideo(pager,strPicture);
                                             }})

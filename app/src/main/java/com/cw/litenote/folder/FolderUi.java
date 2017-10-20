@@ -387,7 +387,7 @@ public class FolderUi
 
 	            		Builder builder1 = new Builder(act);
 	            		builder1.setTitle(R.string.confirm_dialog_title)
-	                    .setMessage(R.string.confirm_dialog_message_drawer)
+	                    .setMessage(R.string.confirm_dialog_message_folder)
 	                    .setNegativeButton(R.string.confirm_dialog_button_no, new OnClickListener(){
 	                    	@Override
 	                        public void onClick(DialogInterface dialog1, int which1){

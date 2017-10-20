@@ -1,6 +1,7 @@
 package com.cw.litenote.operation.delete;
 
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -24,13 +25,13 @@ import com.cw.litenote.operation.List_selectPage;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.operation.audio.AudioPlayer;
+import com.cw.litenote.util.Util;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.preferences.Pref;
 
 import static com.cw.litenote.tabs.TabsHost.mDbFolder;
 
-public class DeletePagesFragment extends Fragment{
-	Context mContext;
+public class DeletePages extends Fragment{
 	CheckedTextView mCheckTvSelAll;
 	Button btnSelPageOK;
     ListView mListView;
@@ -38,13 +39,12 @@ public class DeletePagesFragment extends Fragment{
 	public static View rootView;
     FragmentActivity act;
 
-	public DeletePagesFragment(){}
+	public DeletePages(){}
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        mContext = act;
     }
 
 	@Override
@@ -79,57 +79,27 @@ public class DeletePagesFragment extends Fragment{
             public void onClick(View v) {
                 if(list_selPage.mChkNum > 0)
                 {
-					mDbFolder.open();
-                    for(int i = 0; i< list_selPage.count; i++)
-                    {
-                        if (list_selPage.mCheckedArr.get(i))
-                        {
-							int pageTableId = mDbFolder.getPageTableId(i, false);
-							mDbFolder.dropPageTable(pageTableId,false);
+                    Util util = new Util(act);
+                    util.vibrate();
 
-							int pageId = mDbFolder.getPageId(i,false);
-
-							// delete page row
-							mDbFolder.deletePage(DB_folder.getFocusFolder_tableName(),pageId,false);
-                        }
-                    }
-					mDbFolder.close();
-
-                    mDbFolder.open();
-                    // check if only one page left
-                    int pgsCnt = mDbFolder.getPagesCount(false);
-                    if(pgsCnt > 0)
-                    {
-                        int newFirstPageTblId=0;
-                        int i=0;
-                        Cursor mPageCursor = mDbFolder.getPageCursor();
-                        while(i < pgsCnt)
-                        {
-                            mPageCursor.moveToPosition(i);
-                            if(mPageCursor.isFirst())
-                                newFirstPageTblId = mDbFolder.getPageTableId(i,false);
-                            i++;
-                        }
-                        System.out.println("TabsHost / _postDeletePage / newFirstPageTblId = " + newFirstPageTblId);
-                        Pref.setPref_focusView_page_tableId(act, newFirstPageTblId);
-                    }
-                    else if(pgsCnt ==0)
-                        Pref.setPref_focusView_page_tableId(act, 0);
-
-                    mDbFolder.close();
-
-                    // set scroll X
-                    int scrollX = 0; //over the last scroll X
-                    Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
-
-                    if(AudioPlayer.mMediaPlayer != null)
-                    {
-                        UtilAudio.stopAudioPlayer();
-                        AudioPlayer.mAudioPos = 0;
-                        AudioPlayer.setPlayState(AudioPlayer.PLAYER_AT_STOP);
-                    }
-
-                    list_selPage = new List_selectPage(act,rootView , mListView);
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(act);
+                    builder1.setTitle(R.string.confirm_dialog_title)
+                            .setMessage(R.string.confirm_dialog_message_selection)
+                            .setNegativeButton(R.string.confirm_dialog_button_no, new DialogInterface.OnClickListener()
+                            {   @Override
+                                public void onClick(DialogInterface dialog1, int which1)
+                                {
+                                    /*nothing to do*/
+                                }
+                            })
+                            .setPositiveButton(R.string.confirm_dialog_button_yes, new DialogInterface.OnClickListener()
+                            {   @Override
+                                public void onClick(DialogInterface dialog1, int which1)
+                                {
+                                    doDeletePages();
+                                }
+                            })
+                            .show();//warning:end
                 }
                 else
                     Toast.makeText(act,
@@ -173,5 +143,61 @@ public class DeletePagesFragment extends Fragment{
 	public void onPause() {
 		super.onPause();
 	}
+
+
+	void doDeletePages()
+    {
+        mDbFolder.open();
+        for(int i = 0; i< list_selPage.count; i++)
+        {
+            if (list_selPage.mCheckedArr.get(i))
+            {
+                int pageTableId = mDbFolder.getPageTableId(i, false);
+                mDbFolder.dropPageTable(pageTableId,false);
+
+                int pageId = mDbFolder.getPageId(i,false);
+
+                // delete page row
+                mDbFolder.deletePage(DB_folder.getFocusFolder_tableName(),pageId,false);
+            }
+        }
+        mDbFolder.close();
+
+        mDbFolder.open();
+        // check if only one page left
+        int pgsCnt = mDbFolder.getPagesCount(false);
+        if(pgsCnt > 0)
+        {
+            int newFirstPageTblId=0;
+            int i=0;
+            Cursor mPageCursor = mDbFolder.getPageCursor();
+            while(i < pgsCnt)
+            {
+                mPageCursor.moveToPosition(i);
+                if(mPageCursor.isFirst())
+                    newFirstPageTblId = mDbFolder.getPageTableId(i,false);
+                i++;
+            }
+            System.out.println("TabsHost / _postDeletePage / newFirstPageTblId = " + newFirstPageTblId);
+            Pref.setPref_focusView_page_tableId(act, newFirstPageTblId);
+        }
+        else if(pgsCnt ==0)
+            Pref.setPref_focusView_page_tableId(act, 0);
+
+        mDbFolder.close();
+
+        // set scroll X
+        int scrollX = 0; //over the last scroll X
+        Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
+
+        if(AudioPlayer.mMediaPlayer != null)
+        {
+            UtilAudio.stopAudioPlayer();
+            AudioPlayer.mAudioPos = 0;
+            AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+        }
+
+        list_selPage = new List_selectPage(act,rootView , mListView);
+    }
 
 }

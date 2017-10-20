@@ -21,7 +21,7 @@
     <string name="view_note_mode_picture">圖</string>
     <string name="view_note_mode_text">文</string>
     <string name="view_note_slide_action_previous">上一個</string>
-    <string name="view_note_youtube_api_auto_play">自動播放</string>
+    <string name="view_note_auto_play">自動播放</string>
     <string name="view_note_slide_action_next">下一個</string>
     <string name="view_note_slide_action_finish">最後</string>       
 </resources>

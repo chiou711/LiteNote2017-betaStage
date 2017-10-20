@@ -26,12 +26,12 @@ import java.util.List;
 /**
  * Created by cw on 2017/10/7.
  */
-public class New_noteOption {
+public class Add_note_option {
     int option_id;
     int option_drawable_id;
     int option_string_id;
 
-    New_noteOption(int id, int draw_id, int string_id)
+    Add_note_option(int id, int draw_id, int string_id)
     {
         this.option_id = id;
         this.option_drawable_id = draw_id;
@@ -43,7 +43,7 @@ public class New_noteOption {
      * 	Add new note
      *
      */
-    static List<New_noteOption> mAddNote;
+    static List<Add_note_option> addNoteList;
 
     private final static int ID_NEW_TEXT = 1;
     private final static int ID_NEW_AUDIO = 2;
@@ -66,69 +66,69 @@ public class New_noteOption {
         // check camera feature
         PackageManager packageManager = act.getPackageManager();
 
-        mAddNote = new ArrayList<>();
+        addNoteList = new ArrayList<>();
 
         // text
-        mAddNote.add(new New_noteOption(ID_NEW_TEXT,
+        addNoteList.add(new Add_note_option(ID_NEW_TEXT,
                 android.R.drawable.ic_menu_edit,
                 R.string.note_text));
 
         // audio
-        mAddNote.add(new New_noteOption(ID_NEW_AUDIO,
+        addNoteList.add(new Add_note_option(ID_NEW_AUDIO,
                 R.drawable.ic_audio_unselected,
                 R.string.note_audio));
 
         // camera image
         if(packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA))
         {
-            mAddNote.add(new New_noteOption(ID_NEW_CAMERA_IMAGE,
+            addNoteList.add(new Add_note_option(ID_NEW_CAMERA_IMAGE,
                     android.R.drawable.ic_menu_camera,
                     R.string.note_camera_image));
         }
 
         // ready image
-        mAddNote.add(new New_noteOption(ID_NEW_READY_IMAGE,
+        addNoteList.add(new Add_note_option(ID_NEW_READY_IMAGE,
                 android.R.drawable.ic_menu_gallery,
                 R.string.note_local_image));
 
         // camera video
         if(packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA))
         {
-            mAddNote.add(new New_noteOption(ID_NEW_CAMERA_VIDEO,
+            addNoteList.add(new Add_note_option(ID_NEW_CAMERA_VIDEO,
                     android.R.drawable.presence_video_online,
                     R.string.note_camera_video));
         }
 
         // ready video
-        mAddNote.add(new New_noteOption(ID_NEW_READY_VIDEO,
+        addNoteList.add(new Add_note_option(ID_NEW_READY_VIDEO,
                 R.drawable.ic_ready_video,
                 R.string.note_local_video));
 
         // YouTube link
-        mAddNote.add(new New_noteOption(ID_NEW_YOUTUBE_LINK,
+        addNoteList.add(new Add_note_option(ID_NEW_YOUTUBE_LINK,
                 android.R.drawable.ic_menu_share,
                 R.string.note_youtube_link));
 
 
         // Web link
-        mAddNote.add(new New_noteOption(ID_NEW_WEB_LINK,
+        addNoteList.add(new Add_note_option(ID_NEW_WEB_LINK,
                 android.R.drawable.ic_menu_share,
                 R.string.note_web_link));
 
         // Back
-        mAddNote.add(new New_noteOption(ID_NEW_BACK,
+        addNoteList.add(new Add_note_option(ID_NEW_BACK,
                 R.drawable.ic_menu_back,
                 R.string.btn_Cancel));
 
         // Setting
-        mAddNote.add(new New_noteOption(ID_NEW_SETTING,
+        addNoteList.add(new Add_note_option(ID_NEW_SETTING,
                 android.R.drawable.ic_menu_preferences,
                 R.string.settings));
 
         gridView = (GridView) rootView.findViewById(R.id.add_note_grid_view);
 
         // check if directory is created AND not empty
-        if( (mAddNote != null  ) && (mAddNote.size() > 0))
+        if( (addNoteList != null  ) && (addNoteList.size() > 0))
         {
             GridIconAdapter mGridIconAdapter = new GridIconAdapter(act);
             gridView.setAdapter(mGridIconAdapter);
@@ -143,7 +143,7 @@ public class New_noteOption {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 System.out.println("MainUi / _addNewNote / _OnItemClickListener / position = " + position +" id = " + id);
-                startAddNoteActivity(act,mAddNote.get(position).option_id);
+                startAddNoteActivity(act, addNoteList.get(position).option_id);
             }
         });
 
@@ -291,7 +291,7 @@ public class New_noteOption {
 
         @Override
         public int getCount() {
-            return mAddNote.size();
+            return addNoteList.size();
         }
 
         @Override
@@ -319,9 +319,9 @@ public class New_noteOption {
                 holder = (ViewHolder) view.getTag();
             }
 
-            Drawable drawable = act.getResources().getDrawable(mAddNote.get(position).option_drawable_id);
+            Drawable drawable = act.getResources().getDrawable(addNoteList.get(position).option_drawable_id);
             holder.imageView.setImageDrawable(drawable);
-            holder.text.setText(mAddNote.get(position).option_string_id);
+            holder.text.setText(addNoteList.get(position).option_string_id);
             return view;
         }
 
