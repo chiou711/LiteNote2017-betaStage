@@ -32,7 +32,7 @@ public class UtilAudio {
 
             AudioPlayer.isRunnableOn = false;
 
-    		AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+    		AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
     	}
     }
     
@@ -41,11 +41,11 @@ public class UtilAudio {
 		if( (AudioPlayer.mMediaPlayer != null)    &&
 			(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos())&&
 			(PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos)&&
-			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)      )
+			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)      )
 		{
 			UtilAudio.stopAudioPlayer();
 			AudioPlayer.mAudioPos = 0;
-			AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+			AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
 			if(MainAct.mSubMenuItemAudio != null)
 				MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);
 			Page.mItemAdapter.notifyDataSetChanged(); // disable focus
@@ -55,16 +55,16 @@ public class UtilAudio {
     // update audio panel
     public static void updateAudioPanel(ImageView playBtn, TextView titleTextView)
     {
-    	System.out.println("UtilAudio/ _updateAudioPanel / AudioPlayer.getPlayState() = " + AudioPlayer.getPlayState());
+    	System.out.println("UtilAudio/ _updateAudioPanel / AudioPlayer.getPlayerState() = " + AudioPlayer.getPlayerState());
 		titleTextView.setBackgroundColor(ColorSet.color_black);
-		if(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY)
+		if(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY)
 		{
 			titleTextView.setTextColor(ColorSet.getHighlightColor(MainAct.mAct));
 			titleTextView.setSelected(true);
 			playBtn.setImageResource(R.drawable.ic_media_pause);
 		}
-		else if( (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PAUSE) ||
-				 (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_STOP)    )
+		else if( (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PAUSE) ||
+				 (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_STOP)    )
 		{
 			titleTextView.setSelected(false);
 			titleTextView.setTextColor(ColorSet.getPauseColor(MainAct.mAct));
@@ -109,45 +109,43 @@ public class UtilAudio {
     }     
     
     public static boolean mIsCalledWhilePlayingAudio;
-    // for Pause audio player when incoming call
+    // for Pause audio player when incoming phone call
     // http://stackoverflow.com/questions/5610464/stopping-starting-music-on-incoming-calls
     public static PhoneStateListener phoneStateListener = new PhoneStateListener() 
     {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) 
         {
-            if ( (state == TelephonyManager.CALL_STATE_RINGING) || 
+			System.out.print("UtilAudio / _onCallStateChanged");
+            if ( (state == TelephonyManager.CALL_STATE_RINGING) ||
                  (state == TelephonyManager.CALL_STATE_OFFHOOK )   ) 
             {
-                //Incoming call or Call out: Pause music
-            	System.out.println("Incoming call:");
-            	if(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY)
+            	System.out.println(" -> Incoming phone call:");
+                //from Play to Pause
+            	if(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY)
             	{
-					AudioPlayer audioPlayer = new AudioPlayer(MainAct.mAct);
-					audioPlayer.prepareAudioInfo();
-					audioPlayer.runAudioState();
-
+                    if( (AudioPlayer.mMediaPlayer != null) &&
+                        AudioPlayer.mMediaPlayer.isPlaying() ) {
+                        AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PAUSE);
+                        AudioPlayer.mMediaPlayer.pause();
+                    }
             		mIsCalledWhilePlayingAudio = true;
             	}
             } 
             else if(state == TelephonyManager.CALL_STATE_IDLE) 
             {
-                //Not in call: Play music
-            	System.out.println("Not in call:");
-            	if( (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PAUSE) &&
+            	System.out.println(" -> Not in phone call:");
+                // from Pause to Play
+            	if( (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PAUSE) &&
             		mIsCalledWhilePlayingAudio )	
             	{
-					AudioPlayer audioPlayer = new AudioPlayer(MainAct.mAct);
-					audioPlayer.prepareAudioInfo();
-					audioPlayer.runAudioState();
-
-            		mIsCalledWhilePlayingAudio = false;
+                    if( (AudioPlayer.mMediaPlayer != null) &&
+                        !AudioPlayer.mMediaPlayer.isPlaying() ) {
+                        AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PLAY);
+                        AudioPlayer.mMediaPlayer.start();
+                    }
+                    mIsCalledWhilePlayingAudio = false;
             	}
-            } 
-            else if(state == TelephonyManager.CALL_STATE_OFFHOOK) 
-            {
-                //A call is dialing, active or on hold
-            	System.out.println("A call is dialing, active or on hold:");
             }
             super.onCallStateChanged(state, incomingNumber);
         }

@@ -2,7 +2,6 @@ package com.cw.litenote.page;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
@@ -12,7 +11,6 @@ import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.note.Note;
-import com.cw.litenote.operation.audio.AudioInfo;
 import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.note.Note_edit;
@@ -42,7 +40,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.text.method.ScrollingMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView.OnScrollListener;
@@ -51,11 +48,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -367,20 +362,25 @@ public class Page extends UilListViewBaseFragment
         mFirstVisibleIndex = Pref.getPref_focusView_list_view_first_visible_index(getActivity());
         mFirstVisibleIndexTop = Pref.getPref_focusView_list_view_first_visible_index_top(getActivity());
 
-        // init audio block for TV dongle case
-		if(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
-        	initAudioBlock(audioPlayer);
+		// for incoming phone call case or key protection off to on
+		if( (page_audio != null) &&
+				(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP) &&
+				(AudioPlayer.getAudioPlayMode() == AudioPlayer.CONTINUE_MODE)   )
+		{
+			page_audio.initAudioBlock();
+		}
     }
-    
+
     @Override
     public void onPause() {
     	super.onPause();
     	System.out.println("Page / _onPause");
 
 		if( (AudioPlayer.mMediaPlayer != null) &&
-			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP))
+			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP))
 		{
-			audio_panel.setVisibility(View.GONE);
+            if((page_audio != null) && (page_audio.audio_panel!=null))
+                page_audio.audio_panel.setVisibility(View.GONE);
 		}
 	 }
     
@@ -396,7 +396,7 @@ public class Page extends UilListViewBaseFragment
 		// This is called when a new Loader needs to be created. 
 		return new NoteListLoader(getActivity());
 	}
-	
+
 	@Override
 	public void onLoadFinished(Loader<List<String>> loader,
 							   List<String> data) 
@@ -490,7 +490,7 @@ public class Page extends UilListViewBaseFragment
         showFooter();
 
 		// scroll highlight audio item to be visible
-		if((AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
+		if((AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
 			AudioPlayer.scrollHighlightAudioItemToVisible();
     }
 
@@ -504,7 +504,7 @@ public class Page extends UilListViewBaseFragment
 
 			if( (PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos)&&
 				(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()) &&
-				(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY) &&
+				(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY) &&
 				(Page.mDndListView.getChildAt(0) != null)                    )
 			{
 				// do nothing when playing audio
@@ -659,66 +659,58 @@ public class Page extends UilListViewBaseFragment
 
 	public static boolean isOnAudioClick;
 	AudioPlayer audioPlayer;
+	public static Page_audio page_audio;//todo static issue
     // list view listener: on audio
     private DragSortListView.AudioListener onAudio = new DragSortListView.AudioListener() 
 	{   @Override
         public void audio(int position) 
 		{
-//			System.out.println("Page / _onAudio");
-			AudioPlayer.setPlayMode(AudioPlayer.CONTINUE_MODE);
-			
-			mDb_page.open();
-    		int count = mDb_page.getNotesCount(false);
-            if(position >= count) //end of list
-            {
-            	mDb_page.close();
+			System.out.println("Page / _onAudio");
+			AudioPlayer.setAudioPlayMode(AudioPlayer.CONTINUE_MODE);
+
+			int notesCount = mDb_page.getNotesCount(true);
+            if(position >= notesCount) //end of list
             	return ;
-            }
-    		int marking = mDb_page.getNoteMarking(position,false);
-    		String uriString = mDb_page.getNoteAudioUri(position,false);
-    		mDb_page.close();
+
+			int marking = mDb_page.getNoteMarking(position,true);
+    		String uriString = mDb_page.getNoteAudioUri(position,true);
 
     		boolean isAudioUri = false;
     		if( !Util.isEmptyString(uriString) && (marking == 1))
     			isAudioUri = true;
+
     		System.out.println("Page / _onAudio / isAudioUri = " + isAudioUri);
 
-    		boolean itemIsMarked = (marking == 1);
-    		
-            if(position < count) // avoid footer error
+            if(position < notesCount) // avoid footer error
 			{
-				if(isAudioUri && itemIsMarked)
+				if(isAudioUri)
 				{
 					// cancel playing
 					if(AudioPlayer.mMediaPlayer != null)
 					{
 						if(AudioPlayer.mMediaPlayer.isPlaying())
-		   			   	{
 		   					AudioPlayer.mMediaPlayer.pause();
-		   			   	}
 
 		   			   	if(audioPlayer != null) {
-                            audioPlayer.mAudioHandler.removeCallbacks(audioPlayer.mRunOneTimeMode);
-                            audioPlayer.mAudioHandler.removeCallbacks(audioPlayer.mRunContinueMode);
+                            AudioPlayer.mAudioHandler.removeCallbacks(audioPlayer.mRunOneTimeMode);
+                            AudioPlayer.mAudioHandler.removeCallbacks(audioPlayer.mRunContinueMode);
                         }
 						AudioPlayer.mMediaPlayer.release();
 						AudioPlayer.mMediaPlayer = null;
 					}
 
 					isOnAudioClick = true;
+                    AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PLAY);
 
 					// create new Intent to play audio
 					AudioPlayer.mAudioPos = position;
 
-					audioPlayer = new AudioPlayer(mAct);
+                    page_audio = new Page_audio(mAct);
+                    page_audio.initAudioBlock();
+
+                    audioPlayer = new AudioPlayer(mAct,page_audio);
 					AudioPlayer.prepareAudioInfo();
 					audioPlayer.runAudioState();
-
-                    initAudioBlock(audioPlayer); //todo static
-                    showAudioPanel(uriString,true);//todo static
-
-                    // set seek bar progress
-					update_audioPanel_progress(audioPlayer);//todo static
 
                     // update playing page position
                     MainAct.mPlaying_pagePos = PageUi.getFocus_pagePos();
@@ -740,7 +732,7 @@ public class Page extends UilListViewBaseFragment
     static TextView mFooterMessage;
 
 	// set footer
-    public static void showFooter()
+    public void showFooter()
     {
     	System.out.println("Page / _showFooter ");
 
@@ -751,14 +743,6 @@ public class Page extends UilListViewBaseFragment
             mFooterMessage.setText(getFooterMessage());
             mFooterMessage.setBackgroundColor(ColorSet.getBarColor(mAct));
         }
-
-        // for showing audio panel
-        if( (AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP) &&
-             !Util.isEmptyString(AudioPlayer.mAudioStrContinueMode)       )
-            showAudioPanel(AudioPlayer.mAudioStrContinueMode,true);
-        else
-            showAudioPanel(AudioPlayer.mAudioStrContinueMode,false);
-
     }
 
 	// get footer message of list view
@@ -772,238 +756,6 @@ public class Page extends UilListViewBaseFragment
                   "/" +
                mDb_page.getNotesCount(true);
     }
-
-    public static TextView audio_panel_title_textView;
-    static TextView audioPanel_curr_pos;
-    public static ImageView audioPanel_play_button;
-    static View audio_panel;
-
-
-    /**
-     * init audio block
-     */
-    public static void initAudioBlock(final AudioPlayer audioPlayer) //todo static
-    {
-        System.out.println("Page / _initAudioBlock");
-
-        audio_panel = mAct.findViewById(R.id.audio_panel);
-        audio_panel_title_textView = (TextView) audio_panel.findViewById(R.id.audio_panel_title);
-
-		// scroll audio title to start position at landscape orientation
-		// marquee of audio title is enabled for Portrait, not Landscape
-		if (Util.isLandscapeOrientation(mAct))
-		{
-			audio_panel_title_textView.setMovementMethod(new ScrollingMovementMethod());
-			audio_panel_title_textView.scrollTo(0,0);
-		}
-		else {
-			// set marquee
-			audio_panel_title_textView.setSingleLine(true);
-			audio_panel_title_textView.setSelected(true);
-		}
-
-        // update play button status
-        audioPanel_play_button = (ImageView) mAct.findViewById(R.id.audioPanel_play);
-
-        UtilAudio.updateAudioPanel(audioPanel_play_button, audio_panel_title_textView);
-
-        ImageView audioPanel_previous_btn = (ImageView) mAct.findViewById(R.id.audioPanel_previous);
-        audioPanel_previous_btn.setImageResource(R.drawable.ic_media_previous);
-
-        ImageView audioPanel_next_btn = (ImageView) mAct.findViewById(R.id.audioPanel_next);
-        audioPanel_next_btn.setImageResource(R.drawable.ic_media_next);
-
-        audioPanel_curr_pos = (TextView) mAct.findViewById(R.id.audioPanel_current_pos);
-        TextView audioPanel_file_length = (TextView) mAct.findViewById(R.id.audioPanel_file_length);
-        TextView audioPanel_audio_number = (TextView) mAct.findViewById(R.id.audioPanel_audio_number);
-
-        // init audio seek bar
-        seekBarProgress = (SeekBar)mAct.findViewById(R.id.audioPanel_seek_bar);
-        seekBarProgress.setMax(99); // It means 100% .0-99
-        seekBarProgress.setProgress(mProgress);
-
-        // seek bar behavior is not like other control item
-        //, it is seen when changing drawer, so set invisible at xml
-        seekBarProgress.setVisibility(View.VISIBLE);
-
-		int media_length = AudioPlayer.media_file_length;
-        System.out.println("Page / _initAudioBlock / audioLen = " + media_length);
-        // show audio file audioLen of playing
-        int fileHour = Math.round((float)(media_length / 1000 / 60 / 60));
-        int fileMin = Math.round((float)((media_length - fileHour * 60 * 60 * 1000) / 1000 / 60));
-        int fileSec = Math.round((float)((media_length - fileHour * 60 * 60 * 1000 - fileMin * 1000 * 60 )/ 1000));
-        audioPanel_file_length.setText( String.format(Locale.US,"%2d", fileHour)+":" +
-                                        String.format(Locale.US,"%02d", fileMin)+":" +
-                                        String.format(Locale.US,"%02d", fileSec)         );
-
-        // show playing audio item message
-        String message = mAct.getResources().getString(R.string.menu_button_play) +
-                "#" +
-                (AudioPlayer.mAudioPos +1);
-        audioPanel_audio_number.setText(message);
-
-        // add for Pause audio and wake up from key protection
-        if(audioPlayer.mMediaPlayer != null)
-            update_audioPanel_progress(audioPlayer);
-
-        //
-        // Set up listeners
-        //
-
-        // Seek bar listener
-        seekBarProgress.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
-        {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
-                if( AudioPlayer.mMediaPlayer != null  )
-                {
-                    int mPlayAudioPosition = (int) (((float)(AudioPlayer.media_file_length / 100)) * seekBar.getProgress());
-                    AudioPlayer.mMediaPlayer.seekTo(mPlayAudioPosition);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                if(fromUser)
-                {
-                    // show progress change
-                    int currentPos = AudioPlayer.media_file_length *progress/(seekBar.getMax()+1);
-                    int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
-                    int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
-                    int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
-
-                    // set current play time
-                    audioPanel_curr_pos.setText(String.format(Locale.US,"%2d", curHour)+":" +
-                            String.format(Locale.US,"%02d", curMin)+":" +
-                            String.format(Locale.US,"%02d", curSec) );
-                }
-            }
-        });
-
-        // Audio play and pause button on click listener
-        audioPanel_play_button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                AudioPlayer audioPlayer = new AudioPlayer(mAct);
-                audioPlayer.prepareAudioInfo();
-                audioPlayer.runAudioState();
-
-                // update status
-                UtilAudio.updateAudioPanel((ImageView)v, audio_panel_title_textView); // here v is audio play button
-                if(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
-                    AudioPlayer.scrollHighlightAudioItemToVisible();
-            }
-        });
-
-        // Audio play previous on click button listener
-        audioPanel_previous_btn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                AudioPlayer.willPlayNext = false;
-
-                AudioPlayer.mAudioPos--;
-                if( AudioPlayer.mAudioPos < 0)
-                    AudioPlayer.mAudioPos++; //back to first index
-
-                while (AudioInfo.getCheckedAudio(AudioPlayer.mAudioPos) == 0)
-                {
-                    AudioPlayer.mAudioPos--;
-                    if( AudioPlayer.mAudioPos < 0)
-                        AudioPlayer.mAudioPos++; //back to first index
-                }
-
-                playNextAudio(audioPlayer,AudioPlayer.mAudioPos);
-            }
-        });
-
-        // Audio play next on click button listener
-        audioPanel_next_btn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                AudioPlayer.willPlayNext = true;
-
-                AudioPlayer.mAudioPos++;
-                if( AudioPlayer.mAudioPos >= AudioInfo.getAudioList().size())
-                    AudioPlayer.mAudioPos = 0; //back to first index
-
-                while (AudioInfo.getCheckedAudio(AudioPlayer.mAudioPos) == 0)
-                {
-                    AudioPlayer.mAudioPos++;
-                }
-
-				playNextAudio(audioPlayer,AudioPlayer.mAudioPos);
-            }
-        });
-    }
-
-    static void playNextAudio(AudioPlayer _audioPlayer, int position)
-	{
-		String uriString = AudioInfo.getAudioStringAt(position);
-
-		// cancel playing
-		if(AudioPlayer.mMediaPlayer != null)
-		{
-			if(AudioPlayer.mMediaPlayer.isPlaying())
-			{
-				AudioPlayer.mMediaPlayer.pause();
-			}
-
-			if(_audioPlayer != null) {
-				_audioPlayer.mAudioHandler.removeCallbacks(_audioPlayer.mRunOneTimeMode);
-				_audioPlayer.mAudioHandler.removeCallbacks(_audioPlayer.mRunContinueMode);
-			}
-			AudioPlayer.mMediaPlayer.release();
-			AudioPlayer.mMediaPlayer = null;
-		}
-
-		// new audio player instance
-		AudioPlayer audioPlayer = new AudioPlayer(mAct);
-		audioPlayer.runAudioState();
-
-		showAudioPanel(uriString,true);//todo static
-
-		// update status
-		UtilAudio.updateAudioPanel(audioPanel_play_button, audio_panel_title_textView);
-
-		if(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
-			AudioPlayer.scrollHighlightAudioItemToVisible();
-	}
-
-
-	// set list view footer audio control
-    public static void showAudioPanel(String string, boolean enable)
-    {
-		System.out.println("Page / _showAudioPanel");
-
-        audio_panel = mAct.findViewById(R.id.audio_panel);
-
-        // show audio panel
-        if(enable) {
-            audio_panel.setVisibility(View.VISIBLE);
-            audio_panel_title_textView.setVisibility(View.VISIBLE);
-
-            // set footer message with audio name
-            audio_panel_title_textView.setText(Util.getDisplayNameByUriString(string, mAct));
-
-            seekBarProgress.setVisibility(View.VISIBLE);
-        }
-        else {
-            audio_panel.setVisibility(View.GONE);
-        }
-
-    }
-
 
 	/*******************************************
 	 * 					menu
@@ -1440,34 +1192,4 @@ public class Page extends UilListViewBaseFragment
 			}
 		}
 	}
-
-	
-	// update audio panel progress
-	public static int mProgress;
-    public static void update_audioPanel_progress(AudioPlayer audioPlayer)
-    {
-		if(!mDndListView.isShown())
-			return;
-
-//		System.out.println("Page / _update_audioPanel_progress");
-
-		// get current playing position
-        int currentPos = 0;
-        if(audioPlayer.mMediaPlayer != null)
-    	    currentPos = audioPlayer.mMediaPlayer.getCurrentPosition();
-
-    	int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
-    	int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
-     	int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
-
-		// set current playing time
-    	audioPanel_curr_pos.setText(String.format(Locale.US,"%2d", curHour)+":" +
-    										   String.format(Locale.US,"%02d", curMin)+":" +
-    										   String.format(Locale.US,"%02d", curSec) );//??? why affect audio title?
-
-		// set current progress
-		mProgress = (int)(((float)currentPos/ AudioPlayer.media_file_length)*100);
-    	seekBarProgress.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
-    }
-
 }

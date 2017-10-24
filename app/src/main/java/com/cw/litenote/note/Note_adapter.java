@@ -484,9 +484,9 @@ class Note_adapter extends FragmentStatePagerAdapter
 			{
 				Note.initAudioProgress(act,audioUri,pager);
 
-				if(AudioPlayer.getAudioMode() == AudioPlayer.ONE_TIME_MODE)
+				if(AudioPlayer.getAudioPlayMode() == AudioPlayer.ONE_TIME_MODE)
 				{
-					if (AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
+					if (AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)
 						Note.updateAudioProgress(act);
 				}
 
@@ -716,7 +716,7 @@ class Note_adapter extends FragmentStatePagerAdapter
     	bgColorStr = bgColorStr.substring(2);
     	
     	return   head + "<body color=\"" + bgColorStr + "\">" +
-				 "<br>" + //TODO ??? text mode needs this, otherwise title is overlaid
+				 "<br>" + //??? note: text mode needs this, otherwise title is overlaid
 		         "<p align=\"center\"><b>" +
 		         "<font color=\"" + colorStr + "\">" + strTitle + "</font>" +
          		 "</b></p>" + separatedLineTitle +

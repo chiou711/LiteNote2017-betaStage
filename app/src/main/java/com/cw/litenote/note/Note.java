@@ -251,7 +251,7 @@ public class Note extends FragmentActivity
 		@Override
 		public void onPageSelected(int nextPosition)
 		{
-			if(AudioPlayer.getAudioMode()  == AudioPlayer.ONE_TIME_MODE)
+			if(AudioPlayer.getAudioPlayMode()  == AudioPlayer.ONE_TIME_MODE)
 				UtilAudio.stopAudioPlayer();
 
 			NoteUi.setFocus_notePos(mPager.getCurrentItem());
@@ -277,7 +277,7 @@ public class Note extends FragmentActivity
 
 			if((nextPosition == NoteUi.getFocus_notePos() +1) || (nextPosition == NoteUi.getFocus_notePos() -1))
 			{
-				if(AudioPlayer.getAudioMode() == AudioPlayer.ONE_TIME_MODE)
+				if(AudioPlayer.getAudioPlayMode() == AudioPlayer.ONE_TIME_MODE)
 					AudioPlayer.mAudioPos = NoteUi.getFocus_notePos();//update Audio index
 			}
 
@@ -748,19 +748,18 @@ public class Note extends FragmentActivity
     		if(AudioPlayer.mMediaPlayer == null)
     		{
     			MainAct.mPlaying_pageTableId = Pref.getPref_focusView_page_tableId(act);
-        		AudioPlayer.setPlayMode(AudioPlayer.ONE_TIME_MODE);
+        		AudioPlayer.setAudioPlayMode(AudioPlayer.ONE_TIME_MODE);
     		}
     		// If Audio player is NOT at One time mode and media exists
     		else if((AudioPlayer.mMediaPlayer != null) &&
-    				(AudioPlayer.getAudioMode() == AudioPlayer.CONTINUE_MODE))
+    				(AudioPlayer.getAudioPlayMode() == AudioPlayer.CONTINUE_MODE))
     		{
-        		AudioPlayer.setPlayMode(AudioPlayer.ONE_TIME_MODE);
+        		AudioPlayer.setAudioPlayMode(AudioPlayer.ONE_TIME_MODE);
         		UtilAudio.stopAudioPlayer();
     		}
 
 
-            AudioPlayer.setViewPager(pager);//TODO need review and improve the flexibility
-			AudioPlayer audioPlayer = new AudioPlayer(act);
+			AudioPlayer audioPlayer = new AudioPlayer(act,pager);
 			audioPlayer.prepareAudioInfo();
 			audioPlayer.runAudioState();
 
@@ -842,7 +841,7 @@ public class Note extends FragmentActivity
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				// audio player is one time mode in pager
-				if(AudioPlayer.getAudioMode() == AudioPlayer.CONTINUE_MODE)
+				if(AudioPlayer.getAudioPlayMode() == AudioPlayer.CONTINUE_MODE)
 					UtilAudio.stopAudioPlayer();
 			}
 			
@@ -866,8 +865,7 @@ public class Note extends FragmentActivity
 			}
 		});
 
-        AudioPlayer.setViewPager(_pager);
-    }  
+    }
     
     public static void updateAudioProgress(FragmentActivity act)
     {
@@ -954,20 +952,20 @@ public class Note extends FragmentActivity
     {
         ImageView audio_play_btn = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
 
-        if(AudioPlayer.getAudioMode() != AudioPlayer.ONE_TIME_MODE)
+        if(AudioPlayer.getAudioPlayMode() != AudioPlayer.ONE_TIME_MODE)
             return;
 
         TextView audioTitle = (TextView) act.findViewById(R.id.pager_audio_title);
         // update playing state
-        if(AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PLAY)
+        if(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY)
         {
             audio_play_btn.setImageResource(R.drawable.ic_media_pause);
 			showAudioName(act);
 			audioTitle.setTextColor(ColorSet.getHighlightColor(act) );
             audioTitle.setSelected(true);
         }
-        else if( (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_PAUSE) ||
-                (AudioPlayer.getPlayState() == AudioPlayer.PLAYER_AT_STOP)    )
+        else if( (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PAUSE) ||
+                (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_STOP)    )
         {
             audio_play_btn.setImageResource(R.drawable.ic_media_play);
 			showAudioName(act);
@@ -1106,7 +1104,7 @@ public class Note extends FragmentActivity
 
 	public static void stopAV()
 	{
-		if(AudioPlayer.getAudioMode() == AudioPlayer.ONE_TIME_MODE)
+		if(AudioPlayer.getAudioPlayMode() == AudioPlayer.ONE_TIME_MODE)
 			UtilAudio.stopAudioPlayer();
 
 		VideoPlayer.stopVideo();

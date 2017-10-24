@@ -124,9 +124,7 @@ public class DeletePages extends Fragment{
                 getActivity().startActivity(intent);
             }
             else
-                act.getSupportFragmentManager().popBackStack(); //TODO ??? exception
-                // for pages count = 0 case
-                // java.lang.IllegalArgumentException: No view found for id 0x1020011 (android:id/tabcontent) for fragment Page{8ac28af #0 id=0x1020011 tab1}
+                act.getSupportFragmentManager().popBackStack();
             }
         });
 
@@ -194,7 +192,7 @@ public class DeletePages extends Fragment{
         {
             UtilAudio.stopAudioPlayer();
             AudioPlayer.mAudioPos = 0;
-            AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+            AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
         }
 
         list_selPage = new List_selectPage(act,rootView , mListView);

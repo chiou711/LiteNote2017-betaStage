@@ -170,7 +170,7 @@ public class TabsHost extends Fragment
 
 		//for audio layout configuration change
 		if( (AudioPlayer.mMediaPlayer != null) &&
-			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)) {
+			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)) {
 			FolderUi.selectFolder(mAct,FolderUi.getFocus_folderPos());
 		}
     }
@@ -293,7 +293,7 @@ public class TabsHost extends Fragment
             TAB_SPEC = TAB_SPEC_PREFIX.concat(String.valueOf(mDbFolder.getPageId(i,true)));
 //        	System.out.println(mClassName + " / addTab / " + i);
             mTabsHost.addTab(mTabsHost.newTabSpec(TAB_SPEC).setIndicator(mTabIndicator_ArrayList.get(i)),
-							 Page.class, //interconnection //TODO call page
+							 Page.class, //interconnection //KP call page class here
 							 null);
             
             //set round corner and background color
@@ -493,7 +493,7 @@ public class TabsHost extends Fragment
 		
     	// set current audio playing tab with highlight
 		if( (AudioPlayer.mMediaPlayer != null) &&
-			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)&&
+			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)&&
 		    (MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()))
 			setAudioPlayingTab_WithHighlight(true);
 		else
@@ -603,7 +603,7 @@ public class TabsHost extends Fragment
     		{
     			UtilAudio.stopAudioPlayer();
 				AudioPlayer.mAudioPos = 0;
-				AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+				AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
     		}    		
     	}
     	

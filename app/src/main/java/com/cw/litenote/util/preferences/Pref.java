@@ -45,7 +45,7 @@ public class Pref {
         int folderTableId = getPref_focusView_folder_tableId(context);
         String keyName = keyPrefix.concat(String.valueOf(folderTableId));
         // page table Id: default is 1
-        return pref.getInt(keyName, 1); //??? why table is not found sometimes? //TODO ??? handle no page case
+        return pref.getInt(keyName, 1);
     }
 
     // remove key of focus view

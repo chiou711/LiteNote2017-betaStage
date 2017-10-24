@@ -509,7 +509,6 @@ public class FolderUi
         DrawerLayout drawerLayout = (DrawerLayout) act.findViewById(R.id.drawer_layout);
         drawerLayout.closeDrawer(listView);
 
-        //TODO move?
 		if(Define.HAS_PREFERRED_TABLES)
 		{
 			// Create preferred tables
@@ -561,7 +560,7 @@ public class FolderUi
 
 		// use Runnable to make sure only one folder background is seen
         mHandler = new Handler();
-        mHandler.post(mTabsHostRun);//TODO call TabsHost
+        mHandler.post(mTabsHostRun);
     }
     
     public static Handler mHandler;

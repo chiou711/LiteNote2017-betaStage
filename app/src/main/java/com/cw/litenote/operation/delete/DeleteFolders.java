@@ -223,7 +223,7 @@ public class DeleteFolders extends Fragment{
         {
             UtilAudio.stopAudioPlayer();
             AudioPlayer.mAudioPos = 0;
-            AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+            AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
         }
         list_selFolder = new List_selectFolder(act,rootView , mListView);
     }

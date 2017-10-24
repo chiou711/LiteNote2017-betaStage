@@ -6,10 +6,11 @@ import android.content.Intent;
 import android.media.AudioManager;
 
 import com.cw.litenote.operation.audio.AudioPlayer;
-import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.note.Note;
+import com.cw.litenote.page.Page_audio;
 
+// for earphone jack connection on/off
 public class NoisyAudioStreamReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent)
@@ -21,12 +22,11 @@ public class NoisyAudioStreamReceiver extends BroadcastReceiver {
 				System.out.println("NoisyAudioStreamReceiver / play -> pause");
 				AudioPlayer.mMediaPlayer.pause();
 				AudioPlayer.isRunnableOn = false;
-				AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_PAUSE);
+				AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PAUSE);
 
-				//update audio control state
-				UtilAudio.updateAudioPanel(Page.audioPanel_play_button, Page.audio_panel_title_textView);
+				UtilAudio.updateAudioPanel(Page_audio.audioPanel_play_button, Page_audio.audio_panel_title_textView);
 
-				if(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP)
+				if(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)
 					AudioPlayer.scrollHighlightAudioItemToVisible();
 
 				//update audio play button in pager

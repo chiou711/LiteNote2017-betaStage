@@ -17,6 +17,7 @@ import com.cw.litenote.operation.delete.DeleteFolders;
 import com.cw.litenote.operation.delete.DeletePages;
 import com.cw.litenote.operation.import_export.Import_webAct;
 import com.cw.litenote.page.PageUi;
+import com.cw.litenote.page.Page_audio;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.util.ColorSet;
@@ -74,7 +75,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public static List<String> mFolderTitles;
 	static NoisyAudioStreamReceiver noisyAudioStreamReceiver;
 	static IntentFilter intentFilter;
-    public static FragmentActivity mAct;//TODO remove static
+    public static FragmentActivity mAct;//TODO static issue
 	public static FragmentManager fragmentManager;
 	public static FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener;
 	public static int mLastOkTabId = 1;
@@ -155,7 +156,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 		//Add note with the link which got from other App
 		String intentLink = mMainUi.addNote_IntentLink(getIntent(),mAct);
-        if(!Util.isEmptyString(intentLink))//TODO　??? handle each case
+        if(!Util.isEmptyString(intentLink))
 		{
 			finish(); // LiteNote not running at first, keep closing
 		}
@@ -186,7 +187,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		    			System.out.println("MainAct / _onCreate /  FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
 		        	}
 	        	}
-	        	AudioPlayer.setAudioState(AudioPlayer.PLAYER_AT_STOP);
+	        	AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
 	        	UtilAudio.mIsCalledWhilePlayingAudio = false;
 	        }
             dB_drawer.close();
@@ -210,7 +211,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 			mOnBackStackChangedListener = MainAct.this;//??? = this?
 	        fragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener);
 
-			// register an audio stream receiver
+			// register an audio stream receiver for earphone jack connection on/off
 			if(noisyAudioStreamReceiver == null)
 			{
 				noisyAudioStreamReceiver = new NoisyAudioStreamReceiver();
@@ -266,8 +267,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
        outState.putInt("NowFolderPosition", FolderUi.getFocus_folderPos());
        outState.putInt("Playing_pageId", mPlaying_pagePos);
        outState.putInt("Playing_folderPos", mPlaying_folderPos);
-       outState.putInt("SeekBarProgress", Page.mProgress);
-       outState.putInt("AudioPlayerState",AudioPlayer.getPlayState());
+       outState.putInt("SeekBarProgress", Page_audio.mProgress);
+       outState.putInt("AudioPlayerState",AudioPlayer.getPlayerState());
        outState.putBoolean("CalledWhilePlayingAudio", UtilAudio.mIsCalledWhilePlayingAudio);
        if(FolderUi.mHandler != null)
     	   FolderUi.mHandler.removeCallbacks(FolderUi.mTabsHostRun);
@@ -285,8 +286,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             FolderUi.setFocus_folderPos(savedInstanceState.getInt("NowFolderPosition"));
     		mPlaying_pagePos = savedInstanceState.getInt("Playing_pageId");
     		mPlaying_folderPos = savedInstanceState.getInt("Playing_folderPos");
-    		AudioPlayer.setAudioState(savedInstanceState.getInt("AudioPlayerState"));
-    		Page.mProgress = savedInstanceState.getInt("SeekBarProgress");
+    		AudioPlayer.setPlayerState(savedInstanceState.getInt("AudioPlayerState"));
+    		Page_audio.mProgress = savedInstanceState.getInt("SeekBarProgress");
     		UtilAudio.mIsCalledWhilePlayingAudio = savedInstanceState.getBoolean("CalledWhilePlayingAudio");
     	}
     }
@@ -300,6 +301,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 	@Override
     protected void onResume()
     {
+        super.onResume();
     	System.out.println("MainAct / _onResume");
 
       	// To Registers a listener object to receive notification when incoming call
@@ -308,7 +310,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
      	{
      		telMgr.listen(UtilAudio.phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
      	}
-        super.onResume();
     }
 
     @Override
@@ -856,7 +857,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         	case MenuId.OPEN_PLAY_SUBMENU:
         		// new play instance: stop button is off
         	    if( (AudioPlayer.mMediaPlayer != null) &&
-        	    	(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP))
+        	    	(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP))
         		{
        		    	// show Stop
            			playOrStopMusicButton.setTitle(R.string.menu_button_stop_audio);
@@ -872,30 +873,26 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         	case MenuId.PLAY_OR_STOP_AUDIO:
         		if( (AudioPlayer.mMediaPlayer != null) &&
-        			(AudioPlayer.getPlayState() != AudioPlayer.PLAYER_AT_STOP))
+        			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP))
         		{
 					UtilAudio.stopAudioPlayer();
 					TabsHost.setAudioPlayingTab_WithHighlight(false);
 					Page.mItemAdapter.notifyDataSetChanged();
-					Page.showFooter();
 					return true; // just stop playing, wait for user action
         		}
         		else
         		{
-                    DB_page mDb_page = new DB_page(this, Pref.getPref_focusView_page_tableId(this));
-        			AudioPlayer.setPlayMode(AudioPlayer.CONTINUE_MODE);
+                    System.out.println("MainAct / _onOptionsItemSelected / MenuId.PLAY_OR_STOP_AUDIO /AudioPlayer.mMediaPlayer = null " );
+        			AudioPlayer.setAudioPlayMode(AudioPlayer.CONTINUE_MODE);
         			AudioPlayer.mAudioPos = 0;
-                    String uriString = mDb_page.getNoteAudioUri(AudioPlayer.mAudioPos,true);
 
-                    AudioPlayer audioPlayer = new AudioPlayer(this);
+                    Page.page_audio = new Page_audio(mAct);
+                    AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PLAY);
+                    Page.page_audio.initAudioBlock();
+
+                    AudioPlayer audioPlayer = new AudioPlayer(this,Page.page_audio);
                     AudioPlayer.prepareAudioInfo();
                     audioPlayer.runAudioState();
-
-                    Page.initAudioBlock(audioPlayer); //todo static
-                    Page.showAudioPanel(uriString,true);//todo static //??? why not show?
-
-                    // set seek bar progress
-                    Page.update_audioPanel_progress(audioPlayer);//todo static
 
 					Page.mItemAdapter.notifyDataSetChanged();
 
