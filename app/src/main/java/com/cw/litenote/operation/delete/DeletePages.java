@@ -22,11 +22,10 @@ import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.operation.List_selectPage;
+import com.cw.litenote.operation.audio.AudioInfo;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.Util;
-import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.preferences.Pref;
 
 import static com.cw.litenote.tabs.TabsHost.mDbFolder;
@@ -188,11 +187,11 @@ public class DeletePages extends Fragment{
         int scrollX = 0; //over the last scroll X
         Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
 
-        if(AudioPlayer.mMediaPlayer != null)
+        if(AudioInfo.mMediaPlayer != null)
         {
-            UtilAudio.stopAudioPlayer();
-            AudioPlayer.mAudioPos = 0;
-            AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
+            AudioInfo.stopAudioPlayer();
+            AudioInfo.mAudioPos = 0;
+            AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_STOP);
         }
 
         list_selPage = new List_selectPage(act,rootView , mListView);

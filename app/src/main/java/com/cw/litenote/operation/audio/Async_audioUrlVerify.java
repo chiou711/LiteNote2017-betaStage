@@ -1,7 +1,7 @@
 package com.cw.litenote.operation.audio;
 
 import com.cw.litenote.R;
-import com.cw.litenote.note.Note;
+import com.cw.litenote.note.Note_audio;
 import com.cw.litenote.util.Util;
 
 import android.app.ProgressDialog;
@@ -13,16 +13,18 @@ import android.support.v4.app.FragmentActivity;
  * - a class that will show progress bar in the main GUI context
  */
 
-public class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
+class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
 {
-	public ProgressDialog mUrlVerifyDialog;
+	ProgressDialog mUrlVerifyDialog;
 	private FragmentActivity act;
-	public Async_audioPrepare mAsyncTaskAudioPrepare;
+	Async_audioPrepare mAsyncTaskAudioPrepare;
     static boolean mIsOkUrl;
+	String audioStr;
 
-	Async_audioUrlVerify(FragmentActivity act)
+	Async_audioUrlVerify(FragmentActivity act,String audioStr)
 	{
 	    this.act = act;
+		this.audioStr = audioStr;
 	}
 	 
 	@Override
@@ -38,7 +40,7 @@ public class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
 		System.out.println("AudioUrlVerifyTask / onPreExecute" );
 
         mUrlVerifyDialog = new ProgressDialog(act);
-        if (!Note.isPausedAtSeekerAnchor)
+        if (!Note_audio.isPausedAtSeekerAnchor)
         {
             mUrlVerifyDialog.setMessage(act.getResources().getText(R.string.audio_message_searching_media));
             mUrlVerifyDialog.setCancelable(true); // set true for enabling Back button
@@ -46,7 +48,7 @@ public class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
             mUrlVerifyDialog.show();
         }
 
-		AudioPlayer.mIsPrepared = false;
+		AudioInfo.mIsPrepared = false;
 	}
 	 
 	@Override
@@ -56,7 +58,6 @@ public class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
 	    System.out.println("AudioUrlVerifyTask / doInBackground / params[0] = " + params[0] );
 	    mProgress =0;
  	    // check if audio file exists or not
-		String audioStr = AudioPlayer.mAudioInfo.getAudioStringAt(AudioPlayer.mAudioPos);
  		mIsOkUrl = false;
  		String scheme  = Util.getUriScheme(audioStr);
  		System.out.println("scheme = " + scheme + " / path = " + audioStr);

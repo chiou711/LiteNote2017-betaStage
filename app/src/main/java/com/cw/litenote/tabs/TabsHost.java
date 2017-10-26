@@ -8,10 +8,10 @@ import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
+import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioPlayer_page;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.page.PageUi;
-import com.cw.litenote.operation.audio.AudioPlayer;
-import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
@@ -169,8 +169,8 @@ public class TabsHost extends Fragment
         System.out.println("TabsHost / _onConfigurationChanged");
 
 		//for audio layout configuration change
-		if( (AudioPlayer.mMediaPlayer != null) &&
-			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)) {
+		if( (AudioInfo.mMediaPlayer != null) &&
+			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP)) {
 			FolderUi.selectFolder(mAct,FolderUi.getFocus_folderPos());
 		}
     }
@@ -492,8 +492,8 @@ public class TabsHost extends Fragment
 		mDbFolder.close();
 		
     	// set current audio playing tab with highlight
-		if( (AudioPlayer.mMediaPlayer != null) &&
-			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)&&
+		if( (AudioInfo.mMediaPlayer != null) &&
+			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP)&&
 		    (MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()))
 			setAudioPlayingTab_WithHighlight(true);
 		else
@@ -599,11 +599,11 @@ public class TabsHost extends Fragment
         else if((PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos) &&
                 (MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()))
         {
-    		if(AudioPlayer.mMediaPlayer != null)
+    		if(AudioInfo.mMediaPlayer != null)
     		{
-    			UtilAudio.stopAudioPlayer();
-				AudioPlayer.mAudioPos = 0;
-				AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
+				AudioInfo.stopAudioPlayer();
+				AudioInfo.mAudioPos = 0;
+				AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_STOP);
     		}    		
     	}
     	

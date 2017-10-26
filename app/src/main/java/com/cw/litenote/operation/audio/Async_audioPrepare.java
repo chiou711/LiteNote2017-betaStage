@@ -1,7 +1,7 @@
 package com.cw.litenote.operation.audio;
 
 import com.cw.litenote.R;
-import com.cw.litenote.note.Note;
+import com.cw.litenote.note.Note_audio;
 import com.cw.litenote.util.Util;
 
 import android.app.Activity;
@@ -31,7 +31,7 @@ public class Async_audioPrepare extends AsyncTask<String,Integer,String>
 	 	System.out.println("Async_audioPrepare / onPreExecute" );
 
 		mPrepareDialog = new ProgressDialog(act);
-	 	if (!Note.isPausedAtSeekerAnchor)
+	 	if (!Note_audio.isPausedAtSeekerAnchor)
 		{
 			mPrepareDialog.setMessage(act.getResources().getText(R.string.audio_message_preparing_to_play));
 			mPrepareDialog.setCancelable(true); // set true for enabling Back button
@@ -39,7 +39,7 @@ public class Async_audioPrepare extends AsyncTask<String,Integer,String>
 			mPrepareDialog.show();
 		}
 
-        AudioPlayer.mIsPrepared = false;
+        AudioInfo.mIsPrepared = false;
 	 } 
 	 
 	 @Override
@@ -51,7 +51,7 @@ public class Async_audioPrepare extends AsyncTask<String,Integer,String>
 		 int progress = 0;
 		 int count = 0;
 
-		 while(!AudioPlayer.mIsPrepared && !isTimeOut )
+		 while( (!AudioInfo.mIsPrepared) && (!isTimeOut) )
 		 {
 			 System.out.println("Async_audioPrepare / doInBackground / count = " + count);
 			 count++;

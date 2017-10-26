@@ -4,9 +4,8 @@ package com.cw.litenote.config;
 import java.io.File;
 
 import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.operation.audio.AudioInfo;
 import com.cw.litenote.page.PageUi;
-import com.cw.litenote.operation.audio.AudioPlayer;
-import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.R;
@@ -514,8 +513,8 @@ public class Config extends Fragment
 			db_drawer.deleteDB();
 
 			// stop audio player
-			if(AudioPlayer.mMediaPlayer != null)
-				UtilAudio.stopAudioPlayer();
+			if(AudioInfo.mMediaPlayer != null)
+				AudioInfo.stopAudioPlayer();
 
 			//set last tab Id to 0, otherwise TabId will not start from 0 when deleting all
 			TabsHost.setLastPos_pageId(0);

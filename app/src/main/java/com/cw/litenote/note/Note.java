@@ -1,18 +1,15 @@
 package com.cw.litenote.note;
 
-import java.util.Locale;
-
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
-import com.cw.litenote.main.MainAct;
+import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioPlayer_note;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
-import com.cw.litenote.operation.audio.AudioPlayer;
-import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.preferences.Pref;
 import com.cw.litenote.util.video.AsyncTaskVideoBitmapPager;
@@ -30,27 +27,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class Note extends FragmentActivity
 {
@@ -81,12 +72,10 @@ public class Note extends FragmentActivity
     Button backButton;
 
 	public static String mAudioUriInDB;
-    public TextView audio_title;
-    TextView audio_curr_pos;
-    TextView audio_file_len;
-    ViewGroup audioBlock;
+
     public FragmentActivity act;
     public static int mPlayVideoPositionOfInstance;
+    Note_audio note_audio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -102,7 +91,10 @@ public class Note extends FragmentActivity
 		UtilVideo.mPlayVideoPosition = 0;   // not played yet
 		mPlayVideoPositionOfInstance = 0;
 		AsyncTaskVideoBitmapPager.mRotationStr = null;
-    } //onCreate end
+
+		act = this;
+
+	} //onCreate end
 
 
 	// Add to prevent resizing full screen picture,
@@ -135,7 +127,6 @@ public class Note extends FragmentActivity
             actionBar.setBackgroundDrawable(new ColorDrawable(ColorSet.getBarColor(this)));
         }
 
-		act = this;
 		mPref_show_note_attribute = getSharedPreferences("show_note_attribute", 0);
 
 		UilCommon.init();
@@ -162,32 +153,9 @@ public class Note extends FragmentActivity
 			mAudioUriInDB = mDb_page.getNoteAudioUri_byId(mNoteId);
 		}
 
-		// audio block
-		TextView tag = (TextView) findViewById(R.id.text_view_audio);
-		tag.setTextColor(ColorSet.color_white);
+		note_audio = new Note_audio(this,mAudioUriInDB);
+		note_audio.init_audio_block();
 
-		audio_title = (TextView) findViewById(R.id.pager_audio_title); // first setting
-		audio_title.setTextColor(ColorSet.color_white);
-		if (Util.isLandscapeOrientation(act))
-		{
-			audio_title.setMovementMethod(new ScrollingMovementMethod());
-			audio_title.scrollTo(0,0);
-		}
-		else
-		{
-			audio_title.setSingleLine(true);
-			audio_title.setSelected(true);
-		}
-
-		audio_curr_pos = (TextView) act.findViewById(R.id.pager_audio_current_pos);
-
-		audio_file_len = (TextView) findViewById(R.id.pager_audio_file_length);
-
-		audioBlock = (ViewGroup) findViewById(R.id.audioGroup);
-		audioBlock.setBackgroundColor(ColorSet.color_black);
-
-		mPager_audio_play_button = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
-		seekBar = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
 
 		// Note: if mPager.getCurrentItem() is not equal to mEntryPosition, _onPageSelected will
 		//       be called again after rotation
@@ -251,8 +219,8 @@ public class Note extends FragmentActivity
 		@Override
 		public void onPageSelected(int nextPosition)
 		{
-			if(AudioPlayer.getAudioPlayMode()  == AudioPlayer.ONE_TIME_MODE)
-				UtilAudio.stopAudioPlayer();
+			if(AudioInfo.getAudioPlayMode()  == AudioInfo.ONE_TIME_MODE)
+                AudioInfo.stopAudioPlayer();
 
 			NoteUi.setFocus_notePos(mPager.getCurrentItem());
 			System.out.println("Note / _onPageSelected");
@@ -267,18 +235,15 @@ public class Note extends FragmentActivity
 			mAudioUriInDB = mDb_page.getNoteAudioUri_byId(mNoteId);
 			System.out.println("Note / _onPageSelected / mAudioUriInDB = " + mAudioUriInDB);
 
-			if(UtilAudio.hasAudioExtension(mAudioUriInDB))
-			{
-				audioBlock.setVisibility(View.VISIBLE);
-				initAudioProgress(act,mAudioUriInDB,mPager);
-			}
-			else
-				audioBlock.setVisibility(View.GONE);
+			note_audio = new Note_audio(Note.this,mAudioUriInDB);
+			note_audio.init_audio_block();
+            note_audio.showAudioBlock();
+
 
 			if((nextPosition == NoteUi.getFocus_notePos() +1) || (nextPosition == NoteUi.getFocus_notePos() -1))
 			{
-				if(AudioPlayer.getAudioPlayMode() == AudioPlayer.ONE_TIME_MODE)
-					AudioPlayer.mAudioPos = NoteUi.getFocus_notePos();//update Audio index
+				if(AudioInfo.getAudioPlayMode() == AudioInfo.ONE_TIME_MODE)
+					AudioPlayer_note.mAudioPos = NoteUi.getFocus_notePos();//update Audio index
 			}
 
 			// stop video when changing note
@@ -515,6 +480,7 @@ public class Note extends FragmentActivity
     {
         super.onCreateOptionsMenu(menu);
 //		System.out.println("Note / _onCreateOptionsMenu");
+
 		// inflate menu
 		getMenuInflater().inflate(R.menu.pager_menu, menu);
 		mMenu = menu;
@@ -739,239 +705,14 @@ public class Note extends FragmentActivity
 		return mDb_page.getNotePictureUri(NoteUi.getFocus_notePos(),true);
     }
 
-    static void playAudioInPager(FragmentActivity act, String audioStr, ViewPager pager)
-    {
-		if(UtilAudio.hasAudioExtension(audioStr))
-		{
-    		AudioPlayer.mAudioPos = NoteUi.getFocus_notePos();
-    		// new instance
-    		if(AudioPlayer.mMediaPlayer == null)
-    		{
-    			MainAct.mPlaying_pageTableId = Pref.getPref_focusView_page_tableId(act);
-        		AudioPlayer.setAudioPlayMode(AudioPlayer.ONE_TIME_MODE);
-    		}
-    		// If Audio player is NOT at One time mode and media exists
-    		else if((AudioPlayer.mMediaPlayer != null) &&
-    				(AudioPlayer.getAudioPlayMode() == AudioPlayer.CONTINUE_MODE))
-    		{
-        		AudioPlayer.setAudioPlayMode(AudioPlayer.ONE_TIME_MODE);
-        		UtilAudio.stopAudioPlayer();
-    		}
-
-
-			AudioPlayer audioPlayer = new AudioPlayer(act,pager);
-			audioPlayer.prepareAudioInfo();
-			audioPlayer.runAudioState();
-
-            updateAudioPlayState(act);
-		}
-    }
-    
-    // Mark current selected 
+    // Mark current selected
     void markCurrentSelected(MenuItem subItem, String str)
     {
         if(mPref_show_note_attribute.getString("KEY_PAGER_VIEW_MODE", "ALL")
-        							.equalsIgnoreCase(str))
-        	subItem.setIcon(R.drawable.btn_radio_on_holo_dark);
-	  	else
-        	subItem.setIcon(R.drawable.btn_radio_off_holo_dark);
-    }    
-    
-    // show audio name
-    static void showAudioName(FragmentActivity act)
-    {
-		TextView audio_title_text_view = (TextView) act.findViewById(R.id.pager_audio_title);
-		// title: set marquee
-		if(Util.isUriExisted(mAudioUriInDB, act)) {
-			String audio_name = Util.getDisplayNameByUriString(mAudioUriInDB, act);
-			audio_title_text_view.setText(audio_name);
-		}
-		else
-			audio_title_text_view.setText(R.string.file_not_found);
-
-		audio_title_text_view.setSelected(false);
-    }
-    
-    // Set audio block
-    static public ImageView mPager_audio_play_button;
-    SeekBar seekBar;
-    public static int mProgress;
-	public static int mediaFileLength; // this value contains the song duration in milliseconds. Look at getDuration() method in MediaPlayer class
-    
-	public static boolean isPausedAtSeekerAnchor;
-	public static int mAnchorPosition; 
-
-    static void setAudioBlockListener(final FragmentActivity act, final String audioStr, final ViewPager _pager)
-    {
-        SeekBar seekBarProgress = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
-        ImageView mPager_audio_play_button = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
-
-        // set audio play and pause control image
-	    mPager_audio_play_button.setOnClickListener(new View.OnClickListener() 
-	    {
-			@Override
-			public void onClick(View v) 
-			{
-				isPausedAtSeekerAnchor = false;
-            	TabsHost.setAudioPlayingTab_WithHighlight(false);// in case playing audio in pager
-            	playAudioInPager(act,audioStr,_pager);
-			}
-		});   		
-   		
-		// set seek bar listener
-		seekBarProgress.setOnSeekBarChangeListener(new OnSeekBarChangeListener() 
-		{
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) 
-			{
-				if( AudioPlayer.mMediaPlayer != null  )
-				{
-					int mPlayAudioPosition = (int) (((float)(mediaFileLength / 100)) * seekBar.getProgress());
-					AudioPlayer.mMediaPlayer.seekTo(mPlayAudioPosition);
-				}
-				else
-				{
-					// pause at seek bar anchor
-					isPausedAtSeekerAnchor = true;
-					mAnchorPosition = (int) (((float)(mediaFileLength / 100)) * seekBar.getProgress());
-					playAudioInPager(act,audioStr,_pager);
-				}
-			}
-			
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// audio player is one time mode in pager
-				if(AudioPlayer.getAudioPlayMode() == AudioPlayer.CONTINUE_MODE)
-					UtilAudio.stopAudioPlayer();
-			}
-			
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) 
-			{
-				if(fromUser)
-				{	
-					// show progress change
-			    	int currentPos = mediaFileLength *progress/(seekBar.getMax()+1);
-			    	int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
-			    	int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
-			     	int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
-	
-			    	// set current play time
-                    TextView audio_curr_pos = (TextView) act.findViewById(R.id.pager_audio_current_pos);
-			    	audio_curr_pos.setText(String.format(Locale.ENGLISH,"%2d", curHour)+":" +
-			    										       String.format(Locale.ENGLISH,"%02d", curMin)+":" +
-			    										       String.format(Locale.ENGLISH,"%02d", curSec) );
-				}
-			}
-		});
-
-    }
-    
-    public static void updateAudioProgress(FragmentActivity act)
-    {
-        SeekBar seekBar = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
-		int currentPos=0;
-
-		if(AudioPlayer.mMediaPlayer != null)
-        	currentPos = AudioPlayer.mMediaPlayer.getCurrentPosition();
-
-		int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
-    	int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
-     	int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
-
-        TextView audio_curr_pos = (TextView) act.findViewById(R.id.pager_audio_current_pos);
-    	// set current play time and the play length of audio file
-     	if(audio_curr_pos != null)
-     	{
-     		audio_curr_pos.setText(String.format(Locale.ENGLISH,"%2d", curHour)+":" +
-    										           String.format(Locale.ENGLISH,"%02d", curMin)+":" +
-    										           String.format(Locale.ENGLISH,"%02d", curSec) );//??? why affect audio title?
-     	}
-     	
-     	mProgress = (int)(((float)currentPos/ mediaFileLength)*100);
-     	
-     	if(seekBar != null)
-     		seekBar.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
-    }
-    
-    public static void initAudioProgress(FragmentActivity act,String audioUriInDB,ViewPager _pager)
-    {
-        SeekBar seekBar = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
-        ImageView mPager_audio_play_button = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
-        setAudioBlockListener(act,audioUriInDB,_pager);
-
-    	mProgress = 0;
-
-		showAudioName(act);
-        TextView audioTitle = (TextView) act.findViewById(R.id.pager_audio_title);
-		audioTitle.setSelected(false);
-        mPager_audio_play_button.setImageResource(R.drawable.ic_media_play);
-        audioTitle.setTextColor(ColorSet.getPauseColor(act));
-        audioTitle.setSelected(false);
-
-		// current position
-    	int curHour = Math.round((float)(mProgress / 1000 / 60 / 60));
-    	int curMin = Math.round((float)((mProgress - curHour * 60 * 60 * 1000) / 1000 / 60));
-     	int curSec = Math.round((float)((mProgress - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
-
-        TextView audio_curr_pos = (TextView) act.findViewById(R.id.pager_audio_current_pos);
-     	audio_curr_pos.setText(String.format(Locale.ENGLISH,"%2d", curHour)+":" +
-    										       String.format(Locale.ENGLISH,"%02d", curMin)+":" +
-    										       String.format(Locale.ENGLISH,"%02d", curSec) );//??? why affect audio title?
-		audio_curr_pos.setTextColor(ColorSet.color_white);
-	    // audio seek bar
-     	seekBar.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
-		seekBar.setMax(99); // It means 100% .0-99
-    	seekBar.setVisibility(View.VISIBLE);
-     	
-    	// get audio file length
-    	try
-    	{
-    		MediaPlayer mp = MediaPlayer.create(act,Uri.parse(mAudioUriInDB));
-    		mediaFileLength = mp.getDuration();
-    		mp.release();
-    	}
-    	catch(Exception e)
-    	{
-    		System.out.println("Note / _initAudioProgress / exception");
-    	}
-    	// set audio file length
-     	int fileHour = Math.round((float)(mediaFileLength / 1000 / 60 / 60));
-     	int fileMin = Math.round((float)((mediaFileLength - fileHour * 60 * 60 * 1000) / 1000 / 60));
-    	int fileSec = Math.round((float)((mediaFileLength - fileHour * 60 * 60 * 1000 - fileMin * 1000 * 60 )/ 1000));
-
-        TextView audio_file_len = (TextView) act.findViewById(R.id.pager_audio_file_length);
-    	audio_file_len.setText(String.format(Locale.ENGLISH,"%2d", fileHour)+":" +
-    										String.format(Locale.ENGLISH,"%02d", fileMin)+":" +
-    										String.format(Locale.ENGLISH,"%02d", fileSec));
-		audio_file_len.setTextColor(ColorSet.color_white);
-    }
-
-
-    public static void updateAudioPlayState(FragmentActivity act)
-    {
-        ImageView audio_play_btn = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
-
-        if(AudioPlayer.getAudioPlayMode() != AudioPlayer.ONE_TIME_MODE)
-            return;
-
-        TextView audioTitle = (TextView) act.findViewById(R.id.pager_audio_title);
-        // update playing state
-        if(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY)
-        {
-            audio_play_btn.setImageResource(R.drawable.ic_media_pause);
-			showAudioName(act);
-			audioTitle.setTextColor(ColorSet.getHighlightColor(act) );
-            audioTitle.setSelected(true);
-        }
-        else if( (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PAUSE) ||
-                (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_STOP)    )
-        {
-            audio_play_btn.setImageResource(R.drawable.ic_media_play);
-			showAudioName(act);
-            audioTitle.setTextColor(ColorSet.getPauseColor(act));
-            audioTitle.setSelected(false);
-        }
+                .equalsIgnoreCase(str))
+            subItem.setIcon(R.drawable.btn_radio_on_holo_dark);
+        else
+            subItem.setIcon(R.drawable.btn_radio_off_holo_dark);
     }
 
     // Show selected view
@@ -1104,8 +845,8 @@ public class Note extends FragmentActivity
 
 	public static void stopAV()
 	{
-		if(AudioPlayer.getAudioPlayMode() == AudioPlayer.ONE_TIME_MODE)
-			UtilAudio.stopAudioPlayer();
+		if(AudioInfo.getAudioPlayMode() == AudioInfo.ONE_TIME_MODE)
+            AudioInfo.stopAudioPlayer();
 
 		VideoPlayer.stopVideo();
 	}

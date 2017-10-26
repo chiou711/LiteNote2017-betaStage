@@ -8,10 +8,11 @@ import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
+import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioPlayer_page;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.note.Note;
-import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.note.Note_edit;
 import com.cw.litenote.util.ColorSet;
@@ -179,10 +180,7 @@ public class Page extends UilListViewBaseFragment
             if( Util.isYouTubeLink(linkStr) &&
                     pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
             {
-                if(AudioPlayer.mMediaPlayer != null)
-                    AudioPlayer.mMediaPlayer.release();
-
-                AudioPlayer.isRunnableOn = false;
+                AudioInfo.stopAudioPlayer();
 
                 // apply native YouTube
                 Util.openLink_YouTube(mAct, linkStr);
@@ -280,7 +278,7 @@ public class Page extends UilListViewBaseFragment
 			}
 			
 			if( PageUi.isSamePageTable() &&
-	     		(AudioPlayer.mMediaPlayer != null)				   )
+	     		(AudioInfo.mMediaPlayer != null)				   )
 			{
 				if( (mHighlightPosition == oriEndPos)  && (oriStartPos > oriEndPos))      
 				{
@@ -309,8 +307,8 @@ public class Page extends UilListViewBaseFragment
 					mHighlightPosition++;
 				}
 
-				AudioPlayer.mAudioPos = mHighlightPosition;
-				AudioPlayer.prepareAudioInfo();
+				AudioInfo.mAudioPos = mHighlightPosition;
+				AudioPlayer_page.prepareAudioInfo();
 			}
 			mItemAdapter.notifyDataSetChanged();
 			showFooter();
@@ -364,8 +362,8 @@ public class Page extends UilListViewBaseFragment
 
 		// for incoming phone call case or key protection off to on
 		if( (page_audio != null) &&
-				(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP) &&
-				(AudioPlayer.getAudioPlayMode() == AudioPlayer.CONTINUE_MODE)   )
+				(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP) &&
+				(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)   )
 		{
 			page_audio.initAudioBlock();
 		}
@@ -376,8 +374,8 @@ public class Page extends UilListViewBaseFragment
     	super.onPause();
     	System.out.println("Page / _onPause");
 
-		if( (AudioPlayer.mMediaPlayer != null) &&
-			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP))
+		if( (AudioInfo.mMediaPlayer != null) &&
+			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP))
 		{
             if((page_audio != null) && (page_audio.audio_panel!=null))
                 page_audio.audio_panel.setVisibility(View.GONE);
@@ -490,8 +488,8 @@ public class Page extends UilListViewBaseFragment
         showFooter();
 
 		// scroll highlight audio item to be visible
-		if((AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
-			AudioPlayer.scrollHighlightAudioItemToVisible();
+		if((AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
+			AudioPlayer_page.scrollHighlightAudioItemToVisible();
     }
 
     OnScrollListener onScroll = new OnScrollListener() {
@@ -504,7 +502,7 @@ public class Page extends UilListViewBaseFragment
 
 			if( (PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos)&&
 				(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()) &&
-				(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY) &&
+				(AudioInfo.getPlayerState() == AudioInfo.PLAYER_AT_PLAY) &&
 				(Page.mDndListView.getChildAt(0) != null)                    )
 			{
 				// do nothing when playing audio
@@ -605,7 +603,7 @@ public class Page extends UilListViewBaseFragment
 			int markingNow = toggleNoteMarking(position);
 
             // Stop if unmarked item is at playing state
-            if(AudioPlayer.mAudioPos == position) {
+            if(AudioInfo.mAudioPos == position) {
 				UtilAudio.stopAudioIfNeeded();
 				if(markingNow == 0)
 					TabsHost.setAudioPlayingTab_WithHighlight(false);
@@ -619,7 +617,7 @@ public class Page extends UilListViewBaseFragment
 
 			// update audio info
             if(PageUi.isSamePageTable())
-            	AudioPlayer.prepareAudioInfo();
+            	AudioPlayer_page.prepareAudioInfo();
         }
     };    
 
@@ -658,7 +656,7 @@ public class Page extends UilListViewBaseFragment
 
 
 	public static boolean isOnAudioClick;
-	AudioPlayer audioPlayer;
+	AudioPlayer_page audioPlayer_page;
 	public static Page_audio page_audio;//todo static issue
     // list view listener: on audio
     private DragSortListView.AudioListener onAudio = new DragSortListView.AudioListener() 
@@ -666,7 +664,7 @@ public class Page extends UilListViewBaseFragment
         public void audio(int position) 
 		{
 			System.out.println("Page / _onAudio");
-			AudioPlayer.setAudioPlayMode(AudioPlayer.CONTINUE_MODE);
+			AudioInfo.setAudioPlayMode(AudioInfo.CONTINUE_MODE);
 
 			int notesCount = mDb_page.getNotesCount(true);
             if(position >= notesCount) //end of list
@@ -686,31 +684,30 @@ public class Page extends UilListViewBaseFragment
 				if(isAudioUri)
 				{
 					// cancel playing
-					if(AudioPlayer.mMediaPlayer != null)
+					if(AudioInfo.mMediaPlayer != null)
 					{
-						if(AudioPlayer.mMediaPlayer.isPlaying())
-		   					AudioPlayer.mMediaPlayer.pause();
+						if(AudioInfo.mMediaPlayer.isPlaying())
+							AudioInfo.mMediaPlayer.pause();
 
-		   			   	if(audioPlayer != null) {
-                            AudioPlayer.mAudioHandler.removeCallbacks(audioPlayer.mRunOneTimeMode);
-                            AudioPlayer.mAudioHandler.removeCallbacks(audioPlayer.mRunContinueMode);
+		   			   	if(audioPlayer_page != null) {
+							AudioPlayer_page.mAudioHandler.removeCallbacks(audioPlayer_page.mRunContinueMode);
                         }
-						AudioPlayer.mMediaPlayer.release();
-						AudioPlayer.mMediaPlayer = null;
+						AudioInfo.mMediaPlayer.release();
+						AudioInfo.mMediaPlayer = null;
 					}
 
 					isOnAudioClick = true;
-                    AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PLAY);
+					AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_PLAY);
 
 					// create new Intent to play audio
-					AudioPlayer.mAudioPos = position;
+					AudioInfo.mAudioPos = position;
 
                     page_audio = new Page_audio(mAct);
                     page_audio.initAudioBlock();
 
-                    audioPlayer = new AudioPlayer(mAct,page_audio);
-					AudioPlayer.prepareAudioInfo();
-					audioPlayer.runAudioState();
+                    audioPlayer_page = new AudioPlayer_page(mAct,page_audio);
+					AudioPlayer_page.prepareAudioInfo();
+					audioPlayer_page.runAudioState();
 
                     // update playing page position
                     MainAct.mPlaying_pagePos = PageUi.getFocus_pagePos();
@@ -919,7 +916,7 @@ public class Page extends UilListViewBaseFragment
 			String noteBody = mDb_page.getNoteBody(i,false);
 			mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , action, 0,false);// action 1:check all, 0:uncheck all
 	        // Stop if unmarked item is at playing state
-	        if((AudioPlayer.mAudioPos == i) && (action == 0) )
+	        if((AudioInfo.mAudioPos == i) && (action == 0) )
 	        	bStopAudio = true;		
 		}
 		mDb_page.close();
@@ -929,7 +926,7 @@ public class Page extends UilListViewBaseFragment
 		
 		// update audio play list
         if(PageUi.isSamePageTable())
-        	AudioPlayer.prepareAudioInfo();
+        	AudioPlayer_page.prepareAudioInfo();
         
 		mItemAdapter.notifyDataSetChanged();
 		showFooter();
@@ -954,7 +951,7 @@ public class Page extends UilListViewBaseFragment
 			long marking = (mDb_page.getNoteMarking(i,false)==1)?0:1;
 			mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , marking, 0,false);// action 1:check all, 0:uncheck all
 	        // Stop if unmarked item is at playing state
-	        if((AudioPlayer.mAudioPos == i) && (marking == 0) )
+	        if((AudioInfo.mAudioPos == i) && (marking == 0) )
 	        	bStopAudio = true;			
 		}
 		mDb_page.close();
@@ -964,7 +961,7 @@ public class Page extends UilListViewBaseFragment
 		
 		// update audio play list
         if(PageUi.isSamePageTable())
-        	AudioPlayer.prepareAudioInfo();
+        	AudioPlayer_page.prepareAudioInfo();
 		
 		mItemAdapter.notifyDataSetChanged();
 		showFooter();
@@ -1115,7 +1112,7 @@ public class Page extends UilListViewBaseFragment
 							mDb_page.close();
 							
 							// Stop Play/Pause if current tab's item is played and is not at Stop state
-							if(AudioPlayer.mAudioPos == Page.mHighlightPosition)
+							if(AudioInfo.mAudioPos == Page.mHighlightPosition)
 								UtilAudio.stopAudioIfNeeded();
 							
 							mItemAdapter.notifyDataSetChanged();

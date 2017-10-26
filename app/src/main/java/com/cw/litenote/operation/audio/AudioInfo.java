@@ -1,5 +1,6 @@
 package com.cw.litenote.operation.audio;
 
+import android.media.MediaPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,18 +12,83 @@ public class AudioInfo
 {
 	private static List<String> audioList;
 	private static List<Integer> audioList_checked;
-   
-   // constructor 
+    static boolean mIsPrepared;
+
+    private static int mAudioPlayMode;
+    public final static int ONE_TIME_MODE = 0;
+    public final static int CONTINUE_MODE = 1;
+
+    private static int mPlayerState;
+    public static int PLAYER_AT_STOP = 0;
+    public static int PLAYER_AT_PLAY = 1;
+    public static int PLAYER_AT_PAUSE = 2;
+    public static boolean isRunnableOn_note;
+    public static boolean isRunnableOn_page;
+    public static MediaPlayer mMediaPlayer; // plays the background music, if any
+    public static int mAudioPos; // index of current media to play
+//    public static Handler mAudioHandler; // used to update the slide show
+
+
+    // constructor
    AudioInfo()
    {
       audioList = new ArrayList<>();
       audioList_checked = new ArrayList<>();
    }
 
-   public static List<String> getAudioList()
+    /**
+     * Setters and Getters
+     *
+     */
+    // player state
+    public static int getPlayerState() {
+        return mPlayerState;
+    }
+
+    public static void setPlayerState(int playerState) {
+        mPlayerState = playerState;
+    }
+
+    // Audio play mode
+    public static int getAudioPlayMode() {
+        return mAudioPlayMode;
+    }
+
+    public static void setAudioPlayMode(int audioPlayMode) {
+        mAudioPlayMode = audioPlayMode;
+    }
+
+    public static List<String> getAudioList()
    {
       return audioList;
    }
+
+    /**
+     * Stop audio
+     */
+    public static void stopAudioPlayer()
+    {
+        System.out.println("AudioInfo / _stopAudio");
+
+        // stop media player
+        if(AudioInfo.mMediaPlayer != null) {
+            if (AudioInfo.mMediaPlayer.isPlaying()) {
+                AudioInfo.mMediaPlayer.pause();
+                AudioInfo.mMediaPlayer.stop();
+            }
+            AudioInfo.mMediaPlayer.release();
+            AudioInfo.mMediaPlayer = null;
+        }
+
+        // stop handler and set flag to remove runnable
+        if( AudioPlayer_page.mAudioHandler != null)
+            AudioInfo.isRunnableOn_page = false;
+        else if(AudioPlayer_note.mAudioHandler != null)
+            AudioInfo.isRunnableOn_note = false;
+
+        AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_STOP);
+    }
+
 
    // Get audio files count
    static int getAudioFilesCount()

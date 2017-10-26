@@ -2,11 +2,12 @@ package com.cw.litenote.note_add;
 
 import java.io.File;
 
+import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioPlayer_page;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.page.PageUi;
-import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.Util;
 import com.cw.litenote.util.preferences.Pref;
 
@@ -160,7 +161,7 @@ public class Note_addAudio extends FragmentActivity {
 		        	{
 		        		Page.swap(Page.mDb_page);
 		        		//update playing focus
-		        		AudioPlayer.mAudioPos++;
+						AudioInfo.mAudioPos++;
 		        	}
 		        	
 		        	if(!Util.isEmptyString(uriStr))	
@@ -231,7 +232,7 @@ public class Note_addAudio extends FragmentActivity {
 				        	{
 				        		Page.swap(Page.mDb_page);
 				        		//update playing focus
-				        		AudioPlayer.mAudioPos++;
+								AudioInfo.mAudioPos++;
 				        	}
 				    		
 				        	// avoid showing empty toast
@@ -261,7 +262,7 @@ public class Note_addAudio extends FragmentActivity {
 	        	// to avoid exception due to playing tab is different with focus tab
 	        	if(PageUi.isSamePageTable())
 	        	{
-		        	AudioPlayer.prepareAudioInfo();
+		        	AudioPlayer_page.prepareAudioInfo();
 		        	Page.mItemAdapter.notifyDataSetChanged();
 	        	}
 			}

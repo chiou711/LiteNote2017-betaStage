@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.operation.audio.AudioInfo;
 import com.cw.litenote.operation.import_export.Import_fileView;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
@@ -30,8 +31,6 @@ import com.cw.litenote.page.PageUi;
 import com.cw.litenote.define.Define;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.Util;
-import com.cw.litenote.operation.audio.AudioPlayer;
-import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.preferences.Pref;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
@@ -203,7 +202,7 @@ public class FolderUi
                     Pref.setPref_focusView_folder_tableId(act,db_drawer.getFolderTableId(getFocus_folderPos(),true) );
 
                     // update playing highlight if needed
-                    if(AudioPlayer.mMediaPlayer != null)
+                    if(AudioInfo.mMediaPlayer != null)
                         MainAct.mPlaying_folderPos++;
                 }
 
@@ -295,14 +294,16 @@ public class FolderUi
         }
 
         // update audio playing highlight if needed
-        if (AudioPlayer.mMediaPlayer != null)
+        if(AudioInfo.mMediaPlayer != null)
         {
             if (MainAct.mPlaying_folderPos > position)
                 MainAct.mPlaying_folderPos--;
             else if (MainAct.mPlaying_folderPos == position)
             {
                 // stop audio since the folder is deleted
-                UtilAudio.stopAudioPlayer();
+                if(AudioInfo.mMediaPlayer != null)
+                    AudioInfo.stopAudioPlayer();
+
                 // update
                 if (foldersCount > 0)
                     selectFolder(act,getFocus_folderPos()); // select folder to clear old playing view

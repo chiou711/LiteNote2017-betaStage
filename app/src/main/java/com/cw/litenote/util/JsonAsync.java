@@ -8,12 +8,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.AsyncTask;
 
-public class JsonAsync extends AsyncTask <URL,Void,String> //Generic: Params, Progress, Result
+class JsonAsync extends AsyncTask <URL,Void,String> //Generic: Params, Progress, Result
 {
-	URL embededURL;
 	String title="";
-	
-	
+
     @Override
     protected void onPreExecute(){
     }

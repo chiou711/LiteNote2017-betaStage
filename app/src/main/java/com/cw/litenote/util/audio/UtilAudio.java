@@ -5,7 +5,7 @@ import java.util.Locale;
 
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.operation.audio.AudioPlayer;
+import com.cw.litenote.operation.audio.AudioInfo;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.R;
 import com.cw.litenote.page.PageUi;
@@ -19,35 +19,21 @@ import android.widget.TextView;
 
 public class UtilAudio {
 	
-	// Stop audio media player and audio handler
-    public static void stopAudioPlayer()
-    {
-    	System.out.println("UtilAudio / _stopAudioPlayer");
-        if(AudioPlayer.mMediaPlayer != null)
-    	{
-			if(AudioPlayer.mMediaPlayer.isPlaying())
-				AudioPlayer.mMediaPlayer.pause();
-    		AudioPlayer.mMediaPlayer.release();
-    		AudioPlayer.mMediaPlayer = null;
-
-            AudioPlayer.isRunnableOn = false;
-
-    		AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
-    	}
-    }
-    
     public static void stopAudioIfNeeded()
     {
-		if( (AudioPlayer.mMediaPlayer != null)    &&
-			(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos())&&
-			(PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos)&&
-			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP)      )
+		if( ( (AudioInfo.mMediaPlayer != null) &&
+              (AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP) ) &&
+			(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()) &&
+			(PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos)                           )
 		{
-			UtilAudio.stopAudioPlayer();
-			AudioPlayer.mAudioPos = 0;
-			AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
+            if(AudioInfo.mMediaPlayer != null){
+                AudioInfo.stopAudioPlayer();
+                AudioInfo.mAudioPos = 0;
+            }
+
 			if(MainAct.mSubMenuItemAudio != null)
 				MainAct.mSubMenuItemAudio.setIcon(R.drawable.ic_menu_slideshow);
+
 			Page.mItemAdapter.notifyDataSetChanged(); // disable focus
 		}     	
     }
@@ -55,16 +41,16 @@ public class UtilAudio {
     // update audio panel
     public static void updateAudioPanel(ImageView playBtn, TextView titleTextView)
     {
-    	System.out.println("UtilAudio/ _updateAudioPanel / AudioPlayer.getPlayerState() = " + AudioPlayer.getPlayerState());
+    	System.out.println("UtilAudio/ _updateAudioPanel / AudioInfo.getPlayerState() = " + AudioInfo.getPlayerState());
 		titleTextView.setBackgroundColor(ColorSet.color_black);
-		if(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY)
+		if(AudioInfo.getPlayerState() == AudioInfo.PLAYER_AT_PLAY)
 		{
 			titleTextView.setTextColor(ColorSet.getHighlightColor(MainAct.mAct));
 			titleTextView.setSelected(true);
 			playBtn.setImageResource(R.drawable.ic_media_pause);
 		}
-		else if( (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PAUSE) ||
-				 (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_STOP)    )
+		else if( (AudioInfo.getPlayerState() == AudioInfo.PLAYER_AT_PAUSE) ||
+				 (AudioInfo.getPlayerState() == AudioInfo.PLAYER_AT_STOP)    )
 		{
 			titleTextView.setSelected(false);
 			titleTextView.setTextColor(ColorSet.getPauseColor(MainAct.mAct));
@@ -121,28 +107,29 @@ public class UtilAudio {
                  (state == TelephonyManager.CALL_STATE_OFFHOOK )   ) 
             {
             	System.out.println(" -> Incoming phone call:");
+
                 //from Play to Pause
-            	if(AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PLAY)
+            	if(AudioInfo.getPlayerState() == AudioInfo.PLAYER_AT_PLAY)
             	{
-                    if( (AudioPlayer.mMediaPlayer != null) &&
-                        AudioPlayer.mMediaPlayer.isPlaying() ) {
-                        AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PAUSE);
-                        AudioPlayer.mMediaPlayer.pause();
+                    if( (AudioInfo.mMediaPlayer != null) &&
+                            AudioInfo.mMediaPlayer.isPlaying() ) {
+                        AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_PAUSE);
+                        AudioInfo.mMediaPlayer.pause();
                     }
             		mIsCalledWhilePlayingAudio = true;
             	}
-            } 
+            }
             else if(state == TelephonyManager.CALL_STATE_IDLE) 
             {
             	System.out.println(" -> Not in phone call:");
                 // from Pause to Play
-            	if( (AudioPlayer.getPlayerState() == AudioPlayer.PLAYER_AT_PAUSE) &&
+            	if( (AudioInfo.getPlayerState() == AudioInfo.PLAYER_AT_PAUSE) &&
             		mIsCalledWhilePlayingAudio )	
             	{
-                    if( (AudioPlayer.mMediaPlayer != null) &&
-                        !AudioPlayer.mMediaPlayer.isPlaying() ) {
-                        AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PLAY);
-                        AudioPlayer.mMediaPlayer.start();
+                    if( (AudioInfo.mMediaPlayer != null) &&
+                        !AudioInfo.mMediaPlayer.isPlaying() ) {
+                        AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_PLAY);
+                        AudioInfo.mMediaPlayer.start();
                     }
                     mIsCalledWhilePlayingAudio = false;
             	}

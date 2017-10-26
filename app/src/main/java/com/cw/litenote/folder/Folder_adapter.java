@@ -12,8 +12,8 @@ import android.widget.TextView;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.main.MainAct;
+import com.cw.litenote.operation.audio.AudioInfo;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.operation.audio.AudioPlayer;
 import com.mobeta.android.dslv.SimpleDragSortCursorAdapter;
 
 /**
@@ -66,8 +66,8 @@ public class Folder_adapter extends SimpleDragSortCursorAdapter
             viewHolder = (ViewHolder) convertView.getTag();
 
         // set highlight of selected drawer
-        if((AudioPlayer.mMediaPlayer != null) &&
-                (MainAct.mPlaying_folderPos == position) )
+        if( (AudioInfo.mMediaPlayer != null) &&
+            (MainAct.mPlaying_folderPos == position)        )
             viewHolder.drawerTitle.setTextColor(ColorSet.getHighlightColor(MainAct.mAct));
         else
             viewHolder.drawerTitle.setTextColor(Color.argb(0xff, 0xff, 0xff, 0xff));

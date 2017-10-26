@@ -13,6 +13,8 @@ import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.folder.Folder;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.note_add.Add_note_option;
+import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioPlayer_page;
 import com.cw.litenote.operation.delete.DeleteFolders;
 import com.cw.litenote.operation.delete.DeletePages;
 import com.cw.litenote.operation.import_export.Import_webAct;
@@ -25,7 +27,6 @@ import com.cw.litenote.util.DeleteFileAlarmReceiver;
 import com.cw.litenote.operation.import_export.Export_toSDCardFragment;
 import com.cw.litenote.operation.import_export.Import_filesList;
 import com.cw.litenote.db.DB_drawer;
-import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.audio.NoisyAudioStreamReceiver;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.operation.gallery.GalleryGridAct;
@@ -187,7 +188,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		    			System.out.println("MainAct / _onCreate /  FolderUi.getFocus_folderPos() = " + FolderUi.getFocus_folderPos());
 		        	}
 	        	}
-	        	AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_STOP);
+                AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_STOP);
 	        	UtilAudio.mIsCalledWhilePlayingAudio = false;
 	        }
             dB_drawer.close();
@@ -268,7 +269,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
        outState.putInt("Playing_pageId", mPlaying_pagePos);
        outState.putInt("Playing_folderPos", mPlaying_folderPos);
        outState.putInt("SeekBarProgress", Page_audio.mProgress);
-       outState.putInt("AudioPlayerState",AudioPlayer.getPlayerState());
+       outState.putInt("AudioInfo_state",AudioInfo.getPlayerState());
        outState.putBoolean("CalledWhilePlayingAudio", UtilAudio.mIsCalledWhilePlayingAudio);
        if(FolderUi.mHandler != null)
     	   FolderUi.mHandler.removeCallbacks(FolderUi.mTabsHostRun);
@@ -286,7 +287,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             FolderUi.setFocus_folderPos(savedInstanceState.getInt("NowFolderPosition"));
     		mPlaying_pagePos = savedInstanceState.getInt("Playing_pageId");
     		mPlaying_folderPos = savedInstanceState.getInt("Playing_folderPos");
-    		AudioPlayer.setPlayerState(savedInstanceState.getInt("AudioPlayerState"));
+            AudioInfo.setPlayerState(savedInstanceState.getInt("AudioInfo_state"));
     		Page_audio.mProgress = savedInstanceState.getInt("SeekBarProgress");
     		UtilAudio.mIsCalledWhilePlayingAudio = savedInstanceState.getBoolean("CalledWhilePlayingAudio");
     	}
@@ -353,8 +354,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		}
 
         // stop audio player
-        if(AudioPlayer.mMediaPlayer != null)
-            UtilAudio.stopAudioPlayer();
+        if(AudioInfo.mMediaPlayer != null)
+            AudioInfo.stopAudioPlayer();
 
 		super.onDestroy();
     }
@@ -856,8 +857,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         	case MenuId.OPEN_PLAY_SUBMENU:
         		// new play instance: stop button is off
-        	    if( (AudioPlayer.mMediaPlayer != null) &&
-        	    	(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP))
+        	    if( (AudioInfo.mMediaPlayer != null) &&
+        	    	(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP))
         		{
        		    	// show Stop
            			playOrStopMusicButton.setTitle(R.string.menu_button_stop_audio);
@@ -872,27 +873,25 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         		return true;
 
         	case MenuId.PLAY_OR_STOP_AUDIO:
-        		if( (AudioPlayer.mMediaPlayer != null) &&
-        			(AudioPlayer.getPlayerState() != AudioPlayer.PLAYER_AT_STOP))
+        		if( (AudioInfo.mMediaPlayer != null) &&
+        			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP))
         		{
-					UtilAudio.stopAudioPlayer();
+                    AudioInfo.stopAudioPlayer();
 					TabsHost.setAudioPlayingTab_WithHighlight(false);
 					Page.mItemAdapter.notifyDataSetChanged();
 					return true; // just stop playing, wait for user action
         		}
         		else
         		{
-                    System.out.println("MainAct / _onOptionsItemSelected / MenuId.PLAY_OR_STOP_AUDIO /AudioPlayer.mMediaPlayer = null " );
-        			AudioPlayer.setAudioPlayMode(AudioPlayer.CONTINUE_MODE);
-        			AudioPlayer.mAudioPos = 0;
+                    AudioInfo.setAudioPlayMode(AudioInfo.CONTINUE_MODE);
+                    AudioInfo.mAudioPos = 0;
 
                     Page.page_audio = new Page_audio(mAct);
-                    AudioPlayer.setPlayerState(AudioPlayer.PLAYER_AT_PLAY);
                     Page.page_audio.initAudioBlock();
 
-                    AudioPlayer audioPlayer = new AudioPlayer(this,Page.page_audio);
-                    AudioPlayer.prepareAudioInfo();
-                    audioPlayer.runAudioState();
+                    AudioPlayer_page audioPlayer_page = new AudioPlayer_page(this,Page.page_audio);
+                    AudioPlayer_page.prepareAudioInfo();
+                    audioPlayer_page.runAudioState();
 
 					Page.mItemAdapter.notifyDataSetChanged();
 

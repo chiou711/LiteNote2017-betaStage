@@ -2,8 +2,8 @@ package com.cw.litenote.note;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
+import com.cw.litenote.operation.audio.AudioInfo;
 import com.cw.litenote.operation.youtube.YouTubePlayerAct;
-import com.cw.litenote.operation.audio.AudioPlayer;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.preferences.Pref;
 import com.cw.litenote.util.video.UtilVideo;
@@ -218,8 +218,8 @@ public class NoteUi
                 public void onClick(View view) {
                     System.out.println("NoteUi / setPictureView_listeners / mVideoPlayButton / getVideoState() = " + UtilVideo.getVideoState());
 
-                    if( (AudioPlayer.mMediaPlayer != null) &&
-						AudioPlayer.mMediaPlayer.isPlaying() &&
+                    if( (AudioInfo.mMediaPlayer != null) &&
+                         AudioInfo.mMediaPlayer.isPlaying() &&
 						(UtilVideo.getVideoState() != UtilVideo.VIDEO_AT_PLAY) )
                     {
                         // Dialog: confirm to disable audio or not
@@ -230,12 +230,7 @@ public class NoteUi
                                        new DialogInterface.OnClickListener(){
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                if(AudioPlayer.mMediaPlayer != null) {
-                                                    AudioPlayer.mMediaPlayer.release();
-                                                    AudioPlayer.mMediaPlayer = null;
-                                                }
-
-                                                AudioPlayer.isRunnableOn = false;
+                                                AudioInfo.stopAudioPlayer();
 
                                                 UtilVideo.changeVideoState();
                                                 UtilVideo.playOrPauseVideo(pager,strPicture);
@@ -376,10 +371,10 @@ public class NoteUi
 						public void onDismiss(PopupMenu menu)
 						{
                             TextView audio_title_text_view = (TextView) act.findViewById(R.id.pager_audio_title);
-							if(AudioPlayer.mMediaPlayer != null)
+							if(AudioInfo.mMediaPlayer != null)
 							{
-								if(AudioPlayer.mMediaPlayer.isPlaying()) {
-									Note.showAudioName(act);
+								if(AudioInfo.mMediaPlayer.isPlaying()) {
+									Note_audio.showAudioName(act);
 									audio_title_text_view.setSelected(true);
 								}
 							}
