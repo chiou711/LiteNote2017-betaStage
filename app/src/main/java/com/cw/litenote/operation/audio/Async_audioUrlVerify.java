@@ -19,7 +19,7 @@ class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
 	private FragmentActivity act;
 	Async_audioPrepare mAsyncTaskAudioPrepare;
     static boolean mIsOkUrl;
-	String audioStr;
+	private String audioStr;
 
 	Async_audioUrlVerify(FragmentActivity act,String audioStr)
 	{
@@ -45,7 +45,9 @@ class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
             mUrlVerifyDialog.setMessage(act.getResources().getText(R.string.audio_message_searching_media));
             mUrlVerifyDialog.setCancelable(true); // set true for enabling Back button
             mUrlVerifyDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); //ProgressDialog.STYLE_HORIZONTAL
-            mUrlVerifyDialog.show();
+			//keep LOW_PROFILE for note view
+			if(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)
+            	mUrlVerifyDialog.show();
         }
 
 		AudioInfo.mIsPrepared = false;

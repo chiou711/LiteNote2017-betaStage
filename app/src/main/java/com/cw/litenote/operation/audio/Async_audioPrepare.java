@@ -36,7 +36,9 @@ public class Async_audioPrepare extends AsyncTask<String,Integer,String>
 			mPrepareDialog.setMessage(act.getResources().getText(R.string.audio_message_preparing_to_play));
 			mPrepareDialog.setCancelable(true); // set true for enabling Back button
 			mPrepareDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); //ProgressDialog.STYLE_HORIZONTAL
-			mPrepareDialog.show();
+			//keep LOW_PROFILE for note view
+			if(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)
+				mPrepareDialog.show();
 		}
 
         AudioInfo.mIsPrepared = false;

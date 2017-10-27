@@ -1510,7 +1510,9 @@ public class Util
 		{
             // show the status bar and navigation bar
 		    View decorView = act.getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+//			int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;//top is overlaid by action bar
+//			int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+			int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE;//the usual system chrome is deemed too distracting.
             decorView.setSystemUiVisibility(uiOptions);
 		}
 	}
