@@ -660,7 +660,7 @@ public class Util
 		  try { 
 		    String[] proj = { MediaStore.Images.Media.DATA };
 		    cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
-		    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);//???
+		    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 		    cursor.moveToFirst();
 		    return cursor.getString(column_index);
 		  }
@@ -735,7 +735,6 @@ public class Util
 					{
 						
 					}
-					//??? 12-30 15:11:31.808: E/AndroidRuntime(8813): java.lang.IllegalArgumentException
 					audio_title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
 					audio_artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
 					display_name = audio_title + " / " + audio_artist;
@@ -785,7 +784,7 @@ public class Util
 
 			if(file != null)
 			{
-				if(file.exists()) //??? _exists has bug?
+				if(file.exists())
 					bFileExist = true;
 				else
                 {
@@ -810,7 +809,7 @@ public class Util
 				try
 				{
 					ContentResolver cr = activity.getContentResolver();
-					cr.openInputStream(uri); //??? why this could hang up system?
+					cr.openInputStream(uri);
 					bFileExist = true;
 				}
 				catch (FileNotFoundException exception)
@@ -831,7 +830,7 @@ public class Util
 			// when scheme is https or http
 			try
 			{
-				if(Patterns.WEB_URL.matcher(uriString).matches())//??? URL can check URI string?
+				if(Patterns.WEB_URL.matcher(uriString).matches())
 					bFileExist = true;
 			}
 			catch (Exception e)
@@ -1246,7 +1245,7 @@ public class Util
 //			String expression = "^.*((youtu.be\\/)|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??v?=?([^#\\&\\?]*).*";
             String expression = "^.*((youtu.be\\/)|(v\\/)|(\\/u\\/w\\/)|(embed\\/)|(watch\\?))\\??(v=)?([^#\\&\\?]*).*";
 	        CharSequence input = url;
-	        Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);//??? some Urls are NG
+	        Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
 	        Matcher matcher = pattern.matcher(input);
 	        if (matcher.matches()) {
 //				String groupIndex1 = matcher.group(7);
@@ -1278,7 +1277,7 @@ public class Util
         if (url != null && url.trim().length() > 0 && url.startsWith("http")) {
 			String expression = "^.*((youtu.be/)|(v/)|(/u/w/)|(embed/)|(watch\\?))\\??v?=?([^#&?]*).*list?=?([^#&?]*).*";
             CharSequence input = url;
-            Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);//??? some Urls are NG
+            Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(input);
             if (matcher.matches()) {
                 String groupIndex1 = matcher.group(8);
@@ -1299,7 +1298,7 @@ public class Util
 		if (url != null && url.trim().length() > 0 && url.startsWith("http")) {
 			String expression = "^.*((youtu.be/)|(v/)|(/u/w/)|(embed/)|(playlist\\?))\\??v?=?([^#&?]*).*list?=?([^#&?]*).*";
 			CharSequence input = url;
-			Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);//??? some Urls are NG
+			Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
 			Matcher matcher = pattern.matcher(input);
 			if (matcher.matches()) {
 				String groupIndex1 = matcher.group(8);
@@ -1333,8 +1332,7 @@ public class Util
     		
     		while(Util.isEmptyString(jsonAsyncTask.title) && !isTimeUp)
     		{
-    			//??? add time out?
-//    			System.out.print("?");
+    			//do nothing
     		}
     		isTimeUp = true;
 	        return jsonAsyncTask.title;
@@ -1368,7 +1366,7 @@ public class Util
 						editText.setHint(Html.fromHtml("<small style=\"text-color: gray;\"><i>" +
 								httpTitle +
 								"</i></small>"));
-						editText.setSelection(0);//??? sometimes title is not seen
+						editText.setSelection(0);
 
 						editText.setOnTouchListener(new View.OnTouchListener() {
 							@Override
@@ -1474,9 +1472,9 @@ public class Util
 //			System.out.println("Util / _setFullScreen / hasNavBar = " + hasNavBar);
 
             // flags
-            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE//??? add bottom offset
-                           |View.SYSTEM_UI_FLAG_FULLSCREEN
-                           |View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            int uiOptions = //View.SYSTEM_UI_FLAG_LAYOUT_STABLE | //??? why this flag will add bottom offset
+                            View.SYSTEM_UI_FLAG_FULLSCREEN |
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 
             if (Build.VERSION.SDK_INT >= 19)
                 uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
@@ -1511,9 +1509,32 @@ public class Util
             // show the status bar and navigation bar
 		    View decorView = act.getWindow().getDecorView();
 //			int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;//top is overlaid by action bar
-//			int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
-			int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE;//the usual system chrome is deemed too distracting.
+			int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;//normal
+//			int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE;//the usual system chrome is deemed too distracting.
+//			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;//full screen
             decorView.setSystemUiVisibility(uiOptions);
+		}
+	}
+
+
+	// set full screen for no immersive sticky
+	public static void setFullScreen_noImmersive(Activity act)
+	{
+//		System.out.println("Util / _setFullScreen_noImmersive");
+		Window win = act.getWindow();
+
+		if (Build.VERSION.SDK_INT < 16)
+		{
+			win.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			win.setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+		}
+		else
+		{
+			// show the status bar and navigation bar
+			View decorView = act.getWindow().getDecorView();
+			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;//full screen
+			decorView.setSystemUiVisibility(uiOptions);
 		}
 	}
 
@@ -1583,7 +1604,7 @@ public class Util
 			// Check for the freshest data.
 			// for Google drive
 			String authority = selectedUri.getAuthority();
-			if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage") )//??? add condition?
+			if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage") )
 			{
 				int takeFlags = returnedIntent.getFlags()
 						& (Intent.FLAG_GRANT_READ_URI_PERMISSION

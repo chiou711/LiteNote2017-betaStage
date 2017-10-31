@@ -313,14 +313,6 @@ public class UtilVideo
 			if(mPlayVideoPosition == 0)
 				videoView.setBackgroundDrawable(bitmapDrawable);
 		}
-		
-		//??? add the following, why 720p video shows small bitmap?
-		//this is an important step not to keep receiving callback
-		//we should remove this listener
-//		if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-//			videoView.getViewTreeObserver().removeOnGlobalLayoutListener(onGlobalLayoutListener);
-//		else
-//			videoView.getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
   	}
 	
 	// get bitmap drawable by path
@@ -356,7 +348,7 @@ public class UtilVideo
 				mVideoView.setVisibility(View.VISIBLE);
 
 				//start a new Video player instance
-				mVideoPlayer = new VideoPlayer(mAct,pager,picString);//??? why not change video?
+				mVideoPlayer = new VideoPlayer(mAct,pager,picString);
 			}
 			else if(mVideoPlayer != null)
 			{
@@ -401,8 +393,8 @@ public class UtilVideo
 			
 			do
 			{
-				System.setProperty("http.keepAlive", "false");//??? needed?
-				int numread = stream.read(buf); //09-23 13:17:57.598: W/System.err(24621): java.net.SocketException: recvfrom failed: ECONNRESET (Connection reset by peer)
+				System.setProperty("http.keepAlive", "false");//??? need this?
+				int numread = stream.read(buf);
 				if (numread <= 0)
 					break;
 				out.write(buf, 0, numread);

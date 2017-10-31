@@ -127,7 +127,7 @@ public class Note_common {
 			linkEditText.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
 		}
 
-		picImageView.setBackgroundColor(ColorSet.mBG_ColorArray[style]);//??? add new text 已不需此
+		picImageView.setBackgroundColor(ColorSet.mBG_ColorArray[style]);
 
 	    final InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -430,7 +430,7 @@ public class Note_common {
                             if (hasFocus) {
 								titleEditText.setHint(Html.fromHtml("<small style=\"text-color: gray;\"><i>" +
 																	  hint +
-																	  "</i></small>") );//??? no hint?
+																	  "</i></small>") );
                             }
                         }
                     });
@@ -541,7 +541,7 @@ public class Note_common {
 
         if(enSaveDb)
         {
-	        if (rowId == null) // for Add new //??? rotate?
+	        if (rowId == null) // for Add new
 	        {
 	        	if( (!title.isEmpty()) ||
 	        		(!body.isEmpty()) ||
@@ -623,7 +623,7 @@ public class Note_common {
 	        	if( !pictureUri.isEmpty())
 	        	{
 	        		// insert
-					String name = Util.getDisplayNameByUriString(pictureUri, act);//??? only add for video?
+					String name = Util.getDisplayNameByUriString(pictureUri, act);
 	        		System.out.println("Note_common / _savePictureStateInDB / insert");
 	        		rowId = dB.insertNote(name, pictureUri, audioUri, drawingUri, linkUri, "", 1, (long) 0);// add new note, get return row Id
 	        	}

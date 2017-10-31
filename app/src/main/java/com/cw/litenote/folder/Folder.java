@@ -87,7 +87,7 @@ public class Folder
         listView.setOnItemClickListener(new Folder.FolderListener_click(act));
 
         // set up long click listener
-        listView.setOnItemLongClickListener(new Folder.FolderListener_longClick(act,folderAdapter));
+        listView.setOnItemLongClickListener(new Folder.FolderListener_longClick(act,adapter));
 
         controller = buildController(listView);
         listView.setFloatViewManager(controller);

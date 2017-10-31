@@ -64,7 +64,7 @@ public class PageUi
 	            	});
 		// inflate select style layout
 		LayoutInflater mInflater= (LayoutInflater) act.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = mInflater.inflate(R.layout.select_style, null);//??? how to set group view?
+		View view = mInflater.inflate(R.layout.select_style, null);
 		RadioGroup RG_view = (RadioGroup)view.findViewById(R.id.radioGroup1);
 
 		Util.setButtonColor((RadioButton)RG_view.findViewById(R.id.radio0),0);

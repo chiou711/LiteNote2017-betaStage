@@ -225,7 +225,7 @@ class Note_adapter extends FragmentStatePagerAdapter
     	// Check if Uri is for YouTube
     	if(Util.isEmptyString(pictureUri) && Util.isYouTubeLink(linkUri) )
     	{
-			pictureUri = "http://img.youtube.com/vi/"+Util.getYoutubeId(linkUri)+"/0.jpg";//??? how to get this for playlist
+			pictureUri = "http://img.youtube.com/vi/"+Util.getYoutubeId(linkUri)+"/0.jpg";//??? how to get this jpg for a playlist
 			System.out.println("Note_adapter / _showPictureView / YouTube pictureUri = " + pictureUri);
 		}
 
@@ -265,7 +265,7 @@ class Note_adapter extends FragmentStatePagerAdapter
 			    audioAsyncTask = new AsyncTaskAudioBitmap(act,
 						    							  audioUri, 
 						    							  imageView,
-						    							  null, //??? set this has unknown bug
+						    							  null,
 														  false);
 				audioAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"Searching media ...");
 			}
@@ -370,7 +370,7 @@ class Note_adapter extends FragmentStatePagerAdapter
 					if (lastLinkWebView != null)
 					{
 						CustomWebView.pauseWebView(lastLinkWebView);
-						CustomWebView.blankWebView(lastLinkWebView);//??? if last page has image/video, this line will blank it
+						CustomWebView.blankWebView(lastLinkWebView);
 					}
 				}
 
@@ -523,7 +523,7 @@ class Note_adapter extends FragmentStatePagerAdapter
     	webView.getSettings().setSupportZoom(true);
     	webView.getSettings().setUseWideViewPort(true);
 //    	customWebView.getSettings().setLoadWithOverviewMode(true);
-    	webView.getSettings().setJavaScriptEnabled(true);//??? Using setJavaScriptEnabled can introduce XSS vulnerabilities
+    	webView.getSettings().setJavaScriptEnabled(true);//warning: Using setJavaScriptEnabled can introduce XSS vulnerabilities
 
 //		// speed up
 //		if (Build.VERSION.SDK_INT >= 19) {
@@ -716,7 +716,7 @@ class Note_adapter extends FragmentStatePagerAdapter
     	bgColorStr = bgColorStr.substring(2);
     	
     	return   head + "<body color=\"" + bgColorStr + "\">" +
-				 "<br>" + //??? note: text mode needs this, otherwise title is overlaid
+				 "<br>" + //Note: text mode needs this, otherwise title is overlaid
 		         "<p align=\"center\"><b>" +
 		         "<font color=\"" + colorStr + "\">" + strTitle + "</font>" +
          		 "</b></p>" + separatedLineTitle +

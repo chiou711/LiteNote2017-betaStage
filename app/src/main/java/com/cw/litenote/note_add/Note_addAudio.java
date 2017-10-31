@@ -114,9 +114,8 @@ public class Note_addAudio extends FragmentActivity {
 					// add for solving inspection error
 					takeFlags |= Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
-					//fix: no permission grant found for UID 10070 and Uri content://media/external/file/28
 			    	String authority = selectedUri.getAuthority();
-			    	if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage")) //??? add condition? 	
+			    	if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage"))
 			    	{
 			    		getContentResolver().takePersistableUriPermission(selectedUri, takeFlags);
 			    	}

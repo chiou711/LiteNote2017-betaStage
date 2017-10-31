@@ -56,7 +56,11 @@ public class AudioPlayer_note
 		if(AudioInfo.mMediaPlayer == null)
 		{
             mPlaybackTime = 0;
-            AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_PLAY);
+            if(!Note_audio.isPausedAtSeekerAnchor)
+                AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_PLAY);
+            else
+                AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_PAUSE);//just slide the progress bar
+
             startNewAudio();
 		}
 		else

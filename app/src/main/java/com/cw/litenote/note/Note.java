@@ -307,7 +307,7 @@ public class Note extends FragmentActivity
         // Set full screen or not, and action bar
 		if(isViewAllMode() || isTextMode())
 		{
-			Util.setNotFullScreen(act);
+			Util.setFullScreen_noImmersive(act);
             if(act.getActionBar() != null)
 			    act.getActionBar().show();
 		}
@@ -422,7 +422,7 @@ public class Note extends FragmentActivity
 			mPlayVideoPositionOfInstance = UtilVideo.mPlayVideoPosition;
 			System.out.println("Note / _onPause / mPlayVideoPositionOfInstance = " + mPlayVideoPositionOfInstance);
 
-			if(UtilVideo.mVideoPlayer != null)//??? try more to check if this is better? or still keep video view
+			if(UtilVideo.mVideoPlayer != null)
 				VideoPlayer.stopVideo();
 		}
 
@@ -502,9 +502,7 @@ public class Note extends FragmentActivity
 		MenuItem itemPrev = menu.findItem(R.id.ACTION_PREVIOUS);
 		itemPrev.setEnabled(mPager.getCurrentItem() > 0);
 		itemPrev.getIcon().setAlpha(mPager.getCurrentItem() > 0?255:30);
-		//??? on api19, why does this affect YouTubePlayerAct (R.id.btn_previous) alpha?
-		//workaround: apply different Id, same icon
-		
+
 		// menu item: Next or Finish
 		MenuItem itemNext = menu.findItem(R.id.ACTION_NEXT);
 		itemNext.setTitle((mPager.getCurrentItem() == mPagerAdapter.getCount() - 1)	?

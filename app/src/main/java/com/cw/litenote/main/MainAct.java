@@ -104,6 +104,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 //    	   .penaltyDeath()
 //    	   .build());     	
     	///
+
         super.onCreate(savedInstanceState);
 
         mAct = this;
@@ -209,7 +210,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 			// add on back stack changed listener
 	        fragmentManager = getSupportFragmentManager();
-			mOnBackStackChangedListener = MainAct.this;//??? = this?
+			mOnBackStackChangedListener = this;
 	        fragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener);
 
 			// register an audio stream receiver for earphone jack connection on/off
@@ -345,7 +346,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		{
 			try
 			{
-				unregisterReceiver(noisyAudioStreamReceiver);//??? unregister here?
+				unregisterReceiver(noisyAudioStreamReceiver);
 			}
 			catch (Exception e)
 			{
@@ -567,7 +568,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public boolean onPrepareOptionsMenu(android.view.Menu menu) {
         System.out.println("MainAct / _onPrepareOptionsMenu");
 
-        //??? why still got here even already call finish()after having got YouTube link
         if((drawer == null) || (drawer.drawerLayout == null))
             return false;
 
@@ -750,7 +750,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) //??? java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+    public boolean onOptionsItemSelected(MenuItem item)
     {
 		setMenuUiState(item.getItemId());
         DB_folder dB_folder = new DB_folder(this, Pref.getPref_focusView_folder_tableId(this));
@@ -778,7 +778,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                     startActivity(intent);
                 }
                 else {
-                    fragmentManager.popBackStack();//??? folders count = 1 : exception
+                    fragmentManager.popBackStack();
                     {
                         initActionBar(mMenu, drawer);
                         mFolderTitle = dB_drawer.getFolderTitle(FolderUi.getFocus_folderPos(),true);

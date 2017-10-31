@@ -152,7 +152,7 @@ public class MainUi {
             }
             else // other
             {
-                title = pathOri; //??? better way?
+                title = pathOri;
                 if (pref_show_note_attribute.getString("KEY_ADD_NEW_NOTE_TO", "bottom").equalsIgnoreCase("top") &&
                         (count > 1)) {
                     Page.swap(dB_page);

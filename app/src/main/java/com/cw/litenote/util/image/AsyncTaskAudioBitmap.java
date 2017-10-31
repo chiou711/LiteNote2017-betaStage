@@ -53,7 +53,7 @@ public class AsyncTaskAudioBitmap extends AsyncTask<String,Integer,String>
 		 mmr = new MediaMetadataRetriever();
 		 try
 		 {
-			 mmr.setDataSource(mAct,Uri.parse(mAudioUri));//??? why hang up?
+			 mmr.setDataSource(mAct,Uri.parse(mAudioUri));
 
 			 byte[] artBytes =  mmr.getEmbeddedPicture();
 			 if(artBytes != null)

@@ -264,7 +264,6 @@ public class Note_edit extends Activity
 							audioUri = originalAudioFileName;
 							enSaveDb = true;
 						}	
-						//??? Add linkUri related?
 	                    finish();
 					}})
 			   .show();
@@ -344,7 +343,7 @@ public class Note_edit extends Activity
         	note_common.removeAudioStringFromOriginalNote(noteId);
 			note_common.populateFields_all(noteId);
 			note_common.bRemoveAudioUri = true;
-        }      //??? need this for Link uri?  
+        }
     }
 
     @Override
@@ -636,7 +635,7 @@ public class Note_edit extends Activity
 
 					//fix: no permission grant found for UID 10070 and Uri content://media/external/file/28
 					String authority = audioUri.getAuthority();
-					if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage")) //??? add condition?
+					if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage"))
 					{
 						getContentResolver().takePersistableUriPermission(audioUri, takeFlags);
 					}

@@ -73,9 +73,9 @@ public class AsyncTaskVideoBitmap extends AsyncTask<String,Integer,String>
 		 mmr = new MediaMetadataRetriever();
 		 try
 		 {
-			 System.out.println("AsyncTaskVideoBitmap / setDataSource start");
-			 mmr.setDataSource(mAct,Uri.parse(mPictureUri));//??? why hang up for remote video?
-			 System.out.println("AsyncTaskVideoBitmap / setDataSource done");
+//			 System.out.println("AsyncTaskVideoBitmap / setDataSource start");
+			 mmr.setDataSource(mAct,Uri.parse(mPictureUri));
+//			 System.out.println("AsyncTaskVideoBitmap / setDataSource done");
 			 bitmap = mmr.getFrameAtTime(-1);
 			 bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
 			 mmr.release();

@@ -142,7 +142,6 @@ public class Page extends UilListViewBaseFragment
         mController = buildController(mDndListView);
         mDndListView.setFloatViewManager(mController);
         mDndListView.setOnTouchListener(mController);
-        //??? Custom view com/cwc/litenote/lib/DragSortListView has setOnTouchListener
         //called on it but does not override performClick
   		mDndListView.setDragEnabled(true);
 
@@ -340,7 +339,7 @@ public class Page extends UilListViewBaseFragment
 	  	// mark
         controller.setMarkEnabled(true);
         controller.setClickMarkId(R.id.img_check);
-        controller.setMarkMode(DragSortController.ON_DOWN);//??? how to avoid conflict?
+        controller.setMarkMode(DragSortController.ON_DOWN);
         // audio
         controller.setAudioEnabled(true);
 //        controller.setClickAudioId(R.id.img_audio);
@@ -572,7 +571,7 @@ public class Page extends UilListViewBaseFragment
 				 mNoteTitle1,
 				 mNotePictureUri1,
 				 mNoteAudioUri1, 
-				 "", //??? TBD
+				 "",
 				 mNoteLinkUri1,
 				 mNoteBodyString1,
 				 mMarkingIndex1,
@@ -582,7 +581,7 @@ public class Page extends UilListViewBaseFragment
 		 		 mNoteTitle2,
 		 		 mNotePictureUri2,
 		 		 mNoteAudioUri2, 
-				 "", //??? TBD
+				 "",
 				 mNoteLinkUri2,
 		 		 mNoteBodyString2,
 		 		 mMarkingIndex2,
@@ -642,11 +641,11 @@ public class Page extends UilListViewBaseFragment
 
 		// toggle the marking
 		if(mDb_page.getNoteMarking(position,false) == 0) {
-			mDb_page.updateNote(idNote, strNote, strPictureUri, strAudioUri, "", strLinkUri, strNoteBody, 1, 0, false); //??? TBD
+			mDb_page.updateNote(idNote, strNote, strPictureUri, strAudioUri, "", strLinkUri, strNoteBody, 1, 0, false);
 			marking = 1;
 		}
 		else {
-			mDb_page.updateNote(idNote, strNote, strPictureUri, strAudioUri, "", strLinkUri, strNoteBody, 0, 0, false); //??? TBD
+			mDb_page.updateNote(idNote, strNote, strPictureUri, strAudioUri, "", strLinkUri, strNoteBody, 0, 0, false);
 			marking = 0;
 		}
 
@@ -1013,7 +1012,7 @@ public class Page extends UilListViewBaseFragment
 
 					// move to same page is not allowed
 					if(!((action == MOVE_TO) && (srcPageTableId == destPageTableId)))
-						mDb_page.insertNote(copyItems[i],copyItemsPicture[i], copyItemsAudio[i], "", copyItemsLink[i], copyItemsBody[i],marking, copyItemsTime[i]); //??? TBD
+						mDb_page.insertNote(copyItems[i],copyItemsPicture[i], copyItemsAudio[i], "", copyItemsLink[i], copyItemsBody[i],marking, copyItemsTime[i]);
 				}
 				
 				//recover table Id of original page

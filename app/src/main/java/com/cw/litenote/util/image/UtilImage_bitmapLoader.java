@@ -153,7 +153,7 @@ public class UtilImage_bitmapLoader
 						message = "Out Of Memory error";
 						break;
 					case UNKNOWN:
-						message = "Unknown error";//??? mark this line?
+						message = "Unknown error";
 						break;
 				}
 //				Toast.makeText(mAct, message, Toast.LENGTH_SHORT).show();

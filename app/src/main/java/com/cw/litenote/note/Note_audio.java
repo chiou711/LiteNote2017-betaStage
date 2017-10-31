@@ -114,7 +114,7 @@ public class Note_audio
         TextView audio_curr_pos = (TextView) act.findViewById(R.id.pager_audio_current_pos);
         audio_curr_pos.setText(String.format(Locale.ENGLISH,"%2d", curHour)+":" +
                 String.format(Locale.ENGLISH,"%02d", curMin)+":" +
-                String.format(Locale.ENGLISH,"%02d", curSec) );//??? why affect audio title?
+                String.format(Locale.ENGLISH,"%02d", curSec) );
         audio_curr_pos.setTextColor(ColorSet.color_white);
         // audio seek bar
         seekBar.setProgress(mProgress); // This math construction give a percentage of "was playing"/"song length"
@@ -130,7 +130,7 @@ public class Note_audio
         }
         catch(Exception e)
         {
-            System.out.println("Note / _initAudioProgress / exception");
+            System.out.println("Note_audio / _initAudioProgress / exception");
         }
         // set audio file length
         int fileHour = Math.round((float)(mediaFileLength / 1000 / 60 / 60));
@@ -283,7 +283,7 @@ public class Note_audio
         {
             audio_curr_pos.setText(String.format(Locale.ENGLISH,"%2d", curHour)+":" +
                     String.format(Locale.ENGLISH,"%02d", curMin)+":" +
-                    String.format(Locale.ENGLISH,"%02d", curSec) );//??? why affect audio title?
+                    String.format(Locale.ENGLISH,"%02d", curSec) );
         }
 
         mProgress = (int)(((float)currentPos/ mediaFileLength)*100);

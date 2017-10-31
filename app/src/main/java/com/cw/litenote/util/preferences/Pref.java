@@ -65,7 +65,7 @@ public class Pref {
         int tableId = getPref_focusView_folder_tableId(act);
         String keyName = keyPrefix.concat(String.valueOf(tableId));
         keyName = keyName.concat("_SCROLL_X");
-        pref.edit().putInt(keyName, scrollX).apply(); //??? it could be not updated soon enough?
+        pref.edit().putInt(keyName, scrollX).apply();
     }
 
     // get scroll X of drawer of focus view
@@ -87,7 +87,7 @@ public class Pref {
         String keyName = "KEY_LIST_VIEW_FIRST_VISIBLE_INDEX";
         String location = getCurrentListViewLocation(act);
         keyName = keyName.concat(location);
-        pref.edit().putInt(keyName, index).apply(); //??? it could not updated soon enough?
+        pref.edit().putInt(keyName, index).apply();
     }
 
     // Get list view first visible Index of focus view
@@ -108,7 +108,7 @@ public class Pref {
         String keyName = "KEY_LIST_VIEW_FIRST_VISIBLE_INDEX_TOP";
         String location = getCurrentListViewLocation(act);
         keyName = keyName.concat(location);
-        pref.edit().putInt(keyName, top).apply(); //??? it could be not updated soon enough?
+        pref.edit().putInt(keyName, top).apply();
     }
 
     // Get list view first visible index Top of focus view

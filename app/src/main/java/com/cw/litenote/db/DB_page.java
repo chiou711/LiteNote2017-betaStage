@@ -295,7 +295,7 @@ public class DB_page
 		int notesCount = getNotesCount(false);
 		for(int i=0;i< notesCount ;i++)
 		{
-			if(getNoteMarking(i,false) == 1)//??? why exception
+			if(getNoteMarking(i,false) == 1)
 				countCheck++;
 		}
 

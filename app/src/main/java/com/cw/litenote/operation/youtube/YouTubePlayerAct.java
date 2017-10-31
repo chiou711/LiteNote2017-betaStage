@@ -99,7 +99,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
                 bShow_landscape_prev_next_control = !isFullScreen;
 
                 if (!isFullScreen && Util.isLandscapeOrientation(act)) {
-                    Util.setNotFullScreen(act);
+                    Util.setFullScreen_noImmersive(act);
                     youTube_player.setFullscreen(false);
                     showButtons();
                     bShow_landscape_prev_next_control = true;
@@ -210,7 +210,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
             }
             else
             {
-                Util.setNotFullScreen(this);
+                Util.setFullScreen_noImmersive(this);
                 youTube_player.setFullscreen(false);
                 showButtons();
             }
@@ -218,7 +218,7 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         // not full screen
         else
         {
-            Util.setNotFullScreen(this);
+            Util.setFullScreen_noImmersive(this);
             youTube_player.setFullscreen(false);
             showButtons();
         }

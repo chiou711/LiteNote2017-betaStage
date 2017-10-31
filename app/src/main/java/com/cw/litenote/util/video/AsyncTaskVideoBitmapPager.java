@@ -62,8 +62,8 @@ public class AsyncTaskVideoBitmapPager extends AsyncTask<String,Integer,String>
 		 mmr = new MediaMetadataRetriever();
 		 try
 		 {
-			 System.out.println("AsyncTaskVideoBitmapPager / setDataSource start / mPictureUri = " + mPictureUri);
-			 mmr.setDataSource(mAct,Uri.parse(mPictureUri));//??? why hang up?
+//			 System.out.println("AsyncTaskVideoBitmapPager / setDataSource start / mPictureUri = " + mPictureUri);
+			 mmr.setDataSource(mAct,Uri.parse(mPictureUri));
 			 bitmap = mmr.getFrameAtTime(-1);
 			 bitmap = Bitmap.createScaledBitmap(bitmap, UtilImage.getScreenWidth(mAct), UtilImage.getScreenHeight(mAct), true);
 			 

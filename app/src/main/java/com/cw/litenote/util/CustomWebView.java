@@ -138,7 +138,7 @@ public class CustomWebView extends WebView {
 			
 			webView.onPause();
 			webView.onResume();
-			webView.clearCache(true);//??? effective for hang up?
+			webView.clearCache(true);
 		}  
 	}
 
@@ -147,7 +147,7 @@ public class CustomWebView extends WebView {
 		if(webView != null)
 		{
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
-				webView.loadUrl("about:blank");//??? why dose this blank image view? or previous pager video?
+				webView.loadUrl("about:blank");
 			else
 				webView.clearView();
 			webView.setVisibility(View.GONE);

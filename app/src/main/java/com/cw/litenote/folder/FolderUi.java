@@ -574,7 +574,7 @@ public class FolderUi
         	System.out.println("FolderUi / mTabsHostRun");
             Fragment fragment = new TabsHost();
         	FragmentTransaction fragmentTransaction = MainAct.fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.content_frame, fragment).commit();//???  Can not perform this action after onSaveInstanceState
+            fragmentTransaction.replace(R.id.content_frame, fragment).commit();
         	MainAct.fragmentManager.executePendingTransactions();
         } 
     };    

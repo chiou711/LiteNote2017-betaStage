@@ -377,7 +377,7 @@ public class Note_addCameraVideo extends Activity {
 			        	cameraVideoUri = dB.getNotePictureUri_byId(noteId);
 			        }
 			        
-	    	   		// delete //??? delete thumb nail? check again!
+	    	   		// delete
 	    	   		int deletedRows = context.getContentResolver().delete(
 	         	            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 	         	            MediaStore.Video.VideoColumns.DATA

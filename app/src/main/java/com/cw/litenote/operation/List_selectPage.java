@@ -37,7 +37,7 @@ public class List_selectPage
     DB_folder mDb_folder;
     public int count;
     Activity mAct;
-    public String mXML_default_filename;//??? for only 2 cases (all and single)?
+    public String mXML_default_filename;
     public String mFolderTitle;
 
     public List_selectPage(Activity act, View rootView, View view)
@@ -218,7 +218,6 @@ public class List_selectPage
             chkTV.setTextColor(ColorSet.mText_ColorArray[style]);
 
             // Show current page
-            //??? how to set left padding of text view of a CheckedTextview
             // workaround: set single line to true and add one space in front of the text
             if(mDb_folder.getPageTableId(position,true) == Integer.valueOf(DB_page.getFocusPage_tableId()))
             {

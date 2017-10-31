@@ -456,8 +456,7 @@ public class Note_addCameraImage extends Activity {
 	        if (bDeleteFile1) // for Before Kitkat
 	        {
 	        	System.out.println("deleted file path1 = " + path1);
-//	        	path1 =  path1.replaceAll("'", "''"); //??? for what
-        	  
+
 	        	// delete 
 	        	int deletedRows = context.getContentResolver()
 	        							 .delete( MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -489,7 +488,7 @@ public class Note_addCameraImage extends Activity {
 			        	cameraImageUri = dB.getNotePictureUri_byId(noteId);
 			        }
 			        
-	    	   		// delete //??? delete thumb nail? check again!
+	    	   		// delete
 	    	   		int deletedRows = context.getContentResolver()
 	    	   								 .delete( MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
 	    	   										  MediaStore.Images.ImageColumns.DATA

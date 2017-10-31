@@ -169,7 +169,7 @@ public class TouchImageView extends ImageView {
     
     @Override
     public void setImageURI(Uri uri) {
-    	super.setImageURI(uri);//??? out of memory
+    	super.setImageURI(uri);
     	savePreviousImageValues();
     	fitImageToView();
     }

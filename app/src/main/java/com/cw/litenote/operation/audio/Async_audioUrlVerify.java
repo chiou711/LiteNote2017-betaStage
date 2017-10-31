@@ -46,7 +46,7 @@ class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
             mUrlVerifyDialog.setCancelable(true); // set true for enabling Back button
             mUrlVerifyDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); //ProgressDialog.STYLE_HORIZONTAL
 			//keep LOW_PROFILE for note view
-			if(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)
+			if(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)//todo how to add dialog for not affecting full screen
             	mUrlVerifyDialog.show();
         }
 
@@ -92,7 +92,7 @@ class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
  				         
 		 					Util.tryUrlConnection(audioStr, act);
 		 					// wait for response
-		 					Thread.sleep(Util.oneSecond); //??? better idea?
+		 					Thread.sleep(Util.oneSecond);
  						
 		 					// check response
 		 					if(200 <= Util.mResponseCode && Util.mResponseCode <= 399)
@@ -107,7 +107,7 @@ class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
 		 					else
 		 					{
 		 					    i++;
-		 						if(i==5) //??? better idea?
+		 						if(i==5)
 		 						    isEnd = true; // no more try
 		 					}
 		 				}

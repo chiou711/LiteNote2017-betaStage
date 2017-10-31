@@ -317,7 +317,7 @@ public class NoteUi
 					}
 
 	    	    	// set not full screen
-	    	    	Util.setNotFullScreen(act);
+	    	    	Util.setFullScreen_noImmersive(act);
 
         			// back to view all mode
 	        		Note.setViewAllMode();
@@ -564,7 +564,7 @@ public class NoteUi
 
             if((!UtilVideo.hasMediaControlWidget) && UtilVideo.hasVideoExtension(pictureStr, act))
             {
-                picView_previous_button.setVisibility(View.GONE); //??? how to avoid this flash?
+                picView_previous_button.setVisibility(View.GONE);
                 picView_next_button.setVisibility(View.GONE);
             }
 
@@ -625,7 +625,7 @@ public class NoteUi
     private static ViewGroup getPictureGroup(int position,ViewPager pager)
     {
         String tagStr = "current"+ position +"pictureView";
-        ViewGroup viewGroup = (ViewGroup) pager.findViewWithTag(tagStr);//??? how to remove static of mPager
+        ViewGroup viewGroup = (ViewGroup) pager.findViewWithTag(tagStr);
         System.out.println("NoteUi / _getPictureGroup / tagStr = " + tagStr);
         return  viewGroup;
     }

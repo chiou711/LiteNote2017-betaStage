@@ -103,7 +103,7 @@ public class Note_addReadyVideo extends Activity {
 					takeFlags |= Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
 			    	// Check for the freshest data.
-			    	if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage") )//??? add condition? 	
+			    	if(authority.equalsIgnoreCase("com.google.android.apps.docs.storage") )
 			    	{
 			    		getContentResolver().takePersistableUriPermission(selectedUri, takeFlags);
 			    	}
