@@ -24,7 +24,7 @@ import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
 import com.cw.litenote.operation.List_selectFolder;
-import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioManager;
 import com.cw.litenote.util.BaseBackPressedListener;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
@@ -218,11 +218,11 @@ public class DeleteFolders extends Fragment{
         int scrollX = 0; //over the last scroll X
         Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
 
-        if(AudioInfo.mMediaPlayer != null)
+        if(AudioManager.mMediaPlayer != null)
         {
-            AudioInfo.stopAudioPlayer();
-            AudioInfo.mAudioPos = 0;
-            AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_STOP);
+            AudioManager.stopAudioPlayer();
+            AudioManager.mAudioPos = 0;
+            AudioManager.setPlayerState(AudioManager.PLAYER_AT_STOP);
         }
 
         list_selFolder = new List_selectFolder(act,rootView , mListView);

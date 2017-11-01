@@ -3,7 +3,7 @@ package com.cw.litenote.note;
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
-import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioManager;
 import com.cw.litenote.operation.audio.AudioPlayer_note;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.page.PageUi;
@@ -75,7 +75,7 @@ public class Note extends FragmentActivity
 
     public FragmentActivity act;
     public static int mPlayVideoPositionOfInstance;
-    Note_audio note_audio;
+    public Note_audio note_audio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -219,8 +219,8 @@ public class Note extends FragmentActivity
 		@Override
 		public void onPageSelected(int nextPosition)
 		{
-			if(AudioInfo.getAudioPlayMode()  == AudioInfo.ONE_TIME_MODE)
-                AudioInfo.stopAudioPlayer();
+			if(AudioManager.getAudioPlayMode()  == AudioManager.NOTE_PLAY_MODE)
+                AudioManager.stopAudioPlayer();
 
 			NoteUi.setFocus_notePos(mPager.getCurrentItem());
 			System.out.println("Note / _onPageSelected");
@@ -242,7 +242,7 @@ public class Note extends FragmentActivity
 
 			if((nextPosition == NoteUi.getFocus_notePos() +1) || (nextPosition == NoteUi.getFocus_notePos() -1))
 			{
-				if(AudioInfo.getAudioPlayMode() == AudioInfo.ONE_TIME_MODE)
+				if(AudioManager.getAudioPlayMode() == AudioManager.NOTE_PLAY_MODE)
 					AudioPlayer_note.mAudioPos = NoteUi.getFocus_notePos();//update Audio index
 			}
 
@@ -843,8 +843,8 @@ public class Note extends FragmentActivity
 
 	public static void stopAV()
 	{
-		if(AudioInfo.getAudioPlayMode() == AudioInfo.ONE_TIME_MODE)
-            AudioInfo.stopAudioPlayer();
+		if(AudioManager.getAudioPlayMode() == AudioManager.NOTE_PLAY_MODE)
+            AudioManager.stopAudioPlayer();
 
 		VideoPlayer.stopVideo();
 	}

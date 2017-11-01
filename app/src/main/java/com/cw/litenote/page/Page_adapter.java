@@ -22,7 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cw.litenote.R;
-import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioManager;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.AsyncTaskAudioBitmap;
 import com.cw.litenote.util.image.UtilImage;
@@ -214,10 +214,10 @@ public class Page_adapter extends SimpleDragSortCursorAdapter
 
 		// show audio highlight if audio is not at Stop
 		if( PageUi.isSamePageTable() &&
-			(position == AudioInfo.mAudioPos)  &&
-			(AudioInfo.mMediaPlayer != null) &&
-			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP) &&
-			(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE))
+			(position == AudioManager.mAudioPos)  &&
+			(AudioManager.mMediaPlayer != null) &&
+			(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP) &&
+			(AudioManager.getAudioPlayMode() == AudioManager.PAGE_PLAY_MODE))
 		{
 			Page.mHighlightPosition = position;
 			holder.audioBlock.setBackgroundResource(R.drawable.bg_highlight_border);

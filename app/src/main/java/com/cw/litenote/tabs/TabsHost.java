@@ -8,8 +8,7 @@ import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.operation.audio.AudioInfo;
-import com.cw.litenote.operation.audio.AudioPlayer_page;
+import com.cw.litenote.operation.audio.AudioManager;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.page.PageUi;
 import com.cw.litenote.util.image.UtilImage;
@@ -169,8 +168,8 @@ public class TabsHost extends Fragment
         System.out.println("TabsHost / _onConfigurationChanged");
 
 		//for audio layout configuration change
-		if( (AudioInfo.mMediaPlayer != null) &&
-			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP)) {
+		if( (AudioManager.mMediaPlayer != null) &&
+			(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP)) {
 			FolderUi.selectFolder(mAct,FolderUi.getFocus_folderPos());
 		}
     }
@@ -492,8 +491,8 @@ public class TabsHost extends Fragment
 		mDbFolder.close();
 		
     	// set current audio playing tab with highlight
-		if( (AudioInfo.mMediaPlayer != null) &&
-			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP)&&
+		if( (AudioManager.mMediaPlayer != null) &&
+			(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP)&&
 		    (MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()))
 			setAudioPlayingTab_WithHighlight(true);
 		else
@@ -599,11 +598,11 @@ public class TabsHost extends Fragment
         else if((PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos) &&
                 (MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()))
         {
-    		if(AudioInfo.mMediaPlayer != null)
+    		if(AudioManager.mMediaPlayer != null)
     		{
-				AudioInfo.stopAudioPlayer();
-				AudioInfo.mAudioPos = 0;
-				AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_STOP);
+				AudioManager.stopAudioPlayer();
+				AudioManager.mAudioPos = 0;
+				AudioManager.setPlayerState(AudioManager.PLAYER_AT_STOP);
     		}    		
     	}
     	

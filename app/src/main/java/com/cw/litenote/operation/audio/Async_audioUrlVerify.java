@@ -46,11 +46,11 @@ class Async_audioUrlVerify extends AsyncTask<String,Integer,String>
             mUrlVerifyDialog.setCancelable(true); // set true for enabling Back button
             mUrlVerifyDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); //ProgressDialog.STYLE_HORIZONTAL
 			//keep LOW_PROFILE for note view
-			if(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)//todo how to add dialog for not affecting full screen
+			if(AudioManager.getAudioPlayMode() == AudioManager.PAGE_PLAY_MODE)//todo how to add dialog for not affecting full screen
             	mUrlVerifyDialog.show();
         }
 
-		AudioInfo.mIsPrepared = false;
+		AudioManager.mIsPrepared = false;
 	}
 	 
 	@Override

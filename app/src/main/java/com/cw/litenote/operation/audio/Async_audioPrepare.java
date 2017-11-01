@@ -37,11 +37,11 @@ public class Async_audioPrepare extends AsyncTask<String,Integer,String>
 			mPrepareDialog.setCancelable(true); // set true for enabling Back button
 			mPrepareDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); //ProgressDialog.STYLE_HORIZONTAL
 			//keep LOW_PROFILE for note view
-			if(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)
+			if(AudioManager.getAudioPlayMode() == AudioManager.PAGE_PLAY_MODE)
 				mPrepareDialog.show();
 		}
 
-        AudioInfo.mIsPrepared = false;
+        AudioManager.mIsPrepared = false;
 	 } 
 	 
 	 @Override
@@ -53,7 +53,7 @@ public class Async_audioPrepare extends AsyncTask<String,Integer,String>
 		 int progress = 0;
 		 int count = 0;
 
-		 while( (!AudioInfo.mIsPrepared) && (!isTimeOut) )
+		 while( (!AudioManager.mIsPrepared) && (!isTimeOut) )
 		 {
 			 System.out.println("Async_audioPrepare / doInBackground / count = " + count);
 			 count++;

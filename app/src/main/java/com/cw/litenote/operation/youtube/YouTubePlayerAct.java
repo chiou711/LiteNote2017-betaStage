@@ -10,6 +10,7 @@ import com.cw.litenote.R;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.note.Note;
 import com.cw.litenote.note.NoteUi;
+import com.cw.litenote.operation.audio.AudioManager;
 import com.cw.litenote.util.Util;
 import com.cw.litenote.util.preferences.Pref;
 import com.google.android.youtube.player.YouTubePlayerView;
@@ -27,6 +28,11 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.youtube_player);
         act = this;
+
+        // stop audio in advance
+        if((AudioManager.mMediaPlayer != null) && (AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP))
+            AudioManager.stopAudioPlayer();
+
 
         // initial: control is seen
         bShow_landscape_prev_next_control = true;

@@ -8,7 +8,7 @@ import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
-import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioManager;
 import com.cw.litenote.operation.audio.AudioPlayer_page;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.main.MainAct;
@@ -179,7 +179,7 @@ public class Page extends UilListViewBaseFragment
             if( Util.isYouTubeLink(linkStr) &&
                     pref_open_youtube.getString("KEY_VIEW_NOTE_LAUNCH_YOUTUBE", "no").equalsIgnoreCase("yes") )
             {
-                AudioInfo.stopAudioPlayer();
+                AudioManager.stopAudioPlayer();
 
                 // apply native YouTube
                 Util.openLink_YouTube(mAct, linkStr);
@@ -277,7 +277,7 @@ public class Page extends UilListViewBaseFragment
 			}
 			
 			if( PageUi.isSamePageTable() &&
-	     		(AudioInfo.mMediaPlayer != null)				   )
+	     		(AudioManager.mMediaPlayer != null)				   )
 			{
 				if( (mHighlightPosition == oriEndPos)  && (oriStartPos > oriEndPos))      
 				{
@@ -306,7 +306,7 @@ public class Page extends UilListViewBaseFragment
 					mHighlightPosition++;
 				}
 
-				AudioInfo.mAudioPos = mHighlightPosition;
+				AudioManager.mAudioPos = mHighlightPosition;
 				AudioPlayer_page.prepareAudioInfo();
 			}
 			mItemAdapter.notifyDataSetChanged();
@@ -361,8 +361,8 @@ public class Page extends UilListViewBaseFragment
 
 		// for incoming phone call case or key protection off to on
 		if( (page_audio != null) &&
-				(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP) &&
-				(AudioInfo.getAudioPlayMode() == AudioInfo.CONTINUE_MODE)   )
+				(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP) &&
+				(AudioManager.getAudioPlayMode() == AudioManager.PAGE_PLAY_MODE)   )
 		{
 			page_audio.initAudioBlock();
 		}
@@ -373,8 +373,8 @@ public class Page extends UilListViewBaseFragment
     	super.onPause();
     	System.out.println("Page / _onPause");
 
-		if( (AudioInfo.mMediaPlayer != null) &&
-			(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP))
+		if( (AudioManager.mMediaPlayer != null) &&
+			(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP))
 		{
             if((page_audio != null) && (page_audio.audio_panel!=null))
                 page_audio.audio_panel.setVisibility(View.GONE);
@@ -487,7 +487,7 @@ public class Page extends UilListViewBaseFragment
         showFooter();
 
 		// scroll highlight audio item to be visible
-		if((AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
+		if((AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP) && (!Page.isOnAudioClick))
 			AudioPlayer_page.scrollHighlightAudioItemToVisible();
     }
 
@@ -501,7 +501,7 @@ public class Page extends UilListViewBaseFragment
 
 			if( (PageUi.getFocus_pagePos() == MainAct.mPlaying_pagePos)&&
 				(MainAct.mPlaying_folderPos == FolderUi.getFocus_folderPos()) &&
-				(AudioInfo.getPlayerState() == AudioInfo.PLAYER_AT_PLAY) &&
+				(AudioManager.getPlayerState() == AudioManager.PLAYER_AT_PLAY) &&
 				(Page.mDndListView.getChildAt(0) != null)                    )
 			{
 				// do nothing when playing audio
@@ -602,7 +602,7 @@ public class Page extends UilListViewBaseFragment
 			int markingNow = toggleNoteMarking(position);
 
             // Stop if unmarked item is at playing state
-            if(AudioInfo.mAudioPos == position) {
+            if(AudioManager.mAudioPos == position) {
 				UtilAudio.stopAudioIfNeeded();
 				if(markingNow == 0)
 					TabsHost.setAudioPlayingTab_WithHighlight(false);
@@ -656,14 +656,14 @@ public class Page extends UilListViewBaseFragment
 
 	public static boolean isOnAudioClick;
 	AudioPlayer_page audioPlayer_page;
-	public static Page_audio page_audio;//todo static issue
+	public static Page_audio page_audio;
     // list view listener: on audio
     private DragSortListView.AudioListener onAudio = new DragSortListView.AudioListener() 
 	{   @Override
         public void audio(int position) 
 		{
 			System.out.println("Page / _onAudio");
-			AudioInfo.setAudioPlayMode(AudioInfo.CONTINUE_MODE);
+			AudioManager.setAudioPlayMode(AudioManager.PAGE_PLAY_MODE);
 
 			int notesCount = mDb_page.getNotesCount(true);
             if(position >= notesCount) //end of list
@@ -683,23 +683,23 @@ public class Page extends UilListViewBaseFragment
 				if(isAudioUri)
 				{
 					// cancel playing
-					if(AudioInfo.mMediaPlayer != null)
+					if(AudioManager.mMediaPlayer != null)
 					{
-						if(AudioInfo.mMediaPlayer.isPlaying())
-							AudioInfo.mMediaPlayer.pause();
+						if(AudioManager.mMediaPlayer.isPlaying())
+							AudioManager.mMediaPlayer.pause();
 
 		   			   	if(audioPlayer_page != null) {
 							AudioPlayer_page.mAudioHandler.removeCallbacks(audioPlayer_page.mRunContinueMode);
                         }
-						AudioInfo.mMediaPlayer.release();
-						AudioInfo.mMediaPlayer = null;
+						AudioManager.mMediaPlayer.release();
+						AudioManager.mMediaPlayer = null;
 					}
 
 					isOnAudioClick = true;
-					AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_PLAY);
+					AudioManager.setPlayerState(AudioManager.PLAYER_AT_PLAY);
 
 					// create new Intent to play audio
-					AudioInfo.mAudioPos = position;
+					AudioManager.mAudioPos = position;
 
                     page_audio = new Page_audio(mAct);
                     page_audio.initAudioBlock();
@@ -915,7 +915,7 @@ public class Page extends UilListViewBaseFragment
 			String noteBody = mDb_page.getNoteBody(i,false);
 			mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , action, 0,false);// action 1:check all, 0:uncheck all
 	        // Stop if unmarked item is at playing state
-	        if((AudioInfo.mAudioPos == i) && (action == 0) )
+	        if((AudioManager.mAudioPos == i) && (action == 0) )
 	        	bStopAudio = true;		
 		}
 		mDb_page.close();
@@ -950,7 +950,7 @@ public class Page extends UilListViewBaseFragment
 			long marking = (mDb_page.getNoteMarking(i,false)==1)?0:1;
 			mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , marking, 0,false);// action 1:check all, 0:uncheck all
 	        // Stop if unmarked item is at playing state
-	        if((AudioInfo.mAudioPos == i) && (marking == 0) )
+	        if((AudioManager.mAudioPos == i) && (marking == 0) )
 	        	bStopAudio = true;			
 		}
 		mDb_page.close();
@@ -1111,7 +1111,7 @@ public class Page extends UilListViewBaseFragment
 							mDb_page.close();
 							
 							// Stop Play/Pause if current tab's item is played and is not at Stop state
-							if(AudioInfo.mAudioPos == Page.mHighlightPosition)
+							if(AudioManager.mAudioPos == Page.mHighlightPosition)
 								UtilAudio.stopAudioIfNeeded();
 							
 							mItemAdapter.notifyDataSetChanged();

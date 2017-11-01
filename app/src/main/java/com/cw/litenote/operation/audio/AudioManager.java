@@ -8,15 +8,15 @@ import com.cw.litenote.page.Page;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.Util;
 
-public class AudioInfo
+public class AudioManager
 {
 	private static List<String> audioList;
 	private static List<Integer> audioList_checked;
     static boolean mIsPrepared;
 
     private static int mAudioPlayMode;
-    public final static int ONE_TIME_MODE = 0;
-    public final static int CONTINUE_MODE = 1;
+    public final static int NOTE_PLAY_MODE = 0;
+    public final static int PAGE_PLAY_MODE = 1;
 
     private static int mPlayerState;
     public static int PLAYER_AT_STOP = 0;
@@ -30,7 +30,7 @@ public class AudioInfo
 
 
     // constructor
-   AudioInfo()
+   AudioManager()
    {
       audioList = new ArrayList<>();
       audioList_checked = new ArrayList<>();
@@ -68,25 +68,25 @@ public class AudioInfo
      */
     public static void stopAudioPlayer()
     {
-        System.out.println("AudioInfo / _stopAudio");
+        System.out.println("AudioManager / _stopAudio");
 
         // stop media player
-        if(AudioInfo.mMediaPlayer != null) {
-            if (AudioInfo.mMediaPlayer.isPlaying()) {
-                AudioInfo.mMediaPlayer.pause();
-                AudioInfo.mMediaPlayer.stop();
+        if(AudioManager.mMediaPlayer != null) {
+            if (AudioManager.mMediaPlayer.isPlaying()) {
+                AudioManager.mMediaPlayer.pause();
+                AudioManager.mMediaPlayer.stop();
             }
-            AudioInfo.mMediaPlayer.release();
-            AudioInfo.mMediaPlayer = null;
+            AudioManager.mMediaPlayer.release();
+            AudioManager.mMediaPlayer = null;
         }
 
         // stop handler and set flag to remove runnable
         if( AudioPlayer_page.mAudioHandler != null)
-            AudioInfo.isRunnableOn_page = false;
+            AudioManager.isRunnableOn_page = false;
         else if(AudioPlayer_note.mAudioHandler != null)
-            AudioInfo.isRunnableOn_note = false;
+            AudioManager.isRunnableOn_note = false;
 
-        AudioInfo.setPlayerState(AudioInfo.PLAYER_AT_STOP);
+        AudioManager.setPlayerState(AudioManager.PLAYER_AT_STOP);
     }
 
 
@@ -102,7 +102,7 @@ public class AudioInfo
 				  size++;
 		  }
 	   }
-//	   System.out.println( " AudioInfo / getAudioFilesCount = " + size);
+//	   System.out.println( " AudioManager / getAudioFilesCount = " + size);
 	   return size;
    }
 

@@ -8,7 +8,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cw.litenote.R;
-import com.cw.litenote.operation.audio.AudioInfo;
+import com.cw.litenote.operation.audio.AudioManager;
 import com.cw.litenote.operation.audio.AudioPlayer_page;
 import com.cw.litenote.util.Util;
 import com.cw.litenote.util.audio.UtilAudio;
@@ -24,8 +24,8 @@ public class Page_audio {
     FragmentActivity mAct;
     View audio_panel;
     public TextView audioPanel_curr_pos;
-    public static TextView audio_panel_title_textView;
-    public static ImageView audioPanel_play_button;
+    public TextView audio_panel_title_textView;
+    public ImageView audioPanel_play_button;
     public SeekBar seekBarProgress;
     public static int mProgress;
 
@@ -90,14 +90,15 @@ public class Page_audio {
         int fileHour = Math.round((float)(media_length / 1000 / 60 / 60));
         int fileMin = Math.round((float)((media_length - fileHour * 60 * 60 * 1000) / 1000 / 60));
         int fileSec = Math.round((float)((media_length - fileHour * 60 * 60 * 1000 - fileMin * 1000 * 60 )/ 1000));
-        audioPanel_file_length.setText( String.format(Locale.US,"%2d", fileHour)+":" +
+        String file_len_str =  String.format(Locale.US,"%2d", fileHour)+":" +
                 String.format(Locale.US,"%02d", fileMin)+":" +
-                String.format(Locale.US,"%02d", fileSec)         );
+                String.format(Locale.US,"%02d", fileSec);
+        audioPanel_file_length.setText(file_len_str);
 
         // show playing audio item message
         String message = mAct.getResources().getString(R.string.menu_button_play) +
                 "#" +
-                (AudioInfo.mAudioPos +1);
+                (AudioManager.mAudioPos +1);
         audioPanel_audio_number.setText(message);
 
         //
@@ -110,10 +111,10 @@ public class Page_audio {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar)
             {
-                if( AudioInfo.mMediaPlayer != null  )
+                if( AudioManager.mMediaPlayer != null  )
                 {
                     int mPlayAudioPosition = (int) (((float)(AudioPlayer_page.media_file_length / 100)) * seekBar.getProgress());
-                    AudioInfo.mMediaPlayer.seekTo(mPlayAudioPosition);
+                    AudioManager.mMediaPlayer.seekTo(mPlayAudioPosition);
                 }
             }
 
@@ -130,11 +131,11 @@ public class Page_audio {
                     int curHour = Math.round((float)(currentPos / 1000 / 60 / 60));
                     int curMin = Math.round((float)((currentPos - curHour * 60 * 60 * 1000) / 1000 / 60));
                     int curSec = Math.round((float)((currentPos - curHour * 60 * 60 * 1000 - curMin * 60 * 1000)/ 1000));
-
+                    String curr_time_str = String.format(Locale.US,"%2d", curHour)+":" +
+                        String.format(Locale.US,"%02d", curMin)+":" +
+                        String.format(Locale.US,"%02d", curSec);
                     // set current play time
-                    audioPanel_curr_pos.setText(String.format(Locale.US,"%2d", curHour)+":" +
-                            String.format(Locale.US,"%02d", curMin)+":" +
-                            String.format(Locale.US,"%02d", curSec) );
+                    audioPanel_curr_pos.setText(curr_time_str);
                 }
             }
         });
@@ -154,7 +155,7 @@ public class Page_audio {
 
                 // update status
                 UtilAudio.updateAudioPanel((ImageView)v, audio_panel_title_textView); // here v is audio play button
-                if(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP)
+                if(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP)
                     AudioPlayer_page.scrollHighlightAudioItemToVisible();
             }
         });
@@ -167,15 +168,15 @@ public class Page_audio {
             {
                 AudioPlayer_page.willPlayNext = false;
 
-                AudioInfo.mAudioPos--;
-                if( AudioInfo.mAudioPos < 0)
-                    AudioInfo.mAudioPos++; //back to first index
+                AudioManager.mAudioPos--;
+                if( AudioManager.mAudioPos < 0)
+                    AudioManager.mAudioPos++; //back to first index
 
-                while (AudioInfo.getCheckedAudio(AudioInfo.mAudioPos) == 0)
+                while (AudioManager.getCheckedAudio(AudioManager.mAudioPos) == 0)
                 {
-                    AudioInfo.mAudioPos--;
-                    if( AudioInfo.mAudioPos < 0)
-                        AudioInfo.mAudioPos++; //back to first index
+                    AudioManager.mAudioPos--;
+                    if( AudioManager.mAudioPos < 0)
+                        AudioManager.mAudioPos++; //back to first index
                 }
 
                 playNextAudio();
@@ -190,13 +191,13 @@ public class Page_audio {
             {
                 AudioPlayer_page.willPlayNext = true;
 
-                AudioInfo.mAudioPos++;
-                if( AudioInfo.mAudioPos >= AudioInfo.getAudioList().size())
-                    AudioInfo.mAudioPos = 0; //back to first index
+                AudioManager.mAudioPos++;
+                if( AudioManager.mAudioPos >= AudioManager.getAudioList().size())
+                    AudioManager.mAudioPos = 0; //back to first index
 
-                while (AudioInfo.getCheckedAudio(AudioInfo.mAudioPos) == 0)
+                while (AudioManager.getCheckedAudio(AudioManager.mAudioPos) == 0)
                 {
-                    AudioInfo.mAudioPos++;
+                    AudioManager.mAudioPos++;
                 }
 
                 playNextAudio();
@@ -208,15 +209,15 @@ public class Page_audio {
     private void playNextAudio()
     {
         // cancel playing
-        if(AudioInfo.mMediaPlayer != null)
+        if(AudioManager.mMediaPlayer != null)
         {
-            if(AudioInfo.mMediaPlayer.isPlaying())
+            if(AudioManager.mMediaPlayer.isPlaying())
             {
-                AudioInfo.mMediaPlayer.pause();
+                AudioManager.mMediaPlayer.pause();
             }
 
-            AudioInfo.mMediaPlayer.release();
-            AudioInfo.mMediaPlayer = null;
+            AudioManager.mMediaPlayer.release();
+            AudioManager.mMediaPlayer = null;
         }
 
         AudioPlayer_page audioPlayer_page = new AudioPlayer_page(mAct,this);
@@ -228,7 +229,7 @@ public class Page_audio {
         // new audio player instance
         audioPlayer_page.runAudioState();
 
-        if(AudioInfo.getPlayerState() != AudioInfo.PLAYER_AT_STOP)
+        if(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP)
             AudioPlayer_page.scrollHighlightAudioItemToVisible();
     }
 
