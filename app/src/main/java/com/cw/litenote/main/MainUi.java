@@ -16,10 +16,10 @@ import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
-import com.cw.litenote.drawer.Drawer;
 import com.cw.litenote.page.Page;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.Util;
+import com.cw.litenote.util.preferences.Pref;
 
 import java.util.Date;
 
@@ -43,13 +43,13 @@ public class MainUi {
         if(extras != null)
             pathOri = extras.getString(Intent.EXTRA_TEXT);
         else
-            System.out.println("MainAct / _addNote_IntentLink / extras == null");
+            System.out.println("MainUi / _addNote_IntentLink / extras == null");
 
         path = pathOri;
 
         if(!Util.isEmptyString(pathOri))
         {
-            System.out.println("-------link path of Share 1 = " + pathOri);
+            System.out.println("MainUi / _addNote_IntentLink / pathOri = " + pathOri);
             // for SoundCloud case, path could contain other strings before URI path
             if(pathOri.contains("http"))
             {
@@ -63,15 +63,15 @@ public class MainUi {
             }
 
             DB_drawer db_drawer = new DB_drawer(act);
-            DB_folder db_folder = new DB_folder(act,DB_folder.getFocusFolder_tableId());
+            DB_folder db_folder = new DB_folder(act, Pref.getPref_focusView_folder_tableId(MainAct.mAct));
             if((db_drawer.getFoldersCount(true) == 0) || (db_folder.getPagesCount(true) == 0))
             {
                 Toast.makeText(act,"No folder or no page yet, please add a new one in advance.",Toast.LENGTH_LONG).show();
                 return null;
             }
 
-            System.out.println("-------link path of Share 2 = " + path);
-            final DB_page dB_page = new DB_page(act,DB_page.getFocusPage_tableId());
+            System.out.println("MainUi / _addNote_IntentLink / path = " + path);
+            final DB_page dB_page = new DB_page(act,Pref.getPref_focusView_page_tableId(MainAct.mAct));
             dB_page.open();
             final long rowId = dB_page.insertNote("", "", "", "", path, "", 0, (long) 0);// add new note, get return row Id
             dB_page.close();
@@ -180,7 +180,8 @@ public class MainUi {
      */
     String getYouTubeLink(FragmentActivity act,int pos)
     {
-        DB_page dB_page = new DB_page(act,DB_page.getFocusPage_tableId());
+        DB_page dB_page = new DB_page(act, Pref.getPref_focusView_page_tableId(act));
+
         dB_page.open();
         int count = dB_page.getNotesCount(false);
         dB_page.close();

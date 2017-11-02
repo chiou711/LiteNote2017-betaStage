@@ -247,15 +247,20 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
      *
      *********************************************************************************/
 
+    boolean isAddedOnNewIntent;
     // if one LiteNote Intent is already running, call it again in YouTube or Browser will run into this
     @Override
     protected void onNewIntent(Intent intent)
     {
         super.onNewIntent(intent);
 		System.out.println("MainAct / _onNewIntent");
-        String intentLink = mMainUi.addNote_IntentLink(intent,mAct);
-        if(!Util.isEmptyString(intentLink) && intentLink.startsWith("http")) {
-            Page.mItemAdapter.notifyDataSetChanged();
+
+        if(!isAddedOnNewIntent) {
+            String intentLink = mMainUi.addNote_IntentLink(intent, mAct);
+            if (!Util.isEmptyString(intentLink) && intentLink.startsWith("http")) {
+                Page.mItemAdapter.notifyDataSetChanged();
+            }
+            isAddedOnNewIntent = true; // fix 2 times _onNewIntent on API26
         }
     }
 
@@ -524,7 +529,10 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
         // make sure main activity is still executing
         if(requestCode == Util.YOUTUBE_ADD_NEW_LINK_INTENT)
-            recreate();
+        {
+            System.out.println("MainAct / _onActivityResult /YOUTUBE_ADD_NEW_LINK_INTENT");
+            isAddedOnNewIntent = false;
+        }
     }
 
     /**

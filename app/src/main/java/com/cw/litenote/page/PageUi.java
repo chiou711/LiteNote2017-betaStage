@@ -319,7 +319,7 @@ public class PageUi
         String pageName = Define.getTabTitle(act, newTabId);
 
         // check if name is duplicated
-		DB_folder dbFolder = new DB_folder(act,DB_folder.getFocusFolder_tableId());
+		DB_folder dbFolder = new DB_folder(act,Pref.getPref_focusView_folder_tableId(act));
         dbFolder.open();
         final int pagesCount = dbFolder.getPagesCount(false);
 
@@ -432,7 +432,7 @@ public class PageUi
 	 */
 	public static void insertPage_rightmost(final FragmentActivity act, int newTblId, String tabName)
 	{
-		DB_folder dbFolder = new DB_folder(act,DB_folder.getFocusFolder_tableId());
+		DB_folder dbFolder = new DB_folder(act,Pref.getPref_focusView_folder_tableId(act));
 	    // insert tab name
 		int style = Util.getNewPageStyle(act);
 		dbFolder.insertPage(DB_folder.getFocusFolder_tableName(),tabName,newTblId,style,true );
