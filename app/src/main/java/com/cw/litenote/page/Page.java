@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_drawer;
-import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
 import com.cw.litenote.folder.FolderUi;
 import com.cw.litenote.operation.audio.AudioManager;
@@ -16,7 +15,6 @@ import com.cw.litenote.note.Note;
 import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.note.Note_edit;
 import com.cw.litenote.util.ColorSet;
-import com.cw.litenote.operation.mail.MailNotes;
 import com.cw.litenote.util.uil.UilCommon;
 import com.cw.litenote.util.uil.UilListViewBaseFragment;
 import com.cw.litenote.util.Util;
@@ -24,14 +22,9 @@ import com.cw.litenote.util.preferences.Pref;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -41,7 +34,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -53,14 +45,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Page extends UilListViewBaseFragment
 						  implements LoaderManager.LoaderCallbacks<List<String>> 
 {
 	private static Cursor mCursor_note;
 	public static DB_page mDb_page;
-    SharedPreferences mPref_delete_warn;
 	public static SharedPreferences mPref_show_note_attribute;
 	private List<Boolean> mSelectedList = new ArrayList<>();
 	
@@ -68,8 +58,6 @@ public class Page extends UilListViewBaseFragment
 	NoteListAdapter mAdapter;
 	public static DragSortListView mDndListView;
 	private DragSortController mController;
-	public static int MOVE_TO = 0;
-	public static int COPY_TO = 1;
     public static int mStyle = 0;
 	public static FragmentActivity mAct;
 	String mClassName;
@@ -133,10 +121,10 @@ public class Page extends UilListViewBaseFragment
     	mDndListView.setOnItemLongClickListener(new OnItemLongClickListener()
     	{
             public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id)
-             {
-                 openLongClickedItem(position);
-            	return true;
-             }
+            {
+            	openLongClickedItem(position);
+        	    return true;
+            }
 	    });
 
         mController = buildController(mDndListView);
@@ -728,7 +716,7 @@ public class Page extends UilListViewBaseFragment
     static TextView mFooterMessage;
 
 	// set footer
-    public void showFooter()
+    public static void showFooter()
     {
     	System.out.println("Page / _showFooter ");
 
@@ -753,133 +741,6 @@ public class Page extends UilListViewBaseFragment
                mDb_page.getNotesCount(true);
     }
 
-	/*******************************************
-	 * 					menu
-	 *******************************************/
-    // Menu identifiers
-    static final int CHECK_ALL = R.id.CHECK_ALL;
-    static final int UNCHECK_ALL = R.id.UNCHECK_ALL;
-    static final int INVERT_SELECTED = R.id.INVERT_SELECTED;
-    static final int MOVE_CHECKED_NOTE = R.id.MOVE_CHECKED_NOTE;
-    static final int COPY_CHECKED_NOTE = R.id.COPY_CHECKED_NOTE;
-    static final int MAIL_CHECKED_NOTE = R.id.MAIL_CHECKED_NOTE;
-    static final int DELETE_CHECKED_NOTE = R.id.DELETE_CHECKED_NOTE;
-    
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) 
-        {
-	        case CHECK_ALL:
-	        	checkAll(1); 
-	            return true;
-	        case UNCHECK_ALL:
-	        	checkAll(0); 
-	            return true;
-	        case INVERT_SELECTED:
-	        	invertSelected(); 
-	            return true;
-	        case MOVE_CHECKED_NOTE:
-	        case COPY_CHECKED_NOTE:
-	    		if(!noItemChecked())
-	        	{
-	    			int count = mDb_page.getCheckedNotesCount();
-		    		String copyItems[] = new String[count];
-		    		String copyItemsPicture[] = new String[count];
-		    		String copyItemsLink[] = new String[count];
-		    		String copyItemsAudio[] = new String[count];
-		    		String copyItemsBody[] = new String[count];
-		    		Long copyItemsTime[] = new Long[count];
-		    		int cCopy = 0;
-		    		
-		    		mDb_page.open();
-		    		int noteCount = mDb_page.getNotesCount(false);
-		    		for(int i=0; i<noteCount; i++)
-		    		{
-		    			if(mDb_page.getNoteMarking(i,false) == 1)
-		    			{
-		    				copyItems[cCopy] = mDb_page.getNoteTitle(i,false);
-		    				copyItemsPicture[cCopy] = mDb_page.getNotePictureUri(i,false);
-		    				copyItemsLink[cCopy] = mDb_page.getNoteLinkUri(i,false);
-		    				copyItemsAudio[cCopy] = mDb_page.getNoteAudioUri(i,false);
-		    				copyItemsBody[cCopy] = mDb_page.getNoteBody(i,false);
-		    				copyItemsTime[cCopy] = mDb_page.getNoteCreatedTime(i,false);
-		    				cCopy++;
-		    			}
-		    		}
-		    		mDb_page.close();
-		           
-		    		if(item.getItemId() == MOVE_CHECKED_NOTE)
-		    			operateCheckedTo(mAct,copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, MOVE_TO); // move to
-		    		else if(item.getItemId() == COPY_CHECKED_NOTE)
-			    		operateCheckedTo(mAct,copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, COPY_TO);// copy to
-		    			
-	        	}
-	        	else
-	    			Toast.makeText(getActivity(),
-							   R.string.delete_checked_no_checked_items,
-							   Toast.LENGTH_SHORT)
-					     .show();
-	            return true;
-	            
-	        case MAIL_CHECKED_NOTE:
-	    		if(!noItemChecked())
-	        	{
-		        	// set Sent string Id
-					List<Long> noteIdArray = new ArrayList<>();
-					List<String> pictureFileNameList = new ArrayList<>();
-	            	int j=0;
-	            	mDb_page.open();
-	            	int count = mDb_page.getNotesCount(false);
-		    		for(int i=0; i<count; i++)
-		    		{
-		    			if(mDb_page.getNoteMarking(i,false) == 1)
-		    			{
-		    				noteIdArray.add(j, mDb_page.getNoteId(i,false));
-		    				j++;
-		    				
-		    				String picFile = mDb_page.getNotePictureUri_byId(mDb_page.getNoteId(i,false),false,false);
-		    				if((picFile != null) && (picFile.length() > 0))
-		    					pictureFileNameList.add(picFile);
-		    			}
-		    		}
-		    		mDb_page.close();
-
-					// message
-					String sentString = Util.getStringWithXmlTag(noteIdArray);
-					sentString = Util.addXmlTag(sentString);
-
-		    		// picture array
-		    		int cnt = pictureFileNameList.size();
-		    		String pictureFileNameArr[] = new String[cnt];
-		    		for(int i=0; i < cnt ; i++ )
-		    		{
-		    			pictureFileNameArr[i] = pictureFileNameList.get(i);
-		    		}
-					new MailNotes(mAct,sentString,pictureFileNameArr);
-	        	}
-	        	else
-	    			Toast.makeText(getActivity(),
-							   R.string.delete_checked_no_checked_items,
-							   Toast.LENGTH_SHORT)
-						 .show();
-	        	return true;
-	        	
-	        case DELETE_CHECKED_NOTE:
-	        	if(!noItemChecked())
-	        		deleteCheckedNotes();
-	        	else
-	    			Toast.makeText(getActivity(),
-	    						   R.string.delete_checked_no_checked_items,
-	    						   Toast.LENGTH_SHORT)
-	    				 .show();
-	            return true;     
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    
-	
 	static public void swap(DB_page dB_page)
 	{
         int startCursor = dB_page.getNotesCount(true)-1;
@@ -897,259 +758,7 @@ public class Page extends UilListViewBaseFragment
 		}
 	}
     
-	/**
-	 *  check all or uncheck all
-	 */
-	public void checkAll(int action) 
-	{
-		boolean bStopAudio = false;
-		mDb_page.open();
-		int count = mDb_page.getNotesCount(false);
-		for(int i=0; i<count; i++)
-		{
-			Long rowId = mDb_page.getNoteId(i,false);
-			String noteTitle = mDb_page.getNoteTitle(i,false);
-			String pictureUri = mDb_page.getNotePictureUri(i,false);
-			String audioUri = mDb_page.getNoteAudioUri(i,false);
-			String linkUri = mDb_page.getNoteLinkUri(i,false);
-			String noteBody = mDb_page.getNoteBody(i,false);
-			mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , action, 0,false);// action 1:check all, 0:uncheck all
-	        // Stop if unmarked item is at playing state
-	        if((AudioManager.mAudioPos == i) && (action == 0) )
-	        	bStopAudio = true;		
-		}
-		mDb_page.close();
-		
-		if(bStopAudio)
-			UtilAudio.stopAudioIfNeeded();	
-		
-		// update audio play list
-        if(PageUi.isSamePageTable())
-        	AudioPlayer_page.prepareAudioInfo();
-        
-		mItemAdapter.notifyDataSetChanged();
-		showFooter();
-	}
-	
-	/**
-	 *  Invert Selected
-	 */
-	public void invertSelected() 
-	{
-		boolean bStopAudio = false;
-		mDb_page.open();
-		int count = mDb_page.getNotesCount(false);
-		for(int i=0; i<count; i++)
-		{
-			Long rowId = mDb_page.getNoteId(i,false);
-			String noteTitle = mDb_page.getNoteTitle(i,false);
-			String pictureUri = mDb_page.getNotePictureUri(i,false);
-			String audioUri = mDb_page.getNoteAudioUri(i,false);
-			String linkUri = mDb_page.getNoteLinkUri(i,false);
-			String noteBody = mDb_page.getNoteBody(i,false);
-			long marking = (mDb_page.getNoteMarking(i,false)==1)?0:1;
-			mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , marking, 0,false);// action 1:check all, 0:uncheck all
-	        // Stop if unmarked item is at playing state
-	        if((AudioManager.mAudioPos == i) && (marking == 0) )
-	        	bStopAudio = true;			
-		}
-		mDb_page.close();
-		
-		if(bStopAudio)
-			UtilAudio.stopAudioIfNeeded();	
-		
-		// update audio play list
-        if(PageUi.isSamePageTable())
-        	AudioPlayer_page.prepareAudioInfo();
-		
-		mItemAdapter.notifyDataSetChanged();
-		showFooter();
-	}	
-	
-	
-    /**
-     *   operate checked to: move to, copy to
-     * 
-     */
-	void operateCheckedTo(FragmentActivity act,final String[] copyItems, final String[] copyItemsPicture, final String[] copyItemsLink,
-						  final String[] copyItemsAudio, final String[] copyItemsBody,
-						  final Long[] copyItemsTime, final int action)
-	{
-		//list all pages
-		int focusFolder_tableId = Pref.getPref_focusView_folder_tableId(act);
-		DB_folder db_folder = new DB_folder(act, focusFolder_tableId);
-		db_folder.open();
-		int tabCount = db_folder.getPagesCount(false);
-		final String[] pageNames = new String[tabCount];
-		final int[] pageTableIds = new int[tabCount];
-		for(int i=0;i<tabCount;i++)
-		{
-			pageNames[i] = db_folder.getPageTitle(i,false);
-			pageTableIds[i] = db_folder.getPageTableId(i,false);
-		}
-		db_folder.close();
-		
-		pageNames[PageUi.getFocus_pagePos()] = pageNames[PageUi.getFocus_pagePos()] + " *"; // add mark to current page
-		   
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				//keep focus page table id
-				int srcPageTableId = DB_page.getFocusPage_tableId();
 
-				//copy checked item to destination page
-				int destPageTableId = pageTableIds[which];
-				DB_page.setFocusPage_tableId(destPageTableId);
-				for(int i=0;i< copyItems.length;i++)
-				{
-					int marking = 0;
-					// default marking of picture or audio is 1
-					if( (!Util.isEmptyString(copyItemsPicture[i])) || (!Util.isEmptyString(copyItemsAudio[i])))
-						marking = 1;
-
-					// move to same page is not allowed
-					if(!((action == MOVE_TO) && (srcPageTableId == destPageTableId)))
-						mDb_page.insertNote(copyItems[i],copyItemsPicture[i], copyItemsAudio[i], "", copyItemsLink[i], copyItemsBody[i],marking, copyItemsTime[i]);
-				}
-				
-				//recover table Id of original page
-				if((action == MOVE_TO) && (srcPageTableId != destPageTableId))
-				{
-					DB_page.setFocusPage_tableId(srcPageTableId);
-					mDb_page.open();
-					int count = mDb_page.getNotesCount(false);
-
-                    //delete checked items that were moved
-					for(int i=0; i<count; i++)
-					{
-						if(mDb_page.getNoteMarking(i,false) == 1)
-						{
-							mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
-							// update playing highlight
-							UtilAudio.stopAudioIfNeeded();
-						}
-					}
-					mDb_page.close();
-					
-					mItemAdapter.notifyDataSetChanged();
-					showFooter();
-				}
-				else if(action == COPY_TO)
-				{
-					DB_page.setFocusPage_tableId(srcPageTableId);
-					if(destPageTableId == srcPageTableId)
-					{
-						mItemAdapter.notifyDataSetChanged();
-						showFooter();
-					}
-				}
-				
-				dialog.dismiss();
-			}
-		};
-		
-		if(action == MOVE_TO)
-			builder.setTitle(R.string.checked_notes_move_to_dlg);
-		else if(action == COPY_TO)
-			builder.setTitle(R.string.checked_notes_copy_to_dlg);
-		
-		builder.setSingleChoiceItems(pageNames, -1, listener)
-		  	.setNegativeButton(R.string.btn_Cancel, null);
-		
-		// override onShow to mark current page status
-		AlertDialog alertDlg = builder.create();
-		alertDlg.setOnShowListener(new OnShowListener() {
-			@Override
-			public void onShow(DialogInterface dlgInterface) {
-				// add mark for current page
-				Util util = new Util(getActivity());
-				util.addMarkToCurrentPage(dlgInterface,action);
-			}
-		});
-		alertDlg.show();
-	}
-	
-	
-	/**
-	 * delete checked notes
-	 */
-	public void deleteCheckedNotes()
-	{
-		final Context context = getActivity();
-
-		mPref_delete_warn = context.getSharedPreferences("delete_warn", 0);
-    	if(mPref_delete_warn.getString("KEY_DELETE_WARN_MAIN","enable").equalsIgnoreCase("enable") &&
-           mPref_delete_warn.getString("KEY_DELETE_CHECKED_WARN","yes").equalsIgnoreCase("yes"))
-    	{
-			Util util = new Util(getActivity());
-			util.vibrate();
-    		
-    		// show warning dialog
-			Builder builder = new Builder(context);
-			builder.setTitle(R.string.delete_checked_note_title)
-					.setMessage(R.string.delete_checked_message)
-					.setNegativeButton(R.string.btn_Cancel, 
-							new OnClickListener() 
-					{	@Override
-						public void onClick(DialogInterface dialog, int which) 
-						{/*cancel*/} })
-					.setPositiveButton(R.string.btn_OK, 
-							new OnClickListener() 
-					{	@Override
-						public void onClick(DialogInterface dialog, int which) 
-						{
-							mDb_page.open();
-							int count = mDb_page.getNotesCount(false);
-							for(int i=0; i<count; i++)
-							{
-								if(mDb_page.getNoteMarking(i,false) == 1)
-									mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
-							}
-							mDb_page.close();
-							
-							// Stop Play/Pause if current tab's item is played and is not at Stop state
-							if(AudioManager.mAudioPos == Page.mHighlightPosition)
-								UtilAudio.stopAudioIfNeeded();
-							
-							mItemAdapter.notifyDataSetChanged();
-							showFooter();
-						}
-					});
-			
-	        AlertDialog d = builder.create();
-	        d.show();
-    	}
-    	else
-    	{
-    		// not show warning dialog
-    		mDb_page.open();
-    		int count = mDb_page.getNotesCount(false);
-			for(int i=0; i<count; i++)
-			{
-				if(mDb_page.getNoteMarking(i,false) == 1)
-					mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
-			}
-			mDb_page.close();
-			
-			mItemAdapter.notifyDataSetChanged();
-			showFooter();
-    	}
-	}
-    
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-	}
-	
-	boolean noItemChecked()
-	{
-		int checkedItemCount = mDb_page.getCheckedNotesCount();
-		return (checkedItemCount == 0);
-	}
-	
 	/*
 	 * inner class for note list loader
 	 */

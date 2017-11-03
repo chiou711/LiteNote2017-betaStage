@@ -52,52 +52,6 @@
         android:showAsAction="always|withText"
         android:title="@string/checked_notes"
         android:icon="@drawable/ic_menu_mark">
-
-    <!-- checked operation sub menu -->
-    <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-        <item
-            android:id="@+id/CHECK_ALL"
-            android:orderInCategory="0"
-            android:showAsAction="always"
-            android:title="@string/checked_notes_check_all"
-            android:icon="@drawable/btn_check_on_holo_dark"/>
-        <item
-            android:id="@+id/UNCHECK_ALL"
-            android:orderInCategory="1"
-            android:showAsAction="always"
-            android:title="@string/checked_notes_uncheck_all"
-            android:icon="@drawable/btn_check_off_holo_dark"/>
-        <item
-            android:id="@+id/INVERT_SELECTED"
-            android:orderInCategory="2"
-            android:showAsAction="always"
-            android:title="@string/checked_notes_invert_selected"
-            android:icon="@drawable/btn_check_on_focused_holo_dark"/>
-        <item
-            android:id="@+id/MOVE_CHECKED_NOTE"
-            android:orderInCategory="3"
-            android:showAsAction="always"
-            android:title="@string/checked_notes_move_to"
-            android:icon="@drawable/ic_menu_goto"/>
-        <item
-            android:id="@+id/COPY_CHECKED_NOTE"
-            android:orderInCategory="4"
-            android:showAsAction="always"
-            android:title="@string/checked_notes_copy_to"
-            android:icon="@drawable/ic_menu_copy_holo_dark"/>
-        <item
-            android:id="@+id/MAIL_CHECKED_NOTE"
-            android:orderInCategory="5"
-            android:showAsAction="always"
-            android:title="@string/mail_notes_btn"
-            android:icon="@android:drawable/ic_menu_send"/>
-        <item
-            android:id="@+id/DELETE_CHECKED_NOTE"
-            android:orderInCategory="6"
-            android:showAsAction="always"
-            android:title="@string/checked_notes_delete"
-            android:icon="@drawable/ic_menu_clear_playlist"/>
-    </menu>
     </item>
     </group>
 

@@ -18,6 +18,7 @@ import com.cw.litenote.operation.audio.AudioPlayer_page;
 import com.cw.litenote.operation.delete.DeleteFolders;
 import com.cw.litenote.operation.delete.DeletePages;
 import com.cw.litenote.operation.import_export.Import_webAct;
+import com.cw.litenote.page.Checked_notes_option;
 import com.cw.litenote.page.PageUi;
 import com.cw.litenote.page.Page_audio;
 import com.cw.litenote.tabs.TabsHost;
@@ -959,6 +960,16 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         			Toast.makeText(mContext,R.string.file_not_found,Toast.LENGTH_SHORT).show();
         		return true;
 
+            case MenuId.GALLERY:
+                Intent i_browsePic = new Intent(this, GalleryGridAct.class);
+                startActivity(i_browsePic);
+                return true;
+
+            case MenuId.CHECKED_OPERATION:
+                Checked_notes_option op = new Checked_notes_option(this);
+                op.open_option_grid(this);
+                return true;
+
             case MenuId.ADD_NEW_PAGE:
             	int pgCnt = FolderUi.getFolder_pagesCount(this,FolderUi.getFocus_folderPos());
 //				PageUi.addNewPage(mAct, TabsHost.mLastPos_pageTableId + 1);
@@ -1094,11 +1105,6 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				{
 					Toast.makeText(this, R.string.no_page_yet, Toast.LENGTH_SHORT).show();
 				}
-            	return true;
-
-            case MenuId.GALLERY:
-				Intent i_browsePic = new Intent(this, GalleryGridAct.class);
-				startActivity(i_browsePic);
             	return true;
 
             case MenuId.CONFIG:

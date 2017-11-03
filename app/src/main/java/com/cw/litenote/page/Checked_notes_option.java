@@ -1,0 +1,577 @@
+package com.cw.litenote.page;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.cw.litenote.R;
+import com.cw.litenote.db.DB_folder;
+import com.cw.litenote.db.DB_page;
+import com.cw.litenote.operation.audio.AudioManager;
+import com.cw.litenote.operation.audio.AudioPlayer_page;
+import com.cw.litenote.operation.mail.MailNotes;
+import com.cw.litenote.util.Util;
+import com.cw.litenote.util.audio.UtilAudio;
+import com.cw.litenote.util.preferences.Pref;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * Created by cw on 2017/11/4.
+ */
+public class Checked_notes_option {
+    int option_id;
+    int option_drawable_id;
+    int option_string_id;
+    public static int MOVE_TO = 0;
+    public static int COPY_TO = 1;
+    DB_page mDb_page;
+    FragmentActivity mAct;
+
+    public Checked_notes_option(FragmentActivity act){
+        mDb_page = new DB_page(act, Pref.getPref_focusView_page_tableId(act));
+        mAct = act;
+    }
+
+    Checked_notes_option(int id, int draw_id, int string_id)
+    {
+        this.option_id = id;
+        this.option_drawable_id = draw_id;
+        this.option_string_id = string_id;
+    }
+
+    /**
+     *
+     * 	Add new note
+     *
+     */
+    static List<Checked_notes_option> checkedOperationList;
+
+    private final static int CHECK_ALL = 1;
+    private final static int UNCHECK_ALL = 2;
+    private final static int INVERT_SELECTED = 3;
+    private final static int MOVE_CHECKED_NOTE = 4;
+    private final static int COPY_CHECKED_NOTE = 5;
+    private final static int MAIL_CHECKED_NOTE = 6;
+    private final static int BACK = 7;
+    private final static int DELETE_CHECKED_NOTE = 8;
+
+
+    public void open_option_grid(final FragmentActivity act)
+    {
+        AbsListView gridView;
+
+        // get layout inflater
+        View rootView = act.getLayoutInflater().inflate(R.layout.add_note_grid, null);
+
+        checkedOperationList = new ArrayList<>();
+
+        // CHECK_ALL
+        checkedOperationList.add(new Checked_notes_option(CHECK_ALL,
+                R.drawable.btn_check_on_holo_dark,
+                R.string.checked_notes_check_all));
+
+        // UNCHECK_ALL
+        checkedOperationList.add(new Checked_notes_option(UNCHECK_ALL,
+                R.drawable.btn_check_off_holo_dark,
+                R.string.checked_notes_uncheck_all));
+
+        // INVERT_SELECTED
+        checkedOperationList.add(new Checked_notes_option(INVERT_SELECTED,
+                R.drawable.btn_check_on_focused_holo_dark,
+                R.string.checked_notes_invert_selected));
+
+        // MOVE_CHECKED_NOTE
+        checkedOperationList.add(new Checked_notes_option(MOVE_CHECKED_NOTE,
+                R.drawable.ic_menu_goto,
+                R.string.checked_notes_move_to));
+
+        // COPY_CHECKED_NOTE
+        checkedOperationList.add(new Checked_notes_option(COPY_CHECKED_NOTE,
+                R.drawable.ic_menu_copy_holo_dark,
+                R.string.checked_notes_copy_to));
+
+        // MAIL_CHECKED_NOTE
+        checkedOperationList.add(new Checked_notes_option(MAIL_CHECKED_NOTE,
+                android.R.drawable.ic_menu_send,
+                R.string.mail_notes_btn));
+
+        // Back
+        checkedOperationList.add(new Checked_notes_option(BACK,
+                R.drawable.ic_menu_back,
+                R.string.btn_Cancel));
+
+        // DELETE_CHECKED_NOTE
+        checkedOperationList.add(new Checked_notes_option(DELETE_CHECKED_NOTE,
+                R.drawable.ic_menu_clear_playlist,
+                R.string.checked_notes_delete));
+
+
+        gridView = (GridView) rootView.findViewById(R.id.add_note_grid_view);
+
+        // check if directory is created AND not empty
+        if( (checkedOperationList != null  ) && (checkedOperationList.size() > 0))
+        {
+            GridIconAdapter mGridIconAdapter = new GridIconAdapter(act);
+            gridView.setAdapter(mGridIconAdapter);
+        }
+        else
+        {
+            Toast.makeText(act,R.string.gallery_toast_no_file, Toast.LENGTH_SHORT).show();
+            act.finish();
+        }
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("MainUi / _addNewNote / _OnItemClickListener / position = " + position +" id = " + id);
+                startCheckedOperation(act, checkedOperationList.get(position).option_id);
+            }
+        });
+
+        // set view to dialog
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(act);
+        builder1.setView(rootView);
+        dlgAddNew = builder1.create();
+        dlgAddNew.show();
+    }
+    private static AlertDialog dlgAddNew;
+
+    private void startCheckedOperation(FragmentActivity act, int option)
+    {
+        System.out.println("Checked_notes_option / _startCheckedOperation / option = " + option);
+
+        switch (option) {
+            case CHECK_ALL:
+                checkAll(1);
+                dlgAddNew.dismiss();
+                break;
+            case UNCHECK_ALL:
+                checkAll(0);
+                dlgAddNew.dismiss();
+                break;
+            case INVERT_SELECTED:
+                invertSelected();
+                dlgAddNew.dismiss();
+                break;
+            case MOVE_CHECKED_NOTE:
+            case COPY_CHECKED_NOTE:
+                if(!noItemChecked())
+                {
+                    int count = mDb_page.getCheckedNotesCount();
+                    String copyItems[] = new String[count];
+                    String copyItemsPicture[] = new String[count];
+                    String copyItemsLink[] = new String[count];
+                    String copyItemsAudio[] = new String[count];
+                    String copyItemsBody[] = new String[count];
+                    Long copyItemsTime[] = new Long[count];
+                    int cCopy = 0;
+
+                    mDb_page.open();
+                    int noteCount = mDb_page.getNotesCount(false);
+                    for(int i=0; i<noteCount; i++)
+                    {
+                        if(mDb_page.getNoteMarking(i,false) == 1)
+                        {
+                            copyItems[cCopy] = mDb_page.getNoteTitle(i,false);
+                            copyItemsPicture[cCopy] = mDb_page.getNotePictureUri(i,false);
+                            copyItemsLink[cCopy] = mDb_page.getNoteLinkUri(i,false);
+                            copyItemsAudio[cCopy] = mDb_page.getNoteAudioUri(i,false);
+                            copyItemsBody[cCopy] = mDb_page.getNoteBody(i,false);
+                            copyItemsTime[cCopy] = mDb_page.getNoteCreatedTime(i,false);
+                            cCopy++;
+                        }
+                    }
+                    mDb_page.close();
+
+                    if(option == MOVE_CHECKED_NOTE)
+                        operateCheckedTo(mAct,copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, MOVE_TO); // move to
+                    else if(option == COPY_CHECKED_NOTE)
+                        operateCheckedTo(mAct,copyItems, copyItemsPicture, copyItemsLink, copyItemsAudio, copyItemsBody, copyItemsTime, COPY_TO);// copy to
+
+                }
+                else
+                    Toast.makeText(act,
+                            R.string.delete_checked_no_checked_items,
+                            Toast.LENGTH_SHORT)
+                            .show();
+                dlgAddNew.dismiss();
+                break;
+
+            case MAIL_CHECKED_NOTE:
+                if(!noItemChecked())
+                {
+                    // set Sent string Id
+                    List<Long> noteIdArray = new ArrayList<>();
+                    List<String> pictureFileNameList = new ArrayList<>();
+                    int j=0;
+                    mDb_page.open();
+                    int count = mDb_page.getNotesCount(false);
+                    for(int i=0; i<count; i++)
+                    {
+                        if(mDb_page.getNoteMarking(i,false) == 1)
+                        {
+                            noteIdArray.add(j, mDb_page.getNoteId(i,false));
+                            j++;
+
+                            String picFile = mDb_page.getNotePictureUri_byId(mDb_page.getNoteId(i,false),false,false);
+                            if((picFile != null) && (picFile.length() > 0))
+                                pictureFileNameList.add(picFile);
+                        }
+                    }
+                    mDb_page.close();
+
+                    // message
+                    String sentString = Util.getStringWithXmlTag(noteIdArray);
+                    sentString = Util.addXmlTag(sentString);
+
+                    // picture array
+                    int cnt = pictureFileNameList.size();
+                    String pictureFileNameArr[] = new String[cnt];
+                    for(int i=0; i < cnt ; i++ )
+                    {
+                        pictureFileNameArr[i] = pictureFileNameList.get(i);
+                    }
+                    new MailNotes(mAct,sentString,pictureFileNameArr);
+                }
+                else
+                    Toast.makeText(act,
+                            R.string.delete_checked_no_checked_items,
+                            Toast.LENGTH_SHORT)
+                            .show();
+                dlgAddNew.dismiss();
+                break;
+
+            case DELETE_CHECKED_NOTE:
+                if(!noItemChecked())
+                    deleteCheckedNotes(act);
+                else
+                    Toast.makeText(act,
+                            R.string.delete_checked_no_checked_items,
+                            Toast.LENGTH_SHORT)
+                            .show();
+                dlgAddNew.dismiss();
+                break;
+
+            case BACK:
+                dlgAddNew.dismiss();
+            break;
+
+            // default
+            default:
+                break;
+        }
+
+    }
+
+    /**
+     *  check all or uncheck all
+     */
+    private void checkAll(int action)
+    {
+        boolean bStopAudio = false;
+        mDb_page.open();
+        int count = mDb_page.getNotesCount(false);
+        for(int i=0; i<count; i++)
+        {
+            Long rowId = mDb_page.getNoteId(i,false);
+            String noteTitle = mDb_page.getNoteTitle(i,false);
+            String pictureUri = mDb_page.getNotePictureUri(i,false);
+            String audioUri = mDb_page.getNoteAudioUri(i,false);
+            String linkUri = mDb_page.getNoteLinkUri(i,false);
+            String noteBody = mDb_page.getNoteBody(i,false);
+            mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , action, 0,false);// action 1:check all, 0:uncheck all
+            // Stop if unmarked item is at playing state
+            if((AudioManager.mAudioPos == i) && (action == 0) )
+                bStopAudio = true;
+        }
+        mDb_page.close();
+
+        if(bStopAudio)
+            UtilAudio.stopAudioIfNeeded();
+
+        // update audio play list
+        if(PageUi.isSamePageTable())
+            AudioPlayer_page.prepareAudioInfo();
+
+        Page.mItemAdapter.notifyDataSetChanged();
+        Page.showFooter();
+    }
+
+    /**
+     *  Invert Selected
+     */
+    private void invertSelected()
+    {
+        boolean bStopAudio = false;
+        mDb_page.open();
+        int count = mDb_page.getNotesCount(false);
+        for(int i=0; i<count; i++)
+        {
+            Long rowId = mDb_page.getNoteId(i,false);
+            String noteTitle = mDb_page.getNoteTitle(i,false);
+            String pictureUri = mDb_page.getNotePictureUri(i,false);
+            String audioUri = mDb_page.getNoteAudioUri(i,false);
+            String linkUri = mDb_page.getNoteLinkUri(i,false);
+            String noteBody = mDb_page.getNoteBody(i,false);
+            long marking = (mDb_page.getNoteMarking(i,false)==1)?0:1;
+            mDb_page.updateNote(rowId, noteTitle, pictureUri, audioUri, "", linkUri, noteBody , marking, 0,false);// action 1:check all, 0:uncheck all
+            // Stop if unmarked item is at playing state
+            if((AudioManager.mAudioPos == i) && (marking == 0) )
+                bStopAudio = true;
+        }
+        mDb_page.close();
+
+        if(bStopAudio)
+            UtilAudio.stopAudioIfNeeded();
+
+        // update audio play list
+        if(PageUi.isSamePageTable())
+            AudioPlayer_page.prepareAudioInfo();
+
+        Page.mItemAdapter.notifyDataSetChanged();
+        Page.showFooter();
+    }
+
+
+    /**
+     *   operate checked to: move to, copy to
+     *
+     */
+    private void operateCheckedTo(final FragmentActivity act,final String[] copyItems, final String[] copyItemsPicture, final String[] copyItemsLink,
+                          final String[] copyItemsAudio, final String[] copyItemsBody,
+                          final Long[] copyItemsTime, final int action)
+    {
+        //list all pages
+        int focusFolder_tableId = Pref.getPref_focusView_folder_tableId(act);
+        DB_folder db_folder = new DB_folder(act, focusFolder_tableId);
+        db_folder.open();
+        int tabCount = db_folder.getPagesCount(false);
+        final String[] pageNames = new String[tabCount];
+        final int[] pageTableIds = new int[tabCount];
+        for(int i=0;i<tabCount;i++)
+        {
+            pageNames[i] = db_folder.getPageTitle(i,false);
+            pageTableIds[i] = db_folder.getPageTableId(i,false);
+        }
+        db_folder.close();
+
+        pageNames[PageUi.getFocus_pagePos()] = pageNames[PageUi.getFocus_pagePos()] + " *"; // add mark to current page
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(act);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                //keep focus page table id
+                int srcPageTableId = DB_page.getFocusPage_tableId();
+
+                //copy checked item to destination page
+                int destPageTableId = pageTableIds[which];
+                DB_page.setFocusPage_tableId(destPageTableId);
+                for(int i=0;i< copyItems.length;i++)
+                {
+                    int marking = 0;
+                    // default marking of picture or audio is 1
+                    if( (!Util.isEmptyString(copyItemsPicture[i])) || (!Util.isEmptyString(copyItemsAudio[i])))
+                        marking = 1;
+
+                    // move to same page is not allowed
+                    if(!((action == MOVE_TO) && (srcPageTableId == destPageTableId)))
+                        mDb_page.insertNote(copyItems[i],copyItemsPicture[i], copyItemsAudio[i], "", copyItemsLink[i], copyItemsBody[i],marking, copyItemsTime[i]);
+                }
+
+                //recover table Id of original page
+                if((action == MOVE_TO) && (srcPageTableId != destPageTableId))
+                {
+                    DB_page.setFocusPage_tableId(srcPageTableId);
+                    mDb_page.open();
+                    int count = mDb_page.getNotesCount(false);
+
+                    //delete checked items that were moved
+                    for(int i=0; i<count; i++)
+                    {
+                        if(mDb_page.getNoteMarking(i,false) == 1)
+                        {
+                            mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
+                            // update playing highlight
+                            UtilAudio.stopAudioIfNeeded();
+                        }
+                    }
+                    mDb_page.close();
+
+                    Page.mItemAdapter.notifyDataSetChanged();
+                    Page.showFooter();
+                }
+                else if(action == COPY_TO)
+                {
+                    DB_page.setFocusPage_tableId(srcPageTableId);
+                    if(destPageTableId == srcPageTableId)
+                    {
+                        Page.mItemAdapter.notifyDataSetChanged();
+                        Page.showFooter();
+                    }
+                }
+
+                dialog.dismiss();
+            }
+        };
+
+        if(action == MOVE_TO)
+            builder.setTitle(R.string.checked_notes_move_to_dlg);
+        else if(action == COPY_TO)
+            builder.setTitle(R.string.checked_notes_copy_to_dlg);
+
+        builder.setSingleChoiceItems(pageNames, -1, listener)
+                .setNegativeButton(R.string.btn_Cancel, null);
+
+        // override onShow to mark current page status
+        AlertDialog alertDlg = builder.create();
+        alertDlg.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dlgInterface) {
+                // add mark for current page
+                Util util = new Util(act);
+                util.addMarkToCurrentPage(dlgInterface,action);
+            }
+        });
+        alertDlg.show();
+    }
+
+
+    /**
+     * delete checked notes
+     */
+    private void deleteCheckedNotes(FragmentActivity act)
+    {
+        final Context context = act;
+
+        SharedPreferences pref_delete_warn = context.getSharedPreferences("delete_warn", 0);
+        if(pref_delete_warn.getString("KEY_DELETE_WARN_MAIN","enable").equalsIgnoreCase("enable") &&
+                pref_delete_warn.getString("KEY_DELETE_CHECKED_WARN","yes").equalsIgnoreCase("yes"))
+        {
+            Util util = new Util(act);
+            util.vibrate();
+
+            // show warning dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.delete_checked_note_title)
+                    .setMessage(R.string.delete_checked_message)
+                    .setNegativeButton(R.string.btn_Cancel,
+                            new DialogInterface.OnClickListener()
+                            {	@Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {/*cancel*/} })
+                    .setPositiveButton(R.string.btn_OK,
+                            new DialogInterface.OnClickListener()
+                            {	@Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                mDb_page.open();
+                                int count = mDb_page.getNotesCount(false);
+                                for(int i=0; i<count; i++)
+                                {
+                                    if(mDb_page.getNoteMarking(i,false) == 1)
+                                        mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
+                                }
+                                mDb_page.close();
+
+                                // Stop Play/Pause if current tab's item is played and is not at Stop state
+                                if(AudioManager.mAudioPos == Page.mHighlightPosition)
+                                    UtilAudio.stopAudioIfNeeded();
+
+                                Page.mItemAdapter.notifyDataSetChanged();
+                                Page.showFooter();
+                            }
+                            });
+
+            AlertDialog d = builder.create();
+            d.show();
+        }
+        else
+        {
+            // not show warning dialog
+            mDb_page.open();
+            int count = mDb_page.getNotesCount(false);
+            for(int i=0; i<count; i++)
+            {
+                if(mDb_page.getNoteMarking(i,false) == 1)
+                    mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
+            }
+            mDb_page.close();
+
+            Page.mItemAdapter.notifyDataSetChanged();
+            Page.showFooter();
+        }
+    }
+
+    private boolean noItemChecked()
+    {
+        int checkedItemCount = mDb_page.getCheckedNotesCount();
+        return (checkedItemCount == 0);
+    }
+
+    /**
+     * Created by cw on 2017/10/7.
+     */
+    static class GridIconAdapter extends BaseAdapter {
+        private FragmentActivity act;
+        GridIconAdapter(FragmentActivity fragAct){act = fragAct;}
+
+        @Override
+        public int getCount() {
+            return checkedOperationList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final ViewHolder holder;
+            View view = convertView;
+            if (view == null) {
+                view = act.getLayoutInflater().inflate(R.layout.add_note_grid_item, parent, false);
+                holder = new ViewHolder();
+                assert view != null;
+                holder.imageView = (ImageView) view.findViewById(R.id.grid_item_image);
+                holder.text = (TextView) view.findViewById(R.id.grid_item_text);
+                view.setTag(holder);
+            } else {
+                holder = (ViewHolder) view.getTag();
+            }
+
+            Drawable drawable = act.getResources().getDrawable(checkedOperationList.get(position).option_drawable_id);
+            holder.imageView.setImageDrawable(drawable);
+            holder.text.setText(checkedOperationList.get(position).option_string_id);
+            return view;
+        }
+
+        private class ViewHolder {
+            ImageView imageView;
+            TextView text;
+        }
+    }
+}

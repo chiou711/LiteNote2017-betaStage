@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.cw.litenote.main.MainAct;
-import com.cw.litenote.page.Page;
+import com.cw.litenote.page.Checked_notes_option;
 import com.cw.litenote.R;
 import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
@@ -386,7 +386,7 @@ public class Util
 			        else
 			        	textView.setCheckMarkDrawable(R.drawable.btn_radio_off_holo_light);
 
-                    if(action == Page.MOVE_TO)
+                    if(action == Checked_notes_option.MOVE_TO)
                         textView.setCheckMarkDrawable(null);
 	            }
 	            else
