@@ -76,7 +76,7 @@ public class Checked_notes_option {
         AbsListView gridView;
 
         // get layout inflater
-        View rootView = act.getLayoutInflater().inflate(R.layout.add_note_grid, null);
+        View rootView = act.getLayoutInflater().inflate(R.layout.option_grid, null);
 
         checkedOperationList = new ArrayList<>();
 
@@ -121,7 +121,7 @@ public class Checked_notes_option {
                 R.string.checked_notes_delete));
 
 
-        gridView = (GridView) rootView.findViewById(R.id.add_note_grid_view);
+        gridView = (GridView) rootView.findViewById(R.id.option_grid_view);
 
         // check if directory is created AND not empty
         if( (checkedOperationList != null  ) && (checkedOperationList.size() > 0))

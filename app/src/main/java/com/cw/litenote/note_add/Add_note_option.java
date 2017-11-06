@@ -61,7 +61,7 @@ public class Add_note_option {
         AbsListView gridView;
 
         // get layout inflater
-        View rootView = act.getLayoutInflater().inflate(R.layout.add_note_grid, null);
+        View rootView = act.getLayoutInflater().inflate(R.layout.option_grid, null);
 
         // check camera feature
         PackageManager packageManager = act.getPackageManager();
@@ -125,7 +125,7 @@ public class Add_note_option {
                 android.R.drawable.ic_menu_preferences,
                 R.string.settings));
 
-        gridView = (GridView) rootView.findViewById(R.id.add_note_grid_view);
+        gridView = (GridView) rootView.findViewById(R.id.option_grid_view);
 
         // check if directory is created AND not empty
         if( (addNoteList != null  ) && (addNoteList.size() > 0))

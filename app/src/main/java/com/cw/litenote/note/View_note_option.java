@@ -56,7 +56,7 @@ public class View_note_option {
         AbsListView gridView;
         noteId = _noteId;
         // get layout inflater
-        View rootView = act.getLayoutInflater().inflate(R.layout.add_note_grid, null);
+        View rootView = act.getLayoutInflater().inflate(R.layout.option_grid, null);
 
         option_list = new ArrayList<>();
 
@@ -80,7 +80,7 @@ public class View_note_option {
                 R.drawable.ic_menu_back,
                 R.string.btn_Cancel));
 
-        gridView = (GridView) rootView.findViewById(R.id.add_note_grid_view);
+        gridView = (GridView) rootView.findViewById(R.id.option_grid_view);
 
         // check if directory is created AND not empty
         if( (option_list != null  ) && (option_list.size() > 0))
