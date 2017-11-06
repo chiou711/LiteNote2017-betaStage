@@ -349,8 +349,8 @@ public class Page extends UilListViewBaseFragment
 
 		// for incoming phone call case or key protection off to on
 		if( (page_audio != null) &&
-				(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP) &&
-				(AudioManager.getAudioPlayMode() == AudioManager.PAGE_PLAY_MODE)   )
+			(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP) &&
+			(AudioManager.getAudioPlayMode() == AudioManager.PAGE_PLAY_MODE)   )
 		{
 			page_audio.initAudioBlock();
 		}
@@ -360,13 +360,6 @@ public class Page extends UilListViewBaseFragment
     public void onPause() {
     	super.onPause();
     	System.out.println("Page / _onPause");
-
-		if( (AudioManager.mMediaPlayer != null) &&
-			(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP))
-		{
-            if((page_audio != null) && (page_audio.audio_panel!=null))
-                page_audio.audio_panel.setVisibility(View.GONE);
-		}
 	 }
     
     @Override

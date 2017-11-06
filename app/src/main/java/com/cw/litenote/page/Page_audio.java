@@ -71,6 +71,7 @@ public class Page_audio {
         ImageView audioPanel_next_btn = (ImageView) mAct.findViewById(R.id.audioPanel_next);
         audioPanel_next_btn.setImageResource(R.drawable.ic_media_next);
 
+        // text view for audio info
         audioPanel_curr_pos = (TextView) mAct.findViewById(R.id.audioPanel_current_pos);
         TextView audioPanel_file_length = (TextView) mAct.findViewById(R.id.audioPanel_file_length);
         TextView audioPanel_audio_number = (TextView) mAct.findViewById(R.id.audioPanel_audio_number);
@@ -84,9 +85,9 @@ public class Page_audio {
         //, it is seen when changing drawer, so set invisible at xml
         seekBarProgress.setVisibility(View.VISIBLE);
 
+        // show audio file audio length of playing
         int media_length = AudioPlayer_page.media_file_length;
         System.out.println("Page_audio / _initAudioBlock / audioLen = " + media_length);
-        // show audio file audioLen of playing
         int fileHour = Math.round((float)(media_length / 1000 / 60 / 60));
         int fileMin = Math.round((float)((media_length - fileHour * 60 * 60 * 1000) / 1000 / 60));
         int fileSec = Math.round((float)((media_length - fileHour * 60 * 60 * 1000 - fileMin * 1000 * 60 )/ 1000));
