@@ -22,8 +22,7 @@ public class NoisyAudioStreamReceiver extends BroadcastReceiver {
 			{
 				System.out.println("NoisyAudioStreamReceiver / play -> pause");
                 AudioManager.mMediaPlayer.pause();
-                AudioManager.isRunnableOn_note = false;
-                AudioManager.isRunnableOn_page = false;
+
                 AudioManager.setPlayerState(AudioManager.PLAYER_AT_PAUSE);
 
                 //update audio panel button in Page view
