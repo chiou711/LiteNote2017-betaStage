@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="config_confirm_taken_picture">显示导入的图片:</string>
+    <string name="config_confirm_taken_picture">显示刚刚拍摄的相机图片:</string>
     <string name="config_launch_youtube_when_has_youtube_link">当笔记有YouTube连结时，点击笔记项目启动YouTube:</string>
     <string name="config_delete_warning">删除前需要确认</string>
     <string name="config_warning_title">启用项目：</string>
@@ -35,8 +35,4 @@
     <string name="config_import_SDCard_confirm_title">确认要汇入所选：</string>
     <string name="config_select_pages_title">选择页面:</string>
     <string name="config_button_back">返回</string>
-    <string name="config_open_source_licenses">开放源代码许可</string>
-    <string name="config_about">关于</string>
-    <string name="config_about_version_name">版本名称</string>
-    <string name="config_about_version_code">版本代码</string>
 </resources>

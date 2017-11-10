@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/config"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 <ScrollView
@@ -51,7 +50,47 @@
         android:padding="5dp"/>
 	</LinearLayout>
 	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
-	
+
+	<!-- set slideshow switch time -->
+	<LinearLayout
+		android:id="@+id/slideshow_sw_time"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingLeft="5dp"
+		android:gravity="center"
+		android:orientation="horizontal" >
+		<ImageView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginRight="0dp"
+			android:src="@drawable/timer"
+			android:contentDescription="style"/>
+		<TextView
+			android:id="@+id/slideshow_sw_time_title"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:minHeight="50dp"
+			android:gravity="center_vertical"
+			android:layout_weight="2"
+			android:text="@string/config_set_slideshow_sw_time"
+			android:textStyle="normal"
+			android:paddingLeft="5dp"
+			android:textSize="18sp"/>
+		<TextView
+			android:id="@+id/slideshow_sw_time_setting"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:minHeight="50dp"
+			android:gravity="center"
+			android:layout_weight="1"
+			android:textStyle="normal"
+			android:textSize="18sp"
+			android:text="5sec"
+			android:padding="5dp" />
+	</LinearLayout>
+
+	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
+
 	<!-- set take picture confirmation option-->
 	<LinearLayout
 		android:id="@+id/takePictureOption"
@@ -102,7 +141,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginRight="0dp"
-			android:src="@drawable/btn_check_off_holo_light"
+			android:src="@drawable/timer"
 			android:contentDescription="style"/>
 		<TextView
 			android:id="@+id/youtube_launch_delay_title"
@@ -155,45 +194,6 @@
         android:paddingLeft="5dp" />
     </LinearLayout>
     <View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
-
-	<!-- set slideshow switch time -->
-	<LinearLayout
-		android:id="@+id/slideshow_sw_time"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-		android:gravity="center"
-		android:orientation="horizontal" >
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginRight="0dp"
-			android:src="@drawable/ic_media_play"
-			android:contentDescription="style"/>
-		<TextView
-			android:id="@+id/slideshow_sw_time_title"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:minHeight="50dp"
-			android:gravity="center_vertical"
-			android:layout_weight="2"
-			android:text="@string/config_set_slideshow_sw_time"
-			android:textStyle="normal"
-			android:paddingLeft="5dp"
-			android:textSize="18sp"/>
-		<TextView
-			android:id="@+id/slideshow_sw_time_setting"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:minHeight="50dp"
-			android:gravity="center"
-			android:layout_weight="1"
-			android:textStyle="normal"
-			android:textSize="18sp"
-			android:text="5sec"
-			android:padding="5dp" />
-	</LinearLayout>
-	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
 
     <!-- set vibration time length-->
    	<LinearLayout
@@ -258,63 +258,6 @@
 		android:textSize="18sp"/>
 	</LinearLayout>
 	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
-
-    <!-- show licenses dialog-->
-   	<LinearLayout
-   	    android:id="@+id/showLicenses"
-   	    android:layout_width="match_parent"
-   	    android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-   	    android:gravity="center"
-	    android:orientation="horizontal" >
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="0dp"
-        android:src="@android:drawable/ic_menu_compass" 
-        android:contentDescription="Show licenses"/>   
-    <TextView 
-		android:id="@+id/showLicensesText"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
- 		android:minHeight="50dp"
-		android:layout_weight="1"
-		android:gravity="center_vertical"
-		android:text="@string/config_open_source_licenses"
-		android:textStyle="normal"
-		android:paddingLeft="5dp"
-		android:textSize="18sp"/>
-	</LinearLayout>
-	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />    
-	
-	<!-- show about dialog-->
-   	<LinearLayout
-   	    android:id="@+id/showAbout"
-   	    android:layout_width="match_parent"
-   	    android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-   	    android:gravity="center"
-	    android:orientation="horizontal" >
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="0dp"
-        android:src="@android:drawable/ic_menu_info_details" 
-        android:contentDescription="Show about"/>   
-    <TextView 
-		android:id="@+id/showAbout1"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:minHeight="50dp"
-		android:gravity="center_vertical"
-		android:layout_weight="1"
-		android:text="@string/config_about"
-		android:textStyle="normal"
-		android:paddingLeft="5dp"
-		android:textSize="18sp"/>
-	</LinearLayout>
-	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />    
-	
 
     </LinearLayout>
 

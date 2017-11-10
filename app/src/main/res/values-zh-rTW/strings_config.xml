@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="config_confirm_taken_picture">顯示導入的圖片:</string>
+    <string name="config_confirm_taken_picture">顯示剛剛拍攝的相機圖片:</string>
     <string name="config_launch_youtube_when_has_youtube_link">當記事有YouTube連結,點擊記事項啟動YouTube:</string>
     <string name="config_delete_warning">刪除之前需要確認</string>
     <string name="config_warning_title">啟用項目:</string>
@@ -35,8 +35,4 @@
     <string name="config_import_SDCard_confirm_title">確認要匯入所選：</string>
     <string name="config_select_pages_title">選擇頁面:</string>
     <string name="config_button_back">返回</string>
-    <string name="config_open_source_licenses">開放源代碼許可</string>
-    <string name="config_about">關於</string>
-    <string name="config_about_version_name">版本名稱</string>
-    <string name="config_about_version_code">版本代碼</string>
 </resources>

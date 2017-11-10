@@ -28,7 +28,8 @@ public class MenuId {
         static final int EXPORT_TO_SD_CARD = R.id.EXPORT_TO_SD_CARD;
         static final int IMPORT_FROM_SD_CARD = R.id.IMPORT_FROM_SD_CARD;
         static final int IMPORT_FROM_WEB = R.id.IMPORT_FROM_WEB;
-        static final int CONFIG = R.id.CONFIG_PREF;
+        static final int CONFIG = R.id.CONFIG;
+        static final int ABOUT = R.id.ABOUT;
 
         static final int ADD_NEW_FOLDER = R.id.ADD_NEW_FOLDER;
         static final int ENABLE_FOLDER_DRAG_AND_DROP = R.id.ENABLE_FOLDER_DRAG_AND_DROP;

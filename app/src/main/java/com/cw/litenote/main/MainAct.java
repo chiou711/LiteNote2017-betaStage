@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cw.litenote.R;
+import com.cw.litenote.config.About;
 import com.cw.litenote.config.Config;
 import com.cw.litenote.db.DB_folder;
 import com.cw.litenote.db.DB_page;
@@ -72,6 +73,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     public static CharSequence mAppTitle;
     public Context mContext;
     public Config mConfigFragment;
+    public About mAboutFragment;
     public static Menu mMenu;
     public static List<String> mFolderTitles;
 	static NoisyAudioStreamReceiver noisyAudioStreamReceiver;
@@ -1109,12 +1111,24 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
             case MenuId.CONFIG:
             	mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
+                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
         		setTitle(R.string.settings);
 
             	mConfigFragment = new Config();
             	mFragmentTransaction = fragmentManager.beginTransaction();
 				mFragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
                 mFragmentTransaction.replace(R.id.content_frame, mConfigFragment).addToBackStack("config").commit();
+                return true;
+
+            case MenuId.ABOUT:
+                mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
+                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
+                setTitle(R.string.about_title);
+
+                mAboutFragment = new About();
+                mFragmentTransaction = fragmentManager.beginTransaction();
+                mFragmentTransaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
+                mFragmentTransaction.replace(R.id.content_frame, mAboutFragment).addToBackStack("about").commit();
                 return true;
 
             default:
