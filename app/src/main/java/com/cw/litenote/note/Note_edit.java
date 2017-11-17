@@ -486,6 +486,7 @@ public class Note_edit extends Activity
 	        startActivityForResult(Util.chooseMediaIntentByType(Note_edit.this,"audio/*"),
 	        					   Util.CHOOSER_SET_AUDIO);
 		}});
+
 		// None
 		if(!audioUri.isEmpty())
 		{
@@ -669,7 +670,6 @@ public class Note_edit extends Activity
 			{
 				Toast.makeText(Note_edit.this, R.string.note_cancel_add_new, Toast.LENGTH_LONG).show();
 	            setResult(RESULT_CANCELED, getIntent());
-	            finish();
 	            return; // must add this
 			}
 		}

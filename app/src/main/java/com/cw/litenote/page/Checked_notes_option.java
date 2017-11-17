@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -34,20 +35,20 @@ import java.util.List;
  * Created by cw on 2017/11/4.
  */
 public class Checked_notes_option {
-    int option_id;
+    private int option_id;
     int option_drawable_id;
     int option_string_id;
     public static int MOVE_TO = 0;
-    public static int COPY_TO = 1;
-    DB_page mDb_page;
-    FragmentActivity mAct;
+    private static int COPY_TO = 1;
+    private DB_page mDb_page;
+    private FragmentActivity mAct;
 
     public Checked_notes_option(FragmentActivity act){
         mDb_page = new DB_page(act, Pref.getPref_focusView_page_tableId(act));
         mAct = act;
     }
 
-    Checked_notes_option(int id, int draw_id, int string_id)
+    private Checked_notes_option(int id, int draw_id, int string_id)
     {
         this.option_id = id;
         this.option_drawable_id = draw_id;
@@ -61,14 +62,14 @@ public class Checked_notes_option {
      */
     static List<Checked_notes_option> checkedOperationList;
 
+    private final static int BACK = 0;
     private final static int CHECK_ALL = 1;
-    private final static int UNCHECK_ALL = 2;
+    private final static int UN_CHECK_ALL = 2;
     private final static int INVERT_SELECTED = 3;
     private final static int MOVE_CHECKED_NOTE = 4;
     private final static int COPY_CHECKED_NOTE = 5;
     private final static int MAIL_CHECKED_NOTE = 6;
-    private final static int BACK = 7;
-    private final static int DELETE_CHECKED_NOTE = 8;
+    private final static int DELETE_CHECKED_NOTE = 7;
 
 
     public void open_option_grid(final FragmentActivity act)
@@ -80,19 +81,25 @@ public class Checked_notes_option {
 
         checkedOperationList = new ArrayList<>();
 
+        // Back
+        checkedOperationList.add(new Checked_notes_option(BACK,
+                R.drawable.ic_menu_back,
+                R.string.view_note_button_back));
+
         // CHECK_ALL
         checkedOperationList.add(new Checked_notes_option(CHECK_ALL,
                 R.drawable.btn_check_on_holo_dark,
                 R.string.checked_notes_check_all));
 
-        // UNCHECK_ALL
-        checkedOperationList.add(new Checked_notes_option(UNCHECK_ALL,
+        // UN_CHECK_ALL
+        checkedOperationList.add(new Checked_notes_option(UN_CHECK_ALL,
                 R.drawable.btn_check_off_holo_dark,
                 R.string.checked_notes_uncheck_all));
 
         // INVERT_SELECTED
         checkedOperationList.add(new Checked_notes_option(INVERT_SELECTED,
-                R.drawable.btn_check_on_focused_holo_dark,
+//                R.drawable.btn_check_on_focused_holo_dark,
+                android.R.drawable.ic_menu_set_as,
                 R.string.checked_notes_invert_selected));
 
         // MOVE_CHECKED_NOTE
@@ -110,11 +117,6 @@ public class Checked_notes_option {
                 android.R.drawable.ic_menu_send,
                 R.string.mail_notes_btn));
 
-        // Back
-        checkedOperationList.add(new Checked_notes_option(BACK,
-                R.drawable.ic_menu_back,
-                R.string.btn_Cancel));
-
         // DELETE_CHECKED_NOTE
         checkedOperationList.add(new Checked_notes_option(DELETE_CHECKED_NOTE,
                 R.drawable.ic_menu_clear_playlist,
@@ -126,7 +128,7 @@ public class Checked_notes_option {
         // check if directory is created AND not empty
         if( (checkedOperationList != null  ) && (checkedOperationList.size() > 0))
         {
-            GridIconAdapter mGridIconAdapter = new GridIconAdapter(act);
+            GridIconAdapter mGridIconAdapter = new GridIconAdapter(act,noItemChecked());
             gridView.setAdapter(mGridIconAdapter);
         }
         else
@@ -139,7 +141,10 @@ public class Checked_notes_option {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 System.out.println("MainUi / _addNewNote / _OnItemClickListener / position = " + position +" id = " + id);
-                startCheckedOperation(act, checkedOperationList.get(position).option_id);
+                if(noItemChecked() && (position > CHECK_ALL))
+                    Toast.makeText(act,R.string.delete_checked_no_checked_items,Toast.LENGTH_SHORT).show();
+                else
+                    startCheckedOperation(act, checkedOperationList.get(position).option_id);
             }
         });
 
@@ -149,6 +154,7 @@ public class Checked_notes_option {
         dlgAddNew = builder1.create();
         dlgAddNew.show();
     }
+
     private static AlertDialog dlgAddNew;
 
     private void startCheckedOperation(FragmentActivity act, int option)
@@ -156,18 +162,25 @@ public class Checked_notes_option {
         System.out.println("Checked_notes_option / _startCheckedOperation / option = " + option);
 
         switch (option) {
+            case BACK:
+                dlgAddNew.dismiss();
+                break;
+
             case CHECK_ALL:
                 checkAll(1);
                 dlgAddNew.dismiss();
                 break;
-            case UNCHECK_ALL:
+
+            case UN_CHECK_ALL:
                 checkAll(0);
                 dlgAddNew.dismiss();
                 break;
+
             case INVERT_SELECTED:
                 invertSelected();
                 dlgAddNew.dismiss();
                 break;
+
             case MOVE_CHECKED_NOTE:
             case COPY_CHECKED_NOTE:
                 if(!noItemChecked())
@@ -267,19 +280,14 @@ public class Checked_notes_option {
                 dlgAddNew.dismiss();
                 break;
 
-            case BACK:
-                dlgAddNew.dismiss();
-            break;
-
             // default
             default:
                 break;
         }
-
     }
 
     /**
-     *  check all or uncheck all
+     *  check all or un_check all
      */
     private void checkAll(int action)
     {
@@ -388,7 +396,8 @@ public class Checked_notes_option {
                 {
                     int marking = 0;
                     // default marking of picture or audio is 1
-                    if( (!Util.isEmptyString(copyItemsPicture[i])) || (!Util.isEmptyString(copyItemsAudio[i])))
+                    if( (!Util.isEmptyString(copyItemsPicture[i])) ||
+                        (!Util.isEmptyString(copyItemsAudio[i]))      )
                         marking = 1;
 
                     // move to same page is not allowed
@@ -522,6 +531,7 @@ public class Checked_notes_option {
 
     private boolean noItemChecked()
     {
+        DB_page mDb_page = new DB_page(mAct, Pref.getPref_focusView_page_tableId(mAct));
         int checkedItemCount = mDb_page.getCheckedNotesCount();
         return (checkedItemCount == 0);
     }
@@ -531,7 +541,12 @@ public class Checked_notes_option {
      */
     static class GridIconAdapter extends BaseAdapter {
         private FragmentActivity act;
-        GridIconAdapter(FragmentActivity fragAct){act = fragAct;}
+        boolean hasNoCheckedItems;
+        GridIconAdapter(FragmentActivity fragAct,boolean hasNoCheckedItems)
+        {
+            this.hasNoCheckedItems = hasNoCheckedItems;
+            act = fragAct;
+        }
 
         @Override
         public int getCount() {
@@ -558,6 +573,10 @@ public class Checked_notes_option {
                 assert view != null;
                 holder.imageView = (ImageView) view.findViewById(R.id.grid_item_image);
                 holder.text = (TextView) view.findViewById(R.id.grid_item_text);
+
+                if( hasNoCheckedItems && (position > CHECK_ALL))
+                    view.setBackgroundColor(Color.DKGRAY);
+
                 view.setTag(holder);
             } else {
                 holder = (ViewHolder) view.getTag();
