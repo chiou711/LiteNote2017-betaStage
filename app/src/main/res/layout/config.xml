@@ -168,33 +168,6 @@
 	</LinearLayout>
 	<View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
 
-
-		<!-- set Delete warning -->
-   	<LinearLayout
-   	    android:id="@+id/deleteWarn" 
-   	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:paddingLeft="5dp"
-	    android:gravity="center"
-	    android:orientation="horizontal" > 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="0dp"
-        android:src="@drawable/ic_dialog_alert_holo_light"
-        android:contentDescription="style"/>  
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-		android:minHeight="50dp"
-		android:gravity="center_vertical"
-		android:layout_weight="1"
-        android:textSize="18sp"
-        android:text="@string/config_delete_warning"
-        android:paddingLeft="5dp" />
-    </LinearLayout>
-    <View android:layout_width="match_parent" android:layout_height="1dip" android:background="#4f4f4f" />
-
     <!-- set vibration time length-->
    	<LinearLayout
    	    android:id="@+id/vibrationSetting"

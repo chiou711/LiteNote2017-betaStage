@@ -377,34 +377,23 @@ public class FolderUi
 	        {   @Override
 	            public void onClick(DialogInterface dialog, int which)
 	        	{
-	        		// delete
-					//warning:start
-	            	mPref_delete_warn = act.getSharedPreferences("delete_warn", 0);
-	            	if(mPref_delete_warn.getString("KEY_DELETE_WARN_MAIN","enable").equalsIgnoreCase("enable") &&
-	                   mPref_delete_warn.getString("KEY_DELETE_FOLDER_WARN","yes").equalsIgnoreCase("yes"))
-	            	{
-	        			Util util = new Util(act);
-	    				util.vibrate();
+                    // delete
+                    Util util = new Util(act);
+                    util.vibrate();
 
-	            		Builder builder1 = new Builder(act);
-	            		builder1.setTitle(R.string.confirm_dialog_title)
-	                    .setMessage(R.string.confirm_dialog_message_folder)
-	                    .setNegativeButton(R.string.confirm_dialog_button_no, new OnClickListener(){
-	                    	@Override
-	                        public void onClick(DialogInterface dialog1, int which1){
-	                    		/*nothing to do*/}})
-	                    .setPositiveButton(R.string.confirm_dialog_button_yes, new OnClickListener(){
-	                    	@Override
-	                        public void onClick(DialogInterface dialog1, int which1){
-	                    		deleteFolder(act, position,folderAdapter);
-	                    	}})
-	                    .show();
-	            	} //warning:end
-	            	else
-	            	{
-	            		deleteFolder(act, position, folderAdapter);
-	            	}
-
+                    Builder builder1 = new Builder(act);
+                    builder1.setTitle(R.string.confirm_dialog_title)
+                    .setMessage(R.string.confirm_dialog_message_folder)
+                    .setNegativeButton(R.string.confirm_dialog_button_no, new OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog1, int which1){
+                            /*nothing to do*/}})
+                    .setPositiveButton(R.string.confirm_dialog_button_yes, new OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog1, int which1){
+                            deleteFolder(act, position,folderAdapter);
+                        }})
+                    .show();
 	            }
 	        })
 	    	.setPositiveButton(R.string.edit_page_button_update, new OnClickListener()
@@ -560,6 +549,13 @@ public class FolderUi
             TabsHost.setLastPos_pageId(0);
 
 		// use Runnable to make sure only one folder background is seen
+        mHandler = new Handler();
+        mHandler.post(mTabsHostRun);
+    }
+
+    // start tabs host runnable
+    public static void startTabsHostRun()
+    {
         mHandler = new Handler();
         mHandler.post(mTabsHostRun);
     }

@@ -73,6 +73,7 @@ public class DeletePages extends Fragment{
 
         // OK button: click to do next
         btnSelPageOK = (Button) rootView.findViewById(R.id.btnSelPageOK);
+        btnSelPageOK.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_delete, 0, 0, 0);
         btnSelPageOK.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

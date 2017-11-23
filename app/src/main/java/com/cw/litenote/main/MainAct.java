@@ -845,6 +845,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return true;
 
             case MenuId.DELETE_FOLDERS:
+                mMenu.setGroupVisible(R.id.group_folders, false);
+
                 DB_drawer dB_drawer = new DB_drawer(this);
                 if(dB_drawer.getFoldersCount(true)>0)
                 {
@@ -984,7 +986,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return true;
 
             case MenuId.SHIFT_PAGE:
-			PageUi.shiftPage(mAct);
+			    PageUi.shiftPage(mAct);
 			return true;
 
 			case MenuId.DELETE_PAGES:
@@ -1018,7 +1020,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                                         getResources().getString(R.string.set_enable),
                                    Toast.LENGTH_SHORT).show();
                 }
-				TabsHost.updateTabChange(this);
+                FolderUi.startTabsHostRun();
 				return true;
 
 			case MenuId.SHOW_BODY:
@@ -1037,7 +1039,7 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 										getResources().getString(R.string.set_enable),
 								   Toast.LENGTH_SHORT).show();
                 }
-            	TabsHost.updateTabChange(this);
+                FolderUi.startTabsHostRun();
                 return true;
 
 			case MenuId.CLICK_LAUNCH_YOUTUBE:

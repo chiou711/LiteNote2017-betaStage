@@ -3,7 +3,6 @@ package com.cw.litenote.page;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
@@ -470,63 +469,43 @@ public class Checked_notes_option {
     {
         final Context context = act;
 
-        SharedPreferences pref_delete_warn = context.getSharedPreferences("delete_warn", 0);
-        if(pref_delete_warn.getString("KEY_DELETE_WARN_MAIN","enable").equalsIgnoreCase("enable") &&
-                pref_delete_warn.getString("KEY_DELETE_CHECKED_WARN","yes").equalsIgnoreCase("yes"))
-        {
-            Util util = new Util(act);
-            util.vibrate();
+        Util util = new Util(act);
+        util.vibrate();
 
-            // show warning dialog
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(R.string.delete_checked_note_title)
-                    .setMessage(R.string.delete_checked_message)
-                    .setNegativeButton(R.string.btn_Cancel,
-                            new DialogInterface.OnClickListener()
-                            {	@Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {/*cancel*/} })
-                    .setPositiveButton(R.string.btn_OK,
-                            new DialogInterface.OnClickListener()
-                            {	@Override
-                            public void onClick(DialogInterface dialog, int which)
+        // show warning dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.delete_checked_note_title)
+                .setMessage(R.string.delete_checked_message)
+                .setNegativeButton(R.string.btn_Cancel,
+                        new DialogInterface.OnClickListener()
+                        {	@Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {/*cancel*/} })
+                .setPositiveButton(R.string.btn_OK,
+                        new DialogInterface.OnClickListener()
+                        {	@Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            mDb_page.open();
+                            int count = mDb_page.getNotesCount(false);
+                            for(int i=0; i<count; i++)
                             {
-                                mDb_page.open();
-                                int count = mDb_page.getNotesCount(false);
-                                for(int i=0; i<count; i++)
-                                {
-                                    if(mDb_page.getNoteMarking(i,false) == 1)
-                                        mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
-                                }
-                                mDb_page.close();
-
-                                // Stop Play/Pause if current tab's item is played and is not at Stop state
-                                if(AudioManager.mAudioPos == Page.mHighlightPosition)
-                                    UtilAudio.stopAudioIfNeeded();
-
-                                Page.mItemAdapter.notifyDataSetChanged();
-                                Page.showFooter();
+                                if(mDb_page.getNoteMarking(i,false) == 1)
+                                    mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
                             }
-                            });
+                            mDb_page.close();
 
-            AlertDialog d = builder.create();
-            d.show();
-        }
-        else
-        {
-            // not show warning dialog
-            mDb_page.open();
-            int count = mDb_page.getNotesCount(false);
-            for(int i=0; i<count; i++)
-            {
-                if(mDb_page.getNoteMarking(i,false) == 1)
-                    mDb_page.deleteNote(mDb_page.getNoteId(i,false),false);
-            }
-            mDb_page.close();
+                            // Stop Play/Pause if current tab's item is played and is not at Stop state
+                            if(AudioManager.mAudioPos == Page.mHighlightPosition)
+                                UtilAudio.stopAudioIfNeeded();
 
-            Page.mItemAdapter.notifyDataSetChanged();
-            Page.showFooter();
-        }
+                            Page.mItemAdapter.notifyDataSetChanged();
+                            Page.showFooter();
+                        }
+                        });
+
+        AlertDialog d = builder.create();
+        d.show();
     }
 
     private boolean noItemChecked()

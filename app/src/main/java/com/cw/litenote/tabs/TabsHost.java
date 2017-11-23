@@ -210,7 +210,7 @@ public class TabsHost extends Fragment
         mTabsHost.setup(mAct, getChildFragmentManager(), android.R.id.tabcontent);
 	}
 	
-	static void setTab(FragmentActivity act)
+	static public void setTab(FragmentActivity act)
 	{
 		System.out.println("TabsHost/ _setTab");
         //set tab indicator
@@ -607,7 +607,7 @@ public class TabsHost extends Fragment
     	}
     	
     	// update change after deleting tab
-		updateTabChange(activity);
+		FolderUi.startTabsHostRun();
     	
     	// Note: _onTabChanged will reset scroll X to another value,
     	// so we need to add the following to set scroll X again
@@ -658,33 +658,22 @@ public class TabsHost extends Fragment
 	                    public void onClick(DialogInterface dialog, int which)
 	                	{
 	                		// delete
-							//warning:start
-		                	mPref_delete_warn = act.getSharedPreferences("delete_warn", 0);
-		                	if(mPref_delete_warn.getString("KEY_DELETE_WARN_MAIN","enable").equalsIgnoreCase("enable") &&
-		 	                   mPref_delete_warn.getString("KEY_DELETE_PAGE_WARN","yes").equalsIgnoreCase("yes")) 
-		                	{
-		            			Util util = new Util(act);
-		        				util.vibrate();
-		        				
-		                		Builder builder1 = new Builder(mTabsHost.getContext());
-		                		builder1.setTitle(R.string.confirm_dialog_title)
-	                            .setMessage(R.string.confirm_dialog_message_page)
-	                            .setNegativeButton(R.string.confirm_dialog_button_no, new OnClickListener(){
-	                            	@Override
-	                                public void onClick(DialogInterface dialog1, int which1){
-	                            		/*nothing to do*/}})
-	                            .setPositiveButton(R.string.confirm_dialog_button_yes, new OnClickListener(){
-	                            	@Override
-	                                public void onClick(DialogInterface dialog1, int which1){
-	                                	deletePage(pageId, act);
-	                            	}})
-	                            .show();
-		                	} //warning:end
-		                	else
-		                	{
-		                		deletePage(pageId, act);
-		                	}
-		                	
+                            Util util = new Util(act);
+                            util.vibrate();
+
+                            Builder builder1 = new Builder(mTabsHost.getContext());
+                            builder1.setTitle(R.string.confirm_dialog_title)
+                            .setMessage(R.string.confirm_dialog_message_page)
+                            .setNegativeButton(R.string.confirm_dialog_button_no, new OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialog1, int which1){
+                                    /*nothing to do*/}})
+                            .setPositiveButton(R.string.confirm_dialog_button_yes, new OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialog1, int which1){
+                                    deletePage(pageId, act);
+                                }})
+                            .show();
 	                    }
 	                })	
 	                .setPositiveButton(R.string.edit_page_button_update, new OnClickListener()
@@ -705,7 +694,7 @@ public class TabsHost extends Fragment
 							// Before _recreate, store latest page number currently viewed
 							Pref.setPref_focusView_page_tableId(act, pageTableId);
 	                        
-	                        updateTabChange(act);
+							FolderUi.startTabsHostRun();
 	                    }
 	                })	
 	                .setIcon(android.R.drawable.ic_menu_edit);
@@ -727,18 +716,6 @@ public class TabsHost extends Fragment
 	}
 	
     
-	/**
-	 * update tab change 
-	 */
-	public static void updateTabChange(FragmentActivity act)
-	{
-		System.out.println("TabsHost / _updateChange ");
-            FolderUi.selectFolder(mAct,FolderUi.getFocus_folderPos());
-//			if(mTabsHost != null)
-//            	mTabsHost.clearAllTabs(); //must add this in order to clear onTabChange event
-//            setTab(act);
-	}
-	
 	static public int getLastPos_pageId()
 	{
 		return mLastPos_pageId;

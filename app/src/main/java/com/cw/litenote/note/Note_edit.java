@@ -38,7 +38,6 @@ public class Note_edit extends Activity
 
     private Long noteId, createdTime;
     private String title, picUriStr, audioUri, linkUri, cameraPictureUri, body;
-    SharedPreferences mPref_delete_warn;
     Note_common note_common;
     private boolean enSaveDb = true;
     boolean bUseCameraImage;
@@ -131,52 +130,41 @@ public class Note_edit extends Activity
         // delete
         delButton.setOnClickListener(new View.OnClickListener() {
 
-            public void onClick(View view) {
-				//warning :start
-        		mPref_delete_warn = getSharedPreferences("delete_warn", 0);
-            	if(mPref_delete_warn.getString("KEY_DELETE_WARN_MAIN","enable").equalsIgnoreCase("enable") &&
-            	   mPref_delete_warn.getString("KEY_DELETE_NOTE_WARN","yes").equalsIgnoreCase("yes")) 
-            	{
-        			Util util = new Util(Note_edit.this);
-    				util.vibrate();
-            		
-            		Builder builder1 = new Builder(Note_edit.this ); 
-            		builder1.setTitle(R.string.confirm_dialog_title)
-                        .setMessage(R.string.confirm_dialog_message)
-                        .setNegativeButton(R.string.confirm_dialog_button_no, new OnClickListener()
-                        {   @Override
-                            public void onClick(DialogInterface dialog1, int which1)
-                        	{/*nothing to do*/}
-                        })
-                        .setPositiveButton(R.string.confirm_dialog_button_yes, new OnClickListener()
-                        {   @Override
-                            public void onClick(DialogInterface dialog1, int which1)
-                        	{
-                                note_common.deleteNote(noteId);
-                        		
-                        		
-                        		if(PageUi.isSamePageTable())
-                                	AudioPlayer_page.prepareAudioInfo();
-                        		
-                        		// Stop Play/Pause if current edit item is played and is not at Stop state
-                        		if(Page.mHighlightPosition == position)
-                        			UtilAudio.stopAudioIfNeeded();
-                        		
-                        		// update highlight position
-                        		if(position < Page.mHighlightPosition )
+            public void onClick(View view)
+			{
+				Util util = new Util(Note_edit.this);
+				util.vibrate();
+
+				Builder builder1 = new Builder(Note_edit.this );
+				builder1.setTitle(R.string.confirm_dialog_title)
+					.setMessage(R.string.confirm_dialog_message)
+					.setNegativeButton(R.string.confirm_dialog_button_no, new OnClickListener()
+						{   @Override
+							public void onClick(DialogInterface dialog1, int which1)
+							{/*nothing to do*/}
+						})
+					.setPositiveButton(R.string.confirm_dialog_button_yes, new OnClickListener()
+						{   @Override
+							public void onClick(DialogInterface dialog1, int which1)
+							{
+								note_common.deleteNote(noteId);
+
+
+								if(PageUi.isSamePageTable())
+									AudioPlayer_page.prepareAudioInfo();
+
+								// Stop Play/Pause if current edit item is played and is not at Stop state
+								if(Page.mHighlightPosition == position)
+									UtilAudio.stopAudioIfNeeded();
+
+								// update highlight position
+								if(position < Page.mHighlightPosition )
 									AudioManager.mAudioPos--;
-                        		
-                            	finish();
-                        	}
-                        })
-                        .show();//warning:end
-            	}
-            	else{
-            	    //no warning:start
-	                setResult(RESULT_CANCELED);
-                    note_common.deleteNote(noteId);
-	                finish();
-            	}
+
+								finish();
+							}
+						})
+					.show();//warning:end
             }
         });
         

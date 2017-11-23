@@ -65,9 +65,6 @@ public class Config extends Fragment
 		//Set YouTube launch delay
 		setYouTubeLaunchDelay();
 
-		//Set deleting warning 
-		setDeleteWarn();
-
 		//Set slideshow switch time
 		setSlideshowSwitchTime();
 
@@ -264,23 +261,6 @@ public class Config extends Fragment
 			@Override
 			public void onClick(View v) {
 				youtubeLaunchDelayPickerDialog();
-			}
-		});
-	}
-
-	
-	/**
-	 *  set deleting warning 
-	 *  
-	 */
-	void setDeleteWarn()
-	{
-		View deleteWarn = mRootView.findViewById(R.id.deleteWarn);
-		deleteWarn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				SelectWarnItemDlg selectWarnItemDlg = new SelectWarnItemDlg(v,getActivity());
-				selectWarnItemDlg.SelectWarnPref();
 			}
 		});
 	}
@@ -523,25 +503,22 @@ public class Config extends Fragment
     };
     
     
-    public static void clearSharedPreferences(Context ctx){
-//    	String path = ctx.getFilesDir().getParent() + "/shared_prefs/";
-//    	if(Util.isUriExisted(path, ctx))
-    	{
-	        File dir = new File(ctx.getFilesDir().getParent() + "/shared_prefs/");
-	        String[] children = dir.list();
-	        for (int i = 0; i < children.length; i++) {
-	        	System.out.println("1: " + children[i]);
-	            // clear each of the preferences
-	            ctx.getSharedPreferences(children[i].replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().apply();
-	        }
-	        // Make sure it has enough time to save all the committed changes
-	        try { Thread.sleep(1000); } catch (InterruptedException e) {}
-	        for (int i = 0; i < children.length; i++) {
-	        	System.out.println("2: " + children[i]);
-	            // delete the files
-	            new File(dir, children[i]).delete();
-	        }
-    	}
-    }   
+    public static void clearSharedPreferences(Context ctx)
+	{
+		File dir = new File(ctx.getFilesDir().getParent() + "/shared_prefs/");
+		String[] children = dir.list();
+		for (int i = 0; i < children.length; i++) {
+			System.out.println("1: " + children[i]);
+			// clear each of the preferences
+			ctx.getSharedPreferences(children[i].replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().apply();
+		}
+		// Make sure it has enough time to save all the committed changes
+		try { Thread.sleep(1000); } catch (InterruptedException e) {}
+		for (int i = 0; i < children.length; i++) {
+			System.out.println("2: " + children[i]);
+			// delete the files
+			new File(dir, children[i]).delete();
+		}
+    }
     
 }

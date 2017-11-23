@@ -16,7 +16,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cw.litenote.R;
 import com.cw.litenote.db.DB_folder;
@@ -110,9 +109,13 @@ public class PageUi
 							  TabsHost.mStyle,
                               true);
 	 			dlg.dismiss();
-	 			TabsHost.updateTabChange(act);
+				FolderUi.startTabsHostRun();
 		}});
 	}
+
+	final static int LEFTMOST = -1;
+	final static int MIDDLE = 0;
+	final static int RIGHTMOST = 1;
 
 	/**
 	 * shift page right or left
@@ -163,13 +166,7 @@ public class PageUi
 	       		if(leftMargin[0] < 0)
 	       			TabsHost.mHorScrollView.scrollBy(- (nextTabWidth + dividerWidth) , 0);
 
-	    		dlg.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-	    	    if(getFocus_pagePos() == 0)
-	    	    {
-	    	    	Toast.makeText(TabsHost.mTabsHost.getContext(), R.string.toast_leftmost ,Toast.LENGTH_SHORT).show();
-	    	    	dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);//avoid long time toast
-	    	    }
-	    	    else
+                if(getTabPositionState() != LEFTMOST)
 	    	    {
 					Pref.setPref_focusView_page_tableId(act, TabsHost.mDbFolder.getPageTableId(getFocus_pagePos(), true));
 	    	    	swapPage(getFocus_pagePos(),
@@ -184,7 +181,9 @@ public class PageUi
                         else if ((getFocus_pagePos() - MainAct.mPlaying_pagePos) == 1)
                             MainAct.mPlaying_pagePos++;
                     }
-					TabsHost.updateTabChange(act);
+                    FolderUi.startTabsHostRun();
+                    setFocus_pagePos(getFocus_pagePos()-1);
+                    updateButtonState(dlg);
 	    	    }
 	       }
 	    });
@@ -231,15 +230,7 @@ public class PageUi
 	    		if( screenWidth <= rightMargin[0] + nextTabWidth )
 	    			TabsHost.mHorScrollView.scrollBy(nextTabWidth + dividerWidth, 0);
 
-	    		dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(true);
-
-	   	    	if(getFocus_pagePos() == (count-1))
-	   	    	{
-	   	    		// end of the right side
-	   	    		Toast.makeText(TabsHost.mTabsHost.getContext(),R.string.toast_rightmost,Toast.LENGTH_SHORT).show();
-	   	    		dlg.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);//avoid long time toast
-	   	    	}
-	   	    	else
+                if(getTabPositionState() != RIGHTMOST)
 	   	    	{
 					Pref.setPref_focusView_page_tableId(act, db.getPageTableId(getFocus_pagePos(), true));
 					swapPage(getFocus_pagePos(), getFocus_pagePos() +1);
@@ -253,21 +244,75 @@ public class PageUi
                         else if ((MainAct.mPlaying_pagePos - getFocus_pagePos()) == 1)
                             MainAct.mPlaying_pagePos--;
                     }
-					TabsHost.updateTabChange(act);
+                    FolderUi.startTabsHostRun();
+                    setFocus_pagePos(getFocus_pagePos()+1);
+					updateButtonState(dlg);
 	   	    	}
 	       }
 	    });
 
-	    // android.R.id.button1 for positive: next
-	    ((Button)dlg.findViewById(android.R.id.button1))
-	              .setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_forward, 0, 0, 0);
-	    // android.R.id.button2 for negative: previous
-	    ((Button)dlg.findViewById(android.R.id.button2))
-	              .setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
-	    // android.R.id.button3 for neutral: cancel
+
+        updateButtonState(dlg);
+
 	    ((Button)dlg.findViewById(android.R.id.button3))
 	              .setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_close_clear_cancel, 0, 0, 0);
 	}
+
+	static int getTabPositionState()
+	{
+		int pos = getFocus_pagePos();
+
+		DB_folder db = TabsHost.mDbFolder;
+		int count = db.getPagesCount(true);
+
+		if( pos == 0 )
+			return LEFTMOST;
+		else if(pos == (count-1))
+			return RIGHTMOST;
+		else
+			return MIDDLE;
+	}
+
+	static void updateButtonState(AlertDialog dlg)
+    {
+        if(getTabPositionState() == LEFTMOST )
+        {
+            // android.R.id.button1 for positive: next
+            dlg.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+            ((Button)dlg.findViewById(android.R.id.button1))
+                    .setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_forward, 0, 0, 0);
+
+            // android.R.id.button2 for negative: previous
+            dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);
+            ((Button)dlg.findViewById(android.R.id.button2))
+                    .setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        }
+        else if(getTabPositionState() == RIGHTMOST)
+        {
+            // android.R.id.button1 for positive: next
+            dlg.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            ((Button)dlg.findViewById(android.R.id.button1))
+                    .setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+
+            // android.R.id.button2 for negative: previous
+            dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(true);//avoid long time toast
+            ((Button)dlg.findViewById(android.R.id.button2))
+                    .setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
+
+        }
+        else if(getTabPositionState() == MIDDLE)
+        {
+            // android.R.id.button1 for positive: next
+            dlg.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+            ((Button)dlg.findViewById(android.R.id.button1))
+                    .setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_forward, 0, 0, 0);
+
+            dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(true);
+            // android.R.id.button2 for negative: previous
+            ((Button)dlg.findViewById(android.R.id.button2))
+                    .setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
+        }
+    }
 
 	/**
 	 * swap page
@@ -447,7 +492,7 @@ public class PageUi
 	    // set scroll X
 		final int scrollX = (TabsHost.mPagesCount) * 60 * 5; //over the last scroll X
 		
-		TabsHost.updateTabChange(act);
+        FolderUi.startTabsHostRun();
 
 		if(TabsHost.mHorScrollView != null) {
 			TabsHost.mHorScrollView.post(new Runnable() {
@@ -490,7 +535,7 @@ public class PageUi
 		final int scrollX = 0; // leftmost
 		
 		// commit: scroll X
-		TabsHost.updateTabChange(act);
+        FolderUi.startTabsHostRun();
 
 		TabsHost.mHorScrollView.post(new Runnable() {
 	        @Override
