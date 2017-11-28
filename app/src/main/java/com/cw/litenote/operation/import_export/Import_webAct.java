@@ -1,8 +1,12 @@
 package com.cw.litenote.operation.import_export;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,12 +27,35 @@ public class Import_webAct extends FragmentActivity
     String content=null;
     WebView webView;
     Button btn_import;
+    public static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 98;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)//api23
+        {
+            // check permission
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED)
+            {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                                                  new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                               Manifest.permission.READ_EXTERNAL_STORAGE},
+                                                  PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE );
+            }
+            else
+                doCreate();
+        }
+        else
+            doCreate();
+    }
+
+    void doCreate()
+    {
         setContentView(R.layout.import_web);
 
         // web view
@@ -118,6 +145,29 @@ public class Import_webAct extends FragmentActivity
         // load content to web view
         webView.loadUrl("http://litenoteapp.blogspot.tw/2017/09/xml-link.html");
     }
+
+    // callback of granted permission
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    {
+        System.out.println("grantResults.length =" + grantResults.length);
+        switch (requestCode)
+        {
+            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+            {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    doCreate();
+                else
+                {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    finish();
+                }
+            }//case
+        }//switch
+    }
+
 
     @Override
     public void onBackPressed() {

@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "com.cw.litenote"
-        minSdkVersion 11
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 27
     }
 
     buildTypes {
@@ -28,8 +28,10 @@ android {
 }
 
 dependencies {
-    compile files('libs/android-support-v13.jar')
     compile files('libs/commons-io-2.4.jar')
     compile files('libs/universal-image-loader-1.9.5.jar')
     compile files('libs/YouTubeAndroidPlayerApi.jar')
+    implementation 'com.android.support:support-v4:27.0.1'
+    implementation 'com.android.support:support-v13:27.0.1'
+    implementation 'com.android.support:appcompat-v7:27.0.1'
 }
