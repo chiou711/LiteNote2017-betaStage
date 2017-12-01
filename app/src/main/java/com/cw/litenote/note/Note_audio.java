@@ -68,7 +68,6 @@ public class Note_audio
         audioBlock.setBackgroundColor(ColorSet.color_black);
 
         mPager_audio_play_button = (ImageView) act.findViewById(R.id.pager_btn_audio_play);
-        seekBar = (SeekBar) act.findViewById(R.id.pager_img_audio_seek_bar);
     }
 
     // show audio block
@@ -159,8 +158,7 @@ public class Note_audio
     }
 
     // Set audio block
-    public static ImageView mPager_audio_play_button;
-    private SeekBar seekBar;
+    public ImageView mPager_audio_play_button;
     private static int mProgress;
     private static int mediaFileLength; // this value contains the song duration in milliseconds. Look at getDuration() method in MediaPlayer class
 

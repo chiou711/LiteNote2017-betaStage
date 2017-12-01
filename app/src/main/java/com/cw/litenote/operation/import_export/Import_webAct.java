@@ -59,10 +59,10 @@ public class Import_webAct extends FragmentActivity
         setContentView(R.layout.import_web);
 
         // web view
-        webView = findViewById(R.id.webView);
+        webView = (WebView) findViewById(R.id.webView);
 
         // cancel button
-        Button btn_cancel = findViewById(R.id.import_web_cancel);
+        Button btn_cancel = (Button) findViewById(R.id.import_web_cancel);
         btn_cancel.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
@@ -77,7 +77,7 @@ public class Import_webAct extends FragmentActivity
         });
 
         // import button
-        btn_import = findViewById(R.id.import_web_import);
+        btn_import = (Button) findViewById(R.id.import_web_import);
 //        btn_import.setVisibility(View.INVISIBLE);
         btn_import.setOnClickListener(new View.OnClickListener()
         {
