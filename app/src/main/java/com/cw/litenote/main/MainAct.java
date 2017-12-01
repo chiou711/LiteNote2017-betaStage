@@ -49,6 +49,7 @@ import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -114,7 +115,26 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 		mAppTitle = getTitle();
         mMainUi = new MainUi();
 
-		// Show Api version
+        // file provider implementation is needed after Android version 24
+        // if not, will encounter android.os.FileUriExposedException
+        // cf. https://stackoverflow.com/questions/38200282/android-os-fileuriexposedexception-file-storage-emulated-0-test-txt-exposed
+
+        // add the following to disable this requirement
+        if(Build.VERSION.SDK_INT>=24){
+            try {
+                // method 1
+//                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+//                m.invoke(null);
+
+                // method 2
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        // Show Api version
         if(Define.CODE_MODE == Define.DEBUG_MODE)
 		    Toast.makeText(mAct, mAppTitle + " " + "API_" + Build.VERSION.SDK_INT , Toast.LENGTH_SHORT).show();
         else
@@ -226,6 +246,20 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 		// Show license dialog
 		new EULA_dlg(this).show();
+    }
+
+    // callback of granted permission
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    {
+        System.out.println("grantResults.length =" + grantResults.length);
+        switch (requestCode)
+        {
+            case Util.PERMISSIONS_REQUEST_ALL:
+            {
+               // first time request, do nothing
+            }
+        }
     }
 
     @Override
@@ -766,6 +800,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         DB_folder dB_folder = new DB_folder(this, Pref.getPref_focusView_folder_tableId(this));
         DB_page dB_page = new DB_page(this,Pref.getPref_focusView_page_tableId(this));
 
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
 		// Go back: check if Configure fragment now
 		if( (item.getItemId() == android.R.id.home ))
     	{
@@ -1061,49 +1097,46 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 				invalidateOptionsMenu();
 				return true;
 
-			case MenuId.EXPORT_TO_SD_CARD:
-                //hide the menu
-				mMenu.setGroupVisible(R.id.group_notes, false);
-                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
-				if(dB_folder.getPagesCount(true)>0)
-				{
-					Export_toSDCardFragment exportFragment = new Export_toSDCardFragment();
-					FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-					transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
-					transaction.replace(R.id.content_frame, exportFragment,"export").addToBackStack(null).commit();
-				}
-				else
-				{
-					Toast.makeText(this, R.string.no_page_yet, Toast.LENGTH_SHORT).show();
-				}
-				return true;
+			// sub menu for backup
+            case MenuId.IMPORT_FROM_WEB:
+                Intent import_web = new Intent(this,Import_webAct.class);
+                startActivityForResult(import_web,8000);
+                return true;
 
-			case MenuId.IMPORT_FROM_SD_CARD:
+            case MenuId.IMPORT_FROM_SD_CARD:
                 //hide the menu
 				mMenu.setGroupVisible(R.id.group_notes, false);
                 mMenu.setGroupVisible(R.id.group_pages_and_more, false);
 				// replace fragment
                 Import_filesList importFragment = new Import_filesList();
-				FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 				transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
 				transaction.replace(R.id.content_frame, importFragment,"import").addToBackStack(null).commit();
 				return true;
 
-			case MenuId.IMPORT_FROM_WEB:
-                Intent import_web = new Intent(this,Import_webAct.class);
-                startActivityForResult(import_web,8000);
+            case MenuId.EXPORT_TO_SD_CARD:
+                //hide the menu
+                mMenu.setGroupVisible(R.id.group_notes, false);
+                mMenu.setGroupVisible(R.id.group_pages_and_more, false);
+                if(dB_folder.getPagesCount(true)>0)
+                {
+                    Export_toSDCardFragment exportFragment = new Export_toSDCardFragment();
+                    transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
+                    transaction.replace(R.id.content_frame, exportFragment,"export").addToBackStack(null).commit();
+                }
+                else
+                {
+                    Toast.makeText(this, R.string.no_page_yet, Toast.LENGTH_SHORT).show();
+                }
+                return true;
 
-				return true;
-
-			case MenuId.SEND_PAGES:
+            case MenuId.SEND_PAGES:
 				mMenu.setGroupVisible(R.id.group_notes, false); //hide the menu
 
 				if(dB_folder.getPagesCount(true)>0)
 				{
 					MailPagesFragment mailFragment = new MailPagesFragment();
-					FragmentTransaction transactionMail = getSupportFragmentManager().beginTransaction();
-					transactionMail.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
-					transactionMail.replace(R.id.content_frame, mailFragment,"mail").addToBackStack(null).commit();
+					transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
+					transaction.replace(R.id.content_frame, mailFragment,"mail").addToBackStack(null).commit();
 				}
 				else
 				{

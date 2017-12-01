@@ -9,21 +9,27 @@ package com.cw.litenote.util;
  
 import com.cw.litenote.R;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+
+import static android.os.Build.VERSION_CODES.M;
 
 public class EULA_dlg {
 
     private String EULA_PREFIX = "appEULA";
     private Activity mAct;
- 
+    SharedPreferences prefs;
+    String eulaKey;
+
     public EULA_dlg(Activity context) {
         mAct = context;
     }
@@ -42,18 +48,11 @@ public class EULA_dlg {
     public void show() {
         System.out.println("EULA_dlg / _show");
         PackageInfo versionInfo = getPackageInfo();
- 
+        prefs= PreferenceManager.getDefaultSharedPreferences(mAct);
         // The eulaKey changes every time you increment the version number in
         // the AndroidManifest.xml
-        final String eulaKey = EULA_PREFIX + versionInfo.versionCode;
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mAct);
- 
-        // enable default state: show license dialog always
-//        SharedPreferences.Editor editor = prefs.edit();
-//        editor.putBoolean(eulaKey, false);
-//        editor.apply();
-        
-        
+        eulaKey = EULA_PREFIX + versionInfo.versionCode;
+
         boolean bAlreadyAccepted = prefs.getBoolean(eulaKey, false);
         
         if (bAlreadyAccepted == false) {
@@ -78,16 +77,30 @@ public class EULA_dlg {
                             new Dialog.OnClickListener() {
  
                                 @Override
-                                public void onClick(
-                                        DialogInterface dialogInterface, int i) {
-                                    // Mark this version as read.
-                                    SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putBoolean(eulaKey, true);
-                                    editor.apply();
- 
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if(Build.VERSION.SDK_INT >= M)//api23
+                                    {
+                                        // check permission first time, request all necessary permissions
+                                        int permissionCamera = ActivityCompat.checkSelfPermission(mAct, Manifest.permission.CAMERA);
+                                        if(permissionCamera != PackageManager.PERMISSION_GRANTED)
+                                        {
+                                            ActivityCompat.requestPermissions(mAct,
+                                                                new String[]{Manifest.permission.CAMERA,
+                                                                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                             Manifest.permission.READ_EXTERNAL_STORAGE,
+                                                                             Manifest.permission.READ_PHONE_STATE
+                                                                                              },
+                                                                Util.PERMISSIONS_REQUEST_ALL);
+                                        }
+                                        else
+                                            applyPreference();
+                                    }
+                                    else
+                                        applyPreference();
+
                                     // Close dialog
                                     dialogInterface.dismiss();
- 
+
                                     // Enable orientation changes based on
                                     // device's sensor
 //                                    act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
@@ -108,5 +121,13 @@ public class EULA_dlg {
                             });
             builder.create().show();
         }
+    }
+
+    void applyPreference()
+    {
+        // Mark this version as read.
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(eulaKey, true);
+        editor.apply();
     }
 }

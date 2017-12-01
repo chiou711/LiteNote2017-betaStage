@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.cw.litenote.R;
+import com.cw.litenote.util.Util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +28,6 @@ public class Import_webAct extends FragmentActivity
     String content=null;
     WebView webView;
     Button btn_import;
-    public static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 98;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,7 +45,7 @@ public class Import_webAct extends FragmentActivity
                 ActivityCompat.requestPermissions(this,
                                                   new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                                                Manifest.permission.READ_EXTERNAL_STORAGE},
-                                                  PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE );
+                                                  Util.PERMISSIONS_REQUEST_STORAGE);
             }
             else
                 doCreate();
@@ -59,10 +59,10 @@ public class Import_webAct extends FragmentActivity
         setContentView(R.layout.import_web);
 
         // web view
-        webView = (WebView) findViewById(R.id.webView);
+        webView = findViewById(R.id.webView);
 
         // cancel button
-        Button btn_cancel = (Button) findViewById(R.id.import_web_cancel);
+        Button btn_cancel = findViewById(R.id.import_web_cancel);
         btn_cancel.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
@@ -77,7 +77,7 @@ public class Import_webAct extends FragmentActivity
         });
 
         // import button
-        btn_import = (Button) findViewById(R.id.import_web_import);
+        btn_import = findViewById(R.id.import_web_import);
 //        btn_import.setVisibility(View.INVISIBLE);
         btn_import.setOnClickListener(new View.OnClickListener()
         {
@@ -140,7 +140,6 @@ public class Import_webAct extends FragmentActivity
 
         // show toast
         webView.addJavascriptInterface(import_interface, "LiteNote");
-//        webView.addJavascriptInterface(import_interface, "INTERFACE");
 
         // load content to web view
         webView.loadUrl("http://litenoteapp.blogspot.tw/2017/09/xml-link.html");
@@ -153,21 +152,18 @@ public class Import_webAct extends FragmentActivity
         System.out.println("grantResults.length =" + grantResults.length);
         switch (requestCode)
         {
-            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+            case Util.PERMISSIONS_REQUEST_STORAGE:
             {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                if ( (grantResults.length > 0) &&
+                     ( (grantResults[0] == PackageManager.PERMISSION_GRANTED) &&
+                       (grantResults[1] == PackageManager.PERMISSION_GRANTED)    ))
                     doCreate();
                 else
-                {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                     finish();
-                }
             }//case
         }//switch
     }
-
 
     @Override
     public void onBackPressed() {

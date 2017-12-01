@@ -11,19 +11,25 @@ import com.cw.litenote.db.DB_page;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.Util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import static android.os.Build.VERSION_CODES.M;
 
 /*
  * Note: 
@@ -47,46 +53,126 @@ public class Note_addCameraImage extends Activity {
     boolean bUseCameraImage;
 	final int TAKE_IMAGE_ACT = 1;
 	private Uri imageUri;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         System.out.println("Note_addCameraImage / onCreate");
-        
-        note_common = new Note_common(this);
-        imageUriInDB = "";
-        cameraImageUri = "";
-        bUseCameraImage = false;
-        enSaveDb = true;
-        
-        // get row Id from saved instance
-        noteId = (savedInstanceState == null) ? null :
-            (Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
-        
-        // get picture Uri in DB if instance is not null
-        dB = Page.mDb_page;
-        if(savedInstanceState != null)
+        if(Build.VERSION.SDK_INT >= M)//api23
         {
-	        System.out.println("Note_addCameraImage / onCreate / noteId =  " + noteId);
-	        if(noteId != null)
-	        	imageUriInDB = dB.getNotePictureUri_byId(noteId);
+            // check permission
+            int permissionCamera = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+            int permissionWriteExtStorage = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if( (permissionCamera != PackageManager.PERMISSION_GRANTED) &&
+                (permissionWriteExtStorage != PackageManager.PERMISSION_GRANTED))
+            {
+                ActivityCompat.requestPermissions(this,
+                                                    new String[]{Manifest.permission.CAMERA,
+                                                                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                 Manifest.permission.READ_EXTERNAL_STORAGE  },
+                                                    Util.PERMISSIONS_REQUEST_CAMERA_AND_STORAGE);
+            }
+            else if(permissionCamera != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this,
+                                                    new String[]{Manifest.permission.CAMERA},
+                                                    Util.PERMISSIONS_REQUEST_CAMERA);
+            }
+            else if(permissionWriteExtStorage != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this,
+                                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                 Manifest.permission.READ_EXTERNAL_STORAGE  },
+                                                    Util.PERMISSIONS_REQUEST_STORAGE);
+            }
+            else
+                doCreate(savedInstanceState);
         }
-        
-        // at the first beginning
-        if(savedInstanceState == null)
-        {
-    	    takeImageWithName();
-        	if((UtilImage.mExpandedImageView != null) &&
-               (UtilImage.mExpandedImageView.getVisibility() == View.VISIBLE) &&
-               (UtilImage.bShowExpandedImage == true))
-        	{
-        		UtilImage.closeExpandedImage();
-        	}
-        }
-        
+        else
+            doCreate(savedInstanceState);
+
     }
-    
+
+    void doCreate(Bundle savedInstanceState)
+	{
+		note_common = new Note_common(this);
+		imageUriInDB = "";
+		cameraImageUri = "";
+		bUseCameraImage = false;
+		enSaveDb = true;
+
+		// get row Id from saved instance
+		noteId = (savedInstanceState == null) ? null :
+				(Long) savedInstanceState.getSerializable(DB_page.KEY_NOTE_ID);
+
+		// get picture Uri in DB if instance is not null
+		dB = Page.mDb_page;
+		if(savedInstanceState != null)
+		{
+			System.out.println("Note_addCameraImage / onCreate / noteId =  " + noteId);
+			if(noteId != null)
+				imageUriInDB = dB.getNotePictureUri_byId(noteId);
+		}
+
+		// at the first beginning
+		if(savedInstanceState == null)
+		{
+			takeImageWithName();
+			if((UtilImage.mExpandedImageView != null) &&
+					(UtilImage.mExpandedImageView.getVisibility() == View.VISIBLE) &&
+					(UtilImage.bShowExpandedImage == true))
+			{
+				UtilImage.closeExpandedImage();
+			}
+		}
+	}
+
+    // callback of granted permission
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    {
+        System.out.println("Note_addCameraImage / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
+        switch (requestCode)
+        {
+            case Util.PERMISSIONS_REQUEST_CAMERA_AND_STORAGE:
+            {
+                // If request is cancelled, the result arrays are empty.
+                if ( (grantResults.length > 0) &&
+                     ((grantResults[0] == PackageManager.PERMISSION_GRANTED)&&
+                      (grantResults[1] == PackageManager.PERMISSION_GRANTED)&&
+                      (grantResults[2] == PackageManager.PERMISSION_GRANTED)  ) )
+                    doCreate(null);
+                else
+                    finish();
+            }
+            break;
+
+            case Util.PERMISSIONS_REQUEST_CAMERA:
+            {
+                // If request is cancelled, the result arrays are empty.
+                if ( (grantResults.length > 0) &&
+                     (grantResults[0] == PackageManager.PERMISSION_GRANTED) )
+                    doCreate(null);
+                else
+                    finish();
+            }
+            break;
+
+            case Util.PERMISSIONS_REQUEST_STORAGE:
+            {
+                // If request is cancelled, the result arrays are empty.
+                if ( (grantResults.length > 0) &&
+                     ((grantResults[0] == PackageManager.PERMISSION_GRANTED)&&
+                      (grantResults[1] == PackageManager.PERMISSION_GRANTED)  ))
+                    doCreate(null);
+                else
+                    finish();
+            }
+            break;
+
+        }//switch
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -121,7 +207,8 @@ public class Note_addCameraImage extends Activity {
         if( !UtilImage.bShowExpandedImage )
         {
         	System.out.println("Note_addCameraImage / onPause / keep pictureUriInDB");
-        	noteId = note_common.savePictureStateInDB(noteId, enSaveDb, imageUriInDB, "", "", "");
+        	if(note_common != null)
+        	    noteId = note_common.savePictureStateInDB(noteId, enSaveDb, imageUriInDB, "", "", "");
         }
     }
 
