@@ -158,7 +158,7 @@ public class Note_audio
     }
 
     // Set audio block
-    public ImageView mPager_audio_play_button;
+    public static ImageView mPager_audio_play_button;
     private static int mProgress;
     private static int mediaFileLength; // this value contains the song duration in milliseconds. Look at getDuration() method in MediaPlayer class
 
