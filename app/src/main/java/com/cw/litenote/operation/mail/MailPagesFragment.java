@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cw.litenote.main.MainAct;
@@ -35,6 +36,7 @@ import java.util.List;
 
 public class MailPagesFragment extends Fragment{
 	Context mContext;
+	TextView title;
 	Intent mEMailIntent;
 	CheckedTextView mCheckTvSelAll;
 	Button btnSelPageOK;
@@ -49,6 +51,10 @@ public class MailPagesFragment extends Fragment{
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		rootView = inflater.inflate(R.layout.select_page_list, container, false);
 		getActivity().getActionBar().setBackgroundDrawable(new ColorDrawable(ColorSet.getBarColor(getActivity())));
+
+		// title
+		title = (TextView) rootView.findViewById(R.id.select_list_title);
+		title.setText(R.string.config_select_pages_mail_title);
 
         // checked Text View: select all
         mCheckTvSelAll = (CheckedTextView) rootView.findViewById(R.id.chkSelectAllPages);
@@ -71,6 +77,8 @@ public class MailPagesFragment extends Fragment{
 
         // OK button: click to do next
         btnSelPageOK = (Button) rootView.findViewById(R.id.btnSelPageOK);
+		btnSelPageOK.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_send, 0, 0, 0);
+		btnSelPageOK.setText(R.string.mail_notes_btn);
         btnSelPageOK.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

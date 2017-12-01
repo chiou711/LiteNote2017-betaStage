@@ -59,7 +59,7 @@ public class Import_webAct extends FragmentActivity
         setContentView(R.layout.import_web);
 
         // web view
-        webView = (WebView) findViewById(R.id.webView);
+        webView = (WebView)findViewById(R.id.webView);
 
         // cancel button
         Button btn_cancel = (Button) findViewById(R.id.import_web_cancel);

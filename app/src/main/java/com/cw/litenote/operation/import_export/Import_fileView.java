@@ -81,8 +81,10 @@ public class Import_fileView extends Fragment
 		Button backButton = (Button) rootView.findViewById(R.id.view_back);
 		backButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_back, 0, 0, 0);
 
-		// confirm button
+		// import button
 		Button confirmButton = (Button) rootView.findViewById(R.id.view_confirm);
+		confirmButton.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_revert, 0, 0, 0);
+		confirmButton.setText(R.string.config_import);
 
 		// delete button
 		Button deleteButton = (Button) rootView.findViewById(R.id.view_delete);

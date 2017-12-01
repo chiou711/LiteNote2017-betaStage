@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.database.Cursor;
 
@@ -31,6 +32,7 @@ import com.cw.litenote.util.preferences.Pref;
 import static com.cw.litenote.tabs.TabsHost.mDbFolder;
 
 public class DeletePages extends Fragment{
+    TextView title;
 	CheckedTextView mCheckTvSelAll;
 	Button btnSelPageOK;
     ListView mListView;
@@ -51,6 +53,10 @@ public class DeletePages extends Fragment{
 		rootView = inflater.inflate(R.layout.select_page_list, container, false);
         act = getActivity();
 		act.getActionBar().setBackgroundDrawable(new ColorDrawable(ColorSet.getBarColor(act)));
+
+        // title
+        title = (TextView) rootView.findViewById(R.id.select_list_title);
+        title.setText(R.string.config_select_pages_delete_title);
 
         // checked Text View: select all
         mCheckTvSelAll = (CheckedTextView) rootView.findViewById(R.id.chkSelectAllPages);
@@ -74,6 +80,7 @@ public class DeletePages extends Fragment{
         // OK button: click to do next
         btnSelPageOK = (Button) rootView.findViewById(R.id.btnSelPageOK);
         btnSelPageOK.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_delete, 0, 0, 0);
+        btnSelPageOK.setText(R.string.config_delete_DB_btn);
         btnSelPageOK.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -18,6 +18,7 @@ import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cw.litenote.operation.List_selectPage;
@@ -29,6 +30,7 @@ import com.cw.litenote.util.Util;
 
 public class Export_toSDCardFragment extends Fragment {
 	Context mContext;
+	TextView title;
 	CheckedTextView mCheckTvSelAll;
     ListView mListView;
     int mStyle;
@@ -44,6 +46,10 @@ public class Export_toSDCardFragment extends Fragment {
 		getActivity().getActionBar().setBackgroundDrawable(new ColorDrawable(ColorSet.getBarColor(getActivity())));
 		mSelPageDlg = rootView.findViewById(R.id.selectPageDlg);
 		mProgressBar = rootView.findViewById(R.id.progressBar);
+
+		// title
+		title = (TextView) rootView.findViewById(R.id.select_list_title);
+		title.setText(R.string.config_select_pages_export_title);
 
 		// checked Text View: select all
 		mCheckTvSelAll = (CheckedTextView) rootView.findViewById(R.id.chkSelectAllPages);
@@ -66,6 +72,8 @@ public class Export_toSDCardFragment extends Fragment {
 		mListView = (ListView)rootView.findViewById(R.id.listView1);
 		// OK button: click to do next
 		Button btnSelPageOK = (Button) rootView.findViewById(R.id.btnSelPageOK);
+		btnSelPageOK.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_save, 0, 0, 0);
+		btnSelPageOK.setText(R.string.config_export_SDCard_btn);
 		btnSelPageOK.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

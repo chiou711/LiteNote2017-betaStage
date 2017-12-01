@@ -33,6 +33,10 @@
     <string name="config_import">汇入</string>
     <string name="config_import_Web">从Web汇入笔记</string>
     <string name="config_import_SDCard_confirm_title">确认要汇入所选：</string>
-    <string name="config_select_pages_title">选择要删除的页面:</string>
+    <string name="config_select_pages_title">选择页面:</string>
+    <string name="config_select_pages_delete_title">选择要删除的页面:</string>
+    <string name="config_select_pages_export_title">选择要汇出的页面:</string>
+    <string name="config_select_pages_mail_title">选择要寄送的页面:</string>
+    <string name="config_select_folders_title">选择要删除的文件夹:</string>
     <string name="config_button_back">返回</string>
 </resources>

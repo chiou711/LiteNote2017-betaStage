@@ -9,7 +9,8 @@
 	    android:layout_height="match_parent"
   		android:orientation="vertical" >
 	        
-   	<TextView 
+   	<TextView
+		 android:id="@+id/select_list_title"
 		 android:layout_width="match_parent" 
 		 android:layout_height="50dp"
 		 android:textSize="22sp" android:textStyle="bold"
@@ -63,7 +64,7 @@
 		android:textColor="@android:color/white"
 		android:background="@drawable/button"
 		android:layout_margin="5dp"
-	    android:text="@string/config_delete_DB_btn" />
+	    android:text="@string/btn_OK" />
  	</LinearLayout>
 </LinearLayout> 	
 

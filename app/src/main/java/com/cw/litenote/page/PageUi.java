@@ -138,6 +138,7 @@ public class PageUi
 
 
 		final int dividerWidth = act.getResources().getDrawable(R.drawable.ic_tab_divider).getMinimumWidth();
+        final int screenWidth = UtilImage.getScreenWidth(act);
 
 		// Shift to left
 	    dlg.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener()
@@ -163,8 +164,12 @@ public class PageUi
 					nextTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(getFocus_pagePos() -1).getWidth();
 
 				// when leftmost tab margin over window border
-	       		if(leftMargin[0] < 0)
-	       			TabsHost.mHorScrollView.scrollBy(- (nextTabWidth + dividerWidth) , 0);
+	       		if(leftMargin[0] < 0) {
+	       		    int scrollX = -(nextTabWidth + dividerWidth + screenWidth );
+                    TabsHost.mHorScrollView.scrollTo(scrollX, 0);
+                    //update final page currently viewed: scroll x
+                    Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
+                }
 
                 if(getTabPositionState() != LEFTMOST)
 	    	    {
@@ -220,15 +225,21 @@ public class PageUi
 
 				int curTabWidth, nextTabWidth;
 				curTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(getFocus_pagePos()).getWidth();
+
 				if(getFocus_pagePos() == (count-1))
 					nextTabWidth = curTabWidth;
 				else
 					nextTabWidth = TabsHost.mTabsHost.getTabWidget().getChildAt(getFocus_pagePos() +1).getWidth();
 
 	    		// when rightmost tab margin plus its tab width over screen border
-				int screenWidth = UtilImage.getScreenWidth(act);
-	    		if( screenWidth <= rightMargin[0] + nextTabWidth )
-	    			TabsHost.mHorScrollView.scrollBy(nextTabWidth + dividerWidth, 0);
+	    		if( screenWidth < (rightMargin[0] + nextTabWidth) )
+	    		{
+                    int scrollX = nextTabWidth + dividerWidth + screenWidth;
+                    TabsHost.mHorScrollView.scrollTo(scrollX, 0);
+
+                    //update final page currently viewed: scroll x
+                    Pref.setPref_focusView_scrollX_byFolderTableId(act, scrollX );
+                }
 
                 if(getTabPositionState() != RIGHTMOST)
 	   	    	{
