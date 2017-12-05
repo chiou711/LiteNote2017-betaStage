@@ -2,6 +2,7 @@ package com.cw.litenote.operation.import_export;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ public class Import_webAct extends FragmentActivity
     String content=null;
     WebView webView;
     Button btn_import;
+    String homeUrl = "http://litenoteapp.blogspot.tw/2017/09/xml-link.html";// TODO customization
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,7 +37,7 @@ public class Import_webAct extends FragmentActivity
         super.onCreate(savedInstanceState);
 
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)//api23
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)//API23
         {
             // check permission
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -78,7 +80,6 @@ public class Import_webAct extends FragmentActivity
 
         // import button
         btn_import = (Button) findViewById(R.id.import_web_import);
-//        btn_import.setVisibility(View.INVISIBLE);
         btn_import.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
@@ -103,7 +104,9 @@ public class Import_webAct extends FragmentActivity
                     }
                     FileOutputStream fOut = new FileOutputStream(file);
                     OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-                    content = content.replaceAll("(?m)^[ \t]*\r?\n", "");
+                    if(content != null) {
+                        content = content.replaceAll("(?m)^[ \t]*\r?\n", "");
+                    }
                     myOutWriter.append(content);
                     myOutWriter.close();
 
@@ -131,18 +134,29 @@ public class Import_webAct extends FragmentActivity
         // load web content
         webView.addJavascriptInterface(import_interface, "INTERFACE");
         webView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                btn_import.setVisibility(View.INVISIBLE);
+            }
+
             @Override
             public void onPageFinished(WebView view, String url)
             {
+                System.out.println("Import_webAct / _setWebViewClient / url = " + url);
                 view.loadUrl("javascript:window.INTERFACE.processContent(document.getElementsByTagName('body')[0].innerText);");
+                if(!url.contains(homeUrl))
+                    btn_import.setVisibility(View.VISIBLE);
             }
+
         });
 
         // show toast
         webView.addJavascriptInterface(import_interface, "LiteNote");
 
         // load content to web view
-        webView.loadUrl("http://litenoteapp.blogspot.tw/2017/09/xml-link.html");
+        webView.loadUrl(homeUrl);
     }
 
     // callback of granted permission
@@ -200,6 +214,7 @@ public class Import_webAct extends FragmentActivity
             });
         }
 
+        // note: this is used by home URL web page
         @android.webkit.JavascriptInterface
         public void showToast(String toastText) {
             Toast.makeText(Import_webAct.this, toastText, Toast.LENGTH_LONG).show();
