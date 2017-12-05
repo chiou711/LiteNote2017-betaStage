@@ -2,6 +2,7 @@ package com.cw.litenote.main;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,12 +124,12 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         if(Build.VERSION.SDK_INT>=24){
             try {
                 // method 1
-//                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-//                m.invoke(null);
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
 
                 // method 2
-                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                StrictMode.setVmPolicy(builder.build());
+//                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+//                StrictMode.setVmPolicy(builder.build());
             }catch(Exception e){
                 e.printStackTrace();
             }

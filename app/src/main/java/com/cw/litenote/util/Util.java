@@ -1313,7 +1313,6 @@ public class Util
 		return videoId;
 	}
 
-    static JsonAsync jsonAsyncTask;
 	// Get YouTube title
 	public static String getYouTubeTitle(String youtubeUrl)
 	{
@@ -1322,20 +1321,22 @@ public class Util
     		{
     			try {
 					embeddedURL = new URL("http://www.youtube.com/oembed?url=" +
-					youtubeUrl + "&format=json");
+										   youtubeUrl +
+										   "&format=json");
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
     		}
-	        
-    		jsonAsyncTask = new JsonAsync();
+
+			JsonAsync jsonAsyncTask = new JsonAsync();
     		jsonAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,embeddedURL);
     		isTimeUp = false;
 			setupLongTimeout(1000);
-    		
-    		while(Util.isEmptyString(jsonAsyncTask.title) && !isTimeUp)
+
+			while(Util.isEmptyString(jsonAsyncTask.title) && (!isTimeUp))
     		{
-    			//do nothing
+    			//Add for Android 7.1.1 hang up after adding YouTube link
+				try { Thread.sleep(100); } catch (InterruptedException e) {}
     		}
     		isTimeUp = true;
 	        return jsonAsyncTask.title;
@@ -1440,17 +1441,15 @@ public class Util
 	  if(longTimer == null) 
 	  {
 	    longTimer = new Timer();
-	    longTimer.schedule(new TimerTask() 
-	    {
-	      public void run() 
-	      {
-	        longTimer.cancel();
-	        longTimer = null;
-	        //do your stuff, i.e. finishing activity etc.
-	        isTimeUp = true;
-	      }
-	    }, timeout /*in milliseconds*/);
-	  }
+	    longTimer.schedule(new TimerTask() 	{
+											  public void run(){
+												longTimer.cancel();
+												longTimer = null;
+												//do your stuff, i.e. finishing activity etc.
+												isTimeUp = true;
+											  }
+											}, timeout /*in milliseconds*/);
+					  }
 	}
 
 	// set full screen

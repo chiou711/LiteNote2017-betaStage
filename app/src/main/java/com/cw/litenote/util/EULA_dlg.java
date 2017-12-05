@@ -78,9 +78,11 @@ public class EULA_dlg {
  
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    if(Build.VERSION.SDK_INT >= M)//api23
+                                    applyPreference();
+
+                                    // check permission first time, request all necessary permissions
+                                    if(Build.VERSION.SDK_INT >= M)//API23
                                     {
-                                        // check permission first time, request all necessary permissions
                                         int permissionCamera = ActivityCompat.checkSelfPermission(mAct, Manifest.permission.CAMERA);
                                         if(permissionCamera != PackageManager.PERMISSION_GRANTED)
                                         {
@@ -92,11 +94,7 @@ public class EULA_dlg {
                                                                                               },
                                                                 Util.PERMISSIONS_REQUEST_ALL);
                                         }
-                                        else
-                                            applyPreference();
                                     }
-                                    else
-                                        applyPreference();
 
                                     // Close dialog
                                     dialogInterface.dismiss();
