@@ -3,8 +3,6 @@ package com.cw.litenote.operation.import_export;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -24,28 +22,16 @@ class Import_webAct_asyncTask extends AsyncTask<Void, Integer, Void> {
     private ProgressBar progressBar;
     private boolean enableSaveDB;
     private FragmentActivity act;
-    private WebView webView;
     private File file;
-    private Button btn_cancel;
-    private Button btn_import;
-    private View contentBlcok;
+    private View contentBlock;
 
     Import_webAct_asyncTask(FragmentActivity _act, String _filePath)
     {
         act = _act;
         Util.lockOrientation(act);
 
-        contentBlcok = act.findViewById(R.id.contentBlock);
-        contentBlcok.setVisibility(View.GONE);
-
-//        webView = (WebView) act.findViewById(R.id.webView);
-//        webView.setVisibility(View.GONE);
-//
-//        btn_cancel = (Button) act.findViewById(R.id.import_web_cancel);
-//        btn_cancel.setVisibility(View.GONE);
-//
-//        btn_import = (Button) act.findViewById(R.id.import_web_import);
-//        btn_import.setVisibility(View.GONE);
+        contentBlock = act.findViewById(R.id.contentBlock);
+        contentBlock.setVisibility(View.GONE);
 
         progressBar = (ProgressBar) act.findViewById(R.id.import_progress);
         progressBar.setVisibility(View.VISIBLE);
@@ -79,10 +65,7 @@ class Import_webAct_asyncTask extends AsyncTask<Void, Integer, Void> {
 
         if(enableSaveDB)
         {
-//            webView.setVisibility(View.VISIBLE);
-//            btn_cancel.setVisibility(View.VISIBLE);
-//            btn_import.setVisibility(View.VISIBLE);
-            contentBlcok.setVisibility(View.VISIBLE);
+            contentBlock.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
 
 //				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);

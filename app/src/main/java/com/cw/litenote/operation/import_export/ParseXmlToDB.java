@@ -177,6 +177,7 @@ class ParseXmlToDB {
                        }
                     break;
                 }
+
                 if(!isEnd)
                     event = myParser.next();
                 else {
