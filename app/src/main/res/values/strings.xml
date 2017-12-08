@@ -2,6 +2,7 @@
 <resources>
     <string name="btn_OK">OK</string>
     <string name="btn_Cancel">Cancel</string>
+    <string name="btn_back">Back</string>
     <string name="btn_Continue">Continue</string>
     <string name="btn_Stop">Stop</string>
     <string name="btn_Renew">Renew</string>

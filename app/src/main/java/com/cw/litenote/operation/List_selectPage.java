@@ -37,8 +37,8 @@ public class List_selectPage
     DB_folder mDb_folder;
     public int count;
     Activity mAct;
-    public String mXML_default_filename;
     public String mFolderTitle;
+    public boolean isCheckAll;
 
     public List_selectPage(Activity act, View rootView, View view)
     {
@@ -62,17 +62,22 @@ public class List_selectPage
 
                 if(((CheckedTextView)checkSelAll).isChecked())
                 {
+                    isCheckAll = true;
                     selectAllPages(true);
-                    mXML_default_filename = mFolderTitle;
                 }
                 else
+                {
+                    isCheckAll = false;
                     selectAllPages(false);
+                }
             }
         });
 
         // list view: selecting which pages to send
         mListView = (ListView)view;
         showPageList(rootView);
+
+        isCheckAll = false;
     }
 
     // select all pages
@@ -145,9 +150,6 @@ public class List_selectPage
                     chkTV.setCompoundDrawablesWithIntrinsicBounds(mStyle%2 == 1 ?
                     R.drawable.btn_check_off_holo_light:
                     R.drawable.btn_check_off_holo_dark,0,0,0);
-
-                // set default file name
-                mXML_default_filename = mDb_folder.getPageTitle(position, true);
             }
         });
 

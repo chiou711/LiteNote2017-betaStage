@@ -142,12 +142,18 @@ public class Export_toSDCardFragment extends Fragment {
 		String pagesName="";
 		for(int i = 0; i< mList_selPage.mListStrArr.size(); i++) {
 			if(mList_selPage.mCheckedArr.get(i) == true) {
-				pagesName = pagesName.concat("_" + mList_selPage.mListStrArr.get(i) );
+				if(Util.isEmptyString(pagesName))
+					pagesName = mList_selPage.mListStrArr.get(i);//first title
+				else
+					pagesName = pagesName.concat("_" + mList_selPage.mListStrArr.get(i) );
 			}
 		}
 
 		// default file name: with tab title
-		mDefaultFileName = mList_selPage.mXML_default_filename + pagesName + ".xml";
+		if(mList_selPage.isCheckAll)
+			mDefaultFileName = mList_selPage.mFolderTitle + ".xml";
+		else
+			mDefaultFileName = pagesName + ".xml";
 
 		editSDCardFileNameText.setText(mDefaultFileName);
 

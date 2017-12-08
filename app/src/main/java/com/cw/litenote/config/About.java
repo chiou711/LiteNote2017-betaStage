@@ -104,7 +104,7 @@ public class About extends Fragment
            
 		   builder.setTitle(R.string.about_version)
 		   		  .setMessage(msgStr)
-				  .setNegativeButton(R.string.btn_Cancel, null)
+				  .setNegativeButton(R.string.notices_close, null)
 				  .show();
 	}
 }

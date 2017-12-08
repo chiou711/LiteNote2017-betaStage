@@ -542,7 +542,7 @@ public class Util
 	        for(int i=0;i< noteIdArray.size();i++)
 	        {
 				String strTitleEdit;
-				DB_page db_page = new DB_page(MainAct.mAct,Pref.getPref_focusView_page_tableId(MainAct.mAct));
+				DB_page db_page = new DB_page(MainAct.mAct, DB_page.getFocusPage_tableId());
                 db_page.open();
 		    	Cursor cursorNote = db_page.queryNote(noteIdArray.get(i));
 		        strTitleEdit = cursorNote.getString(

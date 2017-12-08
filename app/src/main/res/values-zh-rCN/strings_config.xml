@@ -38,5 +38,4 @@
     <string name="config_select_pages_export_title">选择要汇出的页面:</string>
     <string name="config_select_pages_mail_title">选择要寄送的页面:</string>
     <string name="config_select_folders_title">选择要删除的文件夹:</string>
-    <string name="config_button_back">返回</string>
 </resources>

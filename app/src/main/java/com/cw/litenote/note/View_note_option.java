@@ -78,7 +78,7 @@ public class View_note_option {
         // Back
         option_list.add(new View_note_option(ID_OPTION_BACK,
                 R.drawable.ic_menu_back,
-                R.string.config_button_back));
+                R.string.btn_back));
 
         gridView = (GridView) rootView.findViewById(R.id.option_grid_view);
 
