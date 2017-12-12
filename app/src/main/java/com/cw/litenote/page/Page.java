@@ -353,7 +353,8 @@ public class Page extends UilListViewBaseFragment
 			(AudioManager.getAudioPlayMode() == AudioManager.PAGE_PLAY_MODE)   )
 		{
 			page_audio.initAudioBlock();
-		}
+            UtilAudio.updateAudioPanel(page_audio.audioPanel_play_button, page_audio.audio_panel_title_textView);
+        }
     }
 
     @Override
