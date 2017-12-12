@@ -946,11 +946,11 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         		}
         		else
         		{
-                    // check permission first time, request all necessary permissions
+                    // check permission first time, request phone permission
                     if(Build.VERSION.SDK_INT >= M)//API23
                     {
-                        int permissionCamera = ActivityCompat.checkSelfPermission(mAct, Manifest.permission.CAMERA);
-                        if(permissionCamera != PackageManager.PERMISSION_GRANTED)
+                        int permissionPhone = ActivityCompat.checkSelfPermission(mAct, Manifest.permission.READ_PHONE_STATE);
+                        if(permissionPhone != PackageManager.PERMISSION_GRANTED)
                         {
                             ActivityCompat.requestPermissions(mAct,
                                     new String[]{Manifest.permission.READ_PHONE_STATE
