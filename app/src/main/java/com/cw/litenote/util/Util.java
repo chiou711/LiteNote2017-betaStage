@@ -116,10 +116,10 @@ public class Util
 	private int defaultBgClr;
 	private int defaultTextClr;
 
-	public static final int PERMISSIONS_REQUEST_PHONE = 1;
 	public static final int PERMISSIONS_REQUEST_CAMERA = 10;
 	public static final int PERMISSIONS_REQUEST_STORAGE = 11;
 	public static final int PERMISSIONS_REQUEST_CAMERA_AND_STORAGE = 12;
+	public static final int PERMISSIONS_REQUEST_PHONE = 13;
 	public static final int PERMISSIONS_REQUEST_ALL = 20;
 
 

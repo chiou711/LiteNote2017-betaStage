@@ -45,12 +45,15 @@ import com.cw.litenote.util.Util;
 import com.cw.litenote.util.preferences.Pref;
 import com.mobeta.android.dslv.DragSortListView;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -68,6 +71,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import static android.os.Build.VERSION_CODES.M;
 
 public class MainAct extends FragmentActivity implements OnBackStackChangedListener
 {
@@ -260,6 +265,15 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             {
                // first time request, do nothing
             }
+            break;
+            case Util.PERMISSIONS_REQUEST_PHONE:
+            {
+                // If request is cancelled, the result arrays are empty.
+                if ( (grantResults.length > 0) && ( (grantResults[0] == PackageManager.PERMISSION_GRANTED) ))
+                    playFirstAudio();
+            }
+            break;
+
         }
     }
 
@@ -932,29 +946,22 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         		}
         		else
         		{
-                    AudioManager.setAudioPlayMode(AudioManager.PAGE_PLAY_MODE);
-                    AudioManager.mAudioPos = 0;
-
-                    Page.page_audio = new Page_audio(mAct);
-                    Page.page_audio.initAudioBlock();
-
-                    AudioPlayer_page audioPlayer_page = new AudioPlayer_page(this,Page.page_audio);
-                    AudioPlayer_page.prepareAudioInfo();
-                    audioPlayer_page.runAudioState();
-
-					Page.mItemAdapter.notifyDataSetChanged();
-
-					// update playing page position
-					mPlaying_pagePos = PageUi.getFocus_pagePos();
-
-                    // update page table Id
-                    mPlaying_pageTableId = TabsHost.mNow_pageTableId;
-
-					// update playing folder position
-				    mPlaying_folderPos = FolderUi.getFocus_folderPos();
-
-                    dB_drawer = new DB_drawer(mAct);
-                    MainAct.mPlaying_folderTableId = dB_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
+                    // check permission first time, request all necessary permissions
+                    if(Build.VERSION.SDK_INT >= M)//API23
+                    {
+                        int permissionCamera = ActivityCompat.checkSelfPermission(mAct, Manifest.permission.CAMERA);
+                        if(permissionCamera != PackageManager.PERMISSION_GRANTED)
+                        {
+                            ActivityCompat.requestPermissions(mAct,
+                                    new String[]{Manifest.permission.READ_PHONE_STATE
+                                    },
+                                    Util.PERMISSIONS_REQUEST_PHONE);
+                        }
+                        else
+                            playFirstAudio();
+                    }
+                    else
+                        playFirstAudio();
         		}
         		return true;
 
@@ -1170,5 +1177,34 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    void playFirstAudio()
+    {
+        AudioManager.setAudioPlayMode(AudioManager.PAGE_PLAY_MODE);
+        AudioManager.mAudioPos = 0;
+
+        Page.page_audio = new Page_audio(mAct);
+        Page.page_audio.initAudioBlock();
+
+        AudioPlayer_page audioPlayer_page = new AudioPlayer_page(this,Page.page_audio);
+        AudioPlayer_page.prepareAudioInfo();
+        audioPlayer_page.runAudioState();
+
+        UtilAudio.updateAudioPanel(Page.page_audio.audioPanel_play_button, Page.page_audio.audio_panel_title_textView);
+
+        Page.mItemAdapter.notifyDataSetChanged();
+
+        // update playing page position
+        mPlaying_pagePos = PageUi.getFocus_pagePos();
+
+        // update page table Id
+        mPlaying_pageTableId = TabsHost.mNow_pageTableId;
+
+        // update playing folder position
+        mPlaying_folderPos = FolderUi.getFocus_folderPos();
+
+        DB_drawer dB_drawer = new DB_drawer(mAct);
+        MainAct.mPlaying_folderTableId = dB_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
     }
 }

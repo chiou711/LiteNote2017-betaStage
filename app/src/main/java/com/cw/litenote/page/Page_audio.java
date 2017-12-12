@@ -63,7 +63,6 @@ public class Page_audio {
 
         // update play button status
         audioPanel_play_button = (ImageView) mAct.findViewById(R.id.audioPanel_play);
-        UtilAudio.updateAudioPanel(audioPanel_play_button, audio_panel_title_textView);
 
         ImageView audioPanel_previous_btn = (ImageView) mAct.findViewById(R.id.audioPanel_previous);
         audioPanel_previous_btn.setImageResource(R.drawable.ic_media_previous);
@@ -156,6 +155,7 @@ public class Page_audio {
 
                 // update status
                 UtilAudio.updateAudioPanel((ImageView)v, audio_panel_title_textView); // here v is audio play button
+
                 if(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP)
                     AudioPlayer_page.scrollHighlightAudioItemToVisible();
             }
@@ -224,11 +224,11 @@ public class Page_audio {
         AudioPlayer_page audioPlayer_page = new AudioPlayer_page(mAct,this);
         initAudioBlock();
 
-        // update status
-        UtilAudio.updateAudioPanel(audioPanel_play_button, audio_panel_title_textView);
-
         // new audio player instance
         audioPlayer_page.runAudioState();
+
+        // update status
+        UtilAudio.updateAudioPanel(audioPanel_play_button, audio_panel_title_textView);
 
         if(AudioManager.getPlayerState() != AudioManager.PLAYER_AT_STOP)
             AudioPlayer_page.scrollHighlightAudioItemToVisible();

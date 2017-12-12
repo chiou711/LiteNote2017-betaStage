@@ -681,6 +681,7 @@ public class Page extends UilListViewBaseFragment
 
 					// create new Intent to play audio
 					AudioManager.mAudioPos = position;
+                    AudioManager.setAudioPlayMode(AudioManager.PAGE_PLAY_MODE);
 
                     page_audio = new Page_audio(mAct);
                     page_audio.initAudioBlock();
@@ -688,6 +689,8 @@ public class Page extends UilListViewBaseFragment
                     audioPlayer_page = new AudioPlayer_page(mAct,page_audio);
 					AudioPlayer_page.prepareAudioInfo();
 					audioPlayer_page.runAudioState();
+
+                    UtilAudio.updateAudioPanel(page_audio.audioPanel_play_button, page_audio.audio_panel_title_textView);
 
                     // update playing page position
                     MainAct.mPlaying_pagePos = PageUi.getFocus_pagePos();
