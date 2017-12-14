@@ -1,7 +1,11 @@
 package com.cw.litenote.note;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.text.method.ScrollingMovementMethod;
@@ -22,6 +26,8 @@ import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.preferences.Pref;
 
 import java.util.Locale;
+
+import static android.os.Build.VERSION_CODES.M;
 
 /**
  * Created by cw on 2017/10/26.
@@ -177,6 +183,23 @@ public class Note_audio
             @Override
             public void onClick(View v)
             {
+
+                // check permission first time, request phone permission
+                if(Build.VERSION.SDK_INT >= M)//API23
+                {
+                    int permissionPhone = ActivityCompat.checkSelfPermission(act, Manifest.permission.READ_PHONE_STATE);
+                    if(permissionPhone != PackageManager.PERMISSION_GRANTED)
+                    {
+                        ActivityCompat.requestPermissions(act,
+                                new String[]{Manifest.permission.READ_PHONE_STATE},
+                                Util.PERMISSIONS_REQUEST_PHONE);
+                    }
+                    else
+                        UtilAudio.setPhoneListener(act);
+                }
+                else
+                    UtilAudio.setPhoneListener(act);
+
                 isPausedAtSeekerAnchor = false;
                 TabsHost.setAudioPlayingTab_WithHighlight(false);// in case playing audio in pager
                 playAudioInPager(act,audioStr,_pager);

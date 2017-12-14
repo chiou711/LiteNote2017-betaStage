@@ -12,13 +12,25 @@ import com.cw.litenote.page.PageUi;
 import com.cw.litenote.util.ColorSet;
 import com.cw.litenote.util.Util;
 
+import android.support.v4.app.FragmentActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import static android.content.Context.TELEPHONY_SERVICE;
+
 public class UtilAudio {
-	
+
+	public static void setPhoneListener(FragmentActivity act)
+	{
+		// To Registers a listener object to receive notification when incoming call
+		TelephonyManager telMgr = (TelephonyManager) act.getSystemService(TELEPHONY_SERVICE);
+		if (telMgr != null) {
+			telMgr.listen(UtilAudio.phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+		}
+	}
+
     public static void stopAudioIfNeeded()
     {
 		if( ( (AudioManager.mMediaPlayer != null) &&

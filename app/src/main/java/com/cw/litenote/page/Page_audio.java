@@ -1,5 +1,9 @@
 package com.cw.litenote.page;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -14,6 +18,8 @@ import com.cw.litenote.util.Util;
 import com.cw.litenote.util.audio.UtilAudio;
 
 import java.util.Locale;
+
+import static android.os.Build.VERSION_CODES.M;
 
 /**
  * Created by cw on 2017/10/21.
@@ -32,7 +38,24 @@ public class Page_audio {
     public Page_audio(FragmentActivity act)
     {
         this.mAct = act;
+
+        // check permission first time, request phone permission
+        if(Build.VERSION.SDK_INT >= M)//API23
+        {
+            int permissionPhone = ActivityCompat.checkSelfPermission(mAct, Manifest.permission.READ_PHONE_STATE);
+            if(permissionPhone != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(mAct,
+                                                  new String[]{Manifest.permission.READ_PHONE_STATE},
+                                                  Util.PERMISSIONS_REQUEST_PHONE);
+            }
+            else
+                UtilAudio.setPhoneListener(mAct);
+        }
+        else
+            UtilAudio.setPhoneListener(mAct);
     }
+
 
     /**
      * init audio block

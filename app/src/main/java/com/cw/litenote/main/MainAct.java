@@ -258,22 +258,23 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
     {
-        System.out.println("grantResults.length =" + grantResults.length);
+        System.out.println("MainAct / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
         switch (requestCode)
         {
             case Util.PERMISSIONS_REQUEST_ALL:
             {
                // first time request, do nothing
+                if ( (grantResults.length > 0) && ( (grantResults[3] == PackageManager.PERMISSION_GRANTED) ))
+                    UtilAudio.setPhoneListener(this);
             }
             break;
             case Util.PERMISSIONS_REQUEST_PHONE:
             {
                 // If request is cancelled, the result arrays are empty.
                 if ( (grantResults.length > 0) && ( (grantResults[0] == PackageManager.PERMISSION_GRANTED) ))
-                    playFirstAudio();
+                    UtilAudio.setPhoneListener(this);
             }
             break;
-
         }
     }
 
@@ -361,14 +362,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
     {
         super.onResume();
     	System.out.println("MainAct / _onResume");
-
-      	// To Registers a listener object to receive notification when incoming call
-     	TelephonyManager telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-     	if(telMgr != null)
-     	{
-     		telMgr.listen(UtilAudio.phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-     	}
     }
+
 
     @Override
     protected void onResumeFragments() {
@@ -944,25 +939,34 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 					Page.mItemAdapter.notifyDataSetChanged();
 					return true; // just stop playing, wait for user action
         		}
-        		else
-        		{
-                    // check permission first time, request phone permission
-                    if(Build.VERSION.SDK_INT >= M)//API23
-                    {
-                        int permissionPhone = ActivityCompat.checkSelfPermission(mAct, Manifest.permission.READ_PHONE_STATE);
-                        if(permissionPhone != PackageManager.PERMISSION_GRANTED)
-                        {
-                            ActivityCompat.requestPermissions(mAct,
-                                    new String[]{Manifest.permission.READ_PHONE_STATE
-                                    },
-                                    Util.PERMISSIONS_REQUEST_PHONE);
-                        }
-                        else
-                            playFirstAudio();
-                    }
-                    else
-                        playFirstAudio();
-        		}
+        		else // play first audio
+                {
+                    AudioManager.setAudioPlayMode(AudioManager.PAGE_PLAY_MODE);
+                    AudioManager.mAudioPos = 0;
+
+                    Page.page_audio = new Page_audio(mAct);
+                    Page.page_audio.initAudioBlock();
+
+                    AudioPlayer_page audioPlayer_page = new AudioPlayer_page(this,Page.page_audio);
+                    AudioPlayer_page.prepareAudioInfo();
+                    audioPlayer_page.runAudioState();
+
+                    UtilAudio.updateAudioPanel(Page.page_audio.audioPanel_play_button, Page.page_audio.audio_panel_title_textView);
+
+                    Page.mItemAdapter.notifyDataSetChanged();
+
+                    // update playing page position
+                    mPlaying_pagePos = PageUi.getFocus_pagePos();
+
+                    // update page table Id
+                    mPlaying_pageTableId = TabsHost.mNow_pageTableId;
+
+                    // update playing folder position
+                    mPlaying_folderPos = FolderUi.getFocus_folderPos();
+
+                    dB_drawer = new DB_drawer(mAct);
+                    MainAct.mPlaying_folderTableId = dB_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
+                }
         		return true;
 
         	case MenuId.SLIDE_SHOW:
@@ -1177,34 +1181,5 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    void playFirstAudio()
-    {
-        AudioManager.setAudioPlayMode(AudioManager.PAGE_PLAY_MODE);
-        AudioManager.mAudioPos = 0;
-
-        Page.page_audio = new Page_audio(mAct);
-        Page.page_audio.initAudioBlock();
-
-        AudioPlayer_page audioPlayer_page = new AudioPlayer_page(this,Page.page_audio);
-        AudioPlayer_page.prepareAudioInfo();
-        audioPlayer_page.runAudioState();
-
-        UtilAudio.updateAudioPanel(Page.page_audio.audioPanel_play_button, Page.page_audio.audio_panel_title_textView);
-
-        Page.mItemAdapter.notifyDataSetChanged();
-
-        // update playing page position
-        mPlaying_pagePos = PageUi.getFocus_pagePos();
-
-        // update page table Id
-        mPlaying_pageTableId = TabsHost.mNow_pageTableId;
-
-        // update playing folder position
-        mPlaying_folderPos = FolderUi.getFocus_folderPos();
-
-        DB_drawer dB_drawer = new DB_drawer(mAct);
-        MainAct.mPlaying_folderTableId = dB_drawer.getFolderTableId(MainAct.mPlaying_folderPos,true);
     }
 }

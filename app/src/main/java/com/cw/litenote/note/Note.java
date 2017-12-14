@@ -10,6 +10,7 @@ import com.cw.litenote.page.PageUi;
 import com.cw.litenote.tabs.TabsHost;
 import com.cw.litenote.util.CustomWebView;
 import com.cw.litenote.util.DeleteFileAlarmReceiver;
+import com.cw.litenote.util.audio.UtilAudio;
 import com.cw.litenote.util.image.UtilImage;
 import com.cw.litenote.util.preferences.Pref;
 import com.cw.litenote.util.video.AsyncTaskVideoBitmapPager;
@@ -25,6 +26,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -96,6 +98,22 @@ public class Note extends FragmentActivity
 
 	} //onCreate end
 
+	// callback of granted permission
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+	{
+		System.out.println("Note / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
+		switch (requestCode)
+		{
+			case Util.PERMISSIONS_REQUEST_PHONE:
+			{
+				// If request is cancelled, the result arrays are empty.
+				if ( (grantResults.length > 0) && ( (grantResults[0] == PackageManager.PERMISSION_GRANTED) ))
+					UtilAudio.setPhoneListener(this);
+			}
+			break;
+		}
+	}
 
 	// Add to prevent resizing full screen picture,
 	// when popup menu shows up at picture mode
@@ -153,8 +171,10 @@ public class Note extends FragmentActivity
 			mAudioUriInDB = mDb_page.getNoteAudioUri_byId(mNoteId);
 		}
 
-		note_audio = new Note_audio(this,mAudioUriInDB);
-		note_audio.init_audio_block();
+        if(UtilAudio.hasAudioExtension(mAudioUriInDB)) {
+            note_audio = new Note_audio(this, mAudioUriInDB);
+            note_audio.init_audio_block();
+        }
 
 
 		// Note: if mPager.getCurrentItem() is not equal to mEntryPosition, _onPageSelected will
@@ -235,16 +255,11 @@ public class Note extends FragmentActivity
 			mAudioUriInDB = mDb_page.getNoteAudioUri_byId(mNoteId);
 			System.out.println("Note / _onPageSelected / mAudioUriInDB = " + mAudioUriInDB);
 
-			note_audio = new Note_audio(Note.this,mAudioUriInDB);
-			note_audio.init_audio_block();
-            note_audio.showAudioBlock();
-
-
-			if((nextPosition == NoteUi.getFocus_notePos() +1) || (nextPosition == NoteUi.getFocus_notePos() -1))
-			{
-				if(AudioManager.getAudioPlayMode() == AudioManager.NOTE_PLAY_MODE)
-					AudioPlayer_note.mAudioPos = NoteUi.getFocus_notePos();//update Audio index
-			}
+			if(UtilAudio.hasAudioExtension(mAudioUriInDB)) {
+                note_audio = new Note_audio(Note.this, mAudioUriInDB);
+                note_audio.init_audio_block();
+                note_audio.showAudioBlock();
+            }
 
 			// stop video when changing note
 			String pictureUriInDB = mDb_page.getNotePictureUri_byId(mNoteId);

@@ -428,6 +428,8 @@ public class Page extends UilListViewBaseFragment
 
         mDndListView.setDividerHeight(3);
         */
+		if(mDb_page == null)
+			return;
 
     	mDb_page.open();
 		mCursor_note = DB_page.mCursor_note;
