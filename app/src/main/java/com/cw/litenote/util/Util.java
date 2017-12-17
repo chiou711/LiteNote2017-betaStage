@@ -171,16 +171,10 @@ public class Util
 	}
 	
 	// save to SD card: for NoteView class
-	public String exportStringToSdCard(String filename, String curString)
+	public String exportStringToSdCard(String filename, String data)
 	{   
-		//sent data
-		String data = "";
-		data = data.concat(curString);
-		
 		mEMailString = data;
-		
 		exportToSdCardFile(data,filename);
-		
 		return mEMailString;
 	}
 	

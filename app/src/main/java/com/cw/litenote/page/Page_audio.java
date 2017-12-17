@@ -173,7 +173,7 @@ public class Page_audio {
                 initAudioBlock();
 
                 AudioPlayer_page audioPlayer_page = new AudioPlayer_page(mAct,Page_audio.this);
-                AudioPlayer_page.prepareAudioInfo();
+//                AudioPlayer_page.prepareAudioInfo();
                 audioPlayer_page.runAudioState();
 
                 // update status
