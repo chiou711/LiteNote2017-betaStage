@@ -206,6 +206,9 @@ public class FolderUi
                         MainAct.mPlaying_folderPos++;
                 }
 
+                // recover focus folder table Id
+                DB_folder.setFocusFolder_tableId(Pref.getPref_focusView_folder_tableId(act));
+
                 folderAdapter.notifyDataSetChanged();
 
                 //end

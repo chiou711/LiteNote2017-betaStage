@@ -343,6 +343,7 @@ public class DB_folder
 
     public static void setFocusFolder_tableId(int i)
     {
+//        System.out.println("DB_folder / _setFocusFolder_tableId / i = " + i);
     	mTableId_folder = i;
     }
     

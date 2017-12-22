@@ -72,7 +72,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static android.os.Build.VERSION_CODES.M;
+import static android.os.Build.VERSION_CODES.O;
 
 public class MainAct extends FragmentActivity implements OnBackStackChangedListener
 {
@@ -252,6 +252,8 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
 
 		// Show license dialog
 		new EULA_dlg(this).show();
+
+        isAddedOnNewIntent = false;
     }
 
     // callback of granted permission
@@ -308,12 +310,15 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         super.onNewIntent(intent);
 		System.out.println("MainAct / _onNewIntent");
 
-        if(!isAddedOnNewIntent) {
+        if(!isAddedOnNewIntent)
+        {
             String intentLink = mMainUi.addNote_IntentLink(intent, mAct);
             if (!Util.isEmptyString(intentLink) && intentLink.startsWith("http")) {
                 Page.mItemAdapter.notifyDataSetChanged();
             }
-            isAddedOnNewIntent = true; // fix 2 times _onNewIntent on API26
+
+            if(Build.VERSION.SDK_INT >= O)//API26
+                isAddedOnNewIntent = true; // fix 2 times _onNewIntent on API26
         }
     }
 
@@ -578,7 +583,9 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
         if(requestCode == Util.YOUTUBE_ADD_NEW_LINK_INTENT)
         {
             System.out.println("MainAct / _onActivityResult /YOUTUBE_ADD_NEW_LINK_INTENT");
-            isAddedOnNewIntent = false;
+
+            if(Build.VERSION.SDK_INT >= O)//API26
+                isAddedOnNewIntent = false;
         }
     }
 

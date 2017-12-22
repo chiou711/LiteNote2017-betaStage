@@ -174,6 +174,17 @@ public class Util
 	public String exportStringToSdCard(String filename, String data)
 	{   
 		mEMailString = data;
+
+		///
+		//??? can not duplicate yet
+//		java.lang.NullPointerException: Attempt to invoke virtual method 'int java.lang.String.length()' on a null object reference
+//		at java.io.Writer.write(Writer.java:141)
+//		at com.cw.litenote.util.f.b(Unknown Source)
+//		at com.cw.litenote.util.f.a(Unknown Source)
+//		at com.cw.litenote.operation.c.b$a.onClick(Unknown Source)
+//		at android.view.View.performClick(View.java:4785)
+		///
+
 		exportToSdCardFile(data,filename);
 		return mEMailString;
 	}
