@@ -20,7 +20,6 @@ import android.app.Dialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -359,7 +358,7 @@ public class Note_edit extends Activity
 	    }
     }
     
-    static final int CHANGE_YOUTUBE_LINK = R.id.ADD_YOUTUBE_LINK;
+    static final int CHANGE_LINK = R.id.ADD_LINK;
     static final int CHANGE_AUDIO = R.id.ADD_AUDIO;
     static final int CAPTURE_IMAGE = R.id.ADD_NEW_IMAGE;
     static final int CAPTURE_VIDEO = R.id.ADD_NEW_VIDEO;
@@ -371,7 +370,7 @@ public class Note_edit extends Activity
 		// inflate menu
 		getMenuInflater().inflate(R.menu.edit_note_menu, menu);
 
-//	    menu.add(0, CHANGE_YOUTUBE_LINK, 0, R.string.edit_note_link )
+//	    menu.add(0, CHANGE_LINK, 0, R.string.edit_note_link )
 //	    .setIcon(android.R.drawable.ic_menu_share)
 //	    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 //
@@ -407,7 +406,7 @@ public class Note_edit extends Activity
 		    	}
 		        return true;
 
-            case CHANGE_YOUTUBE_LINK:
+            case CHANGE_LINK:
 //            	Intent intent_youtube_link = new Intent(Intent.ACTION_VIEW,Uri.parse("http://www.youtube.com"));
 //            	startActivityForResult(intent_youtube_link,EDIT_YOUTUBE_LINK);
 //            	enSaveDb = false;
