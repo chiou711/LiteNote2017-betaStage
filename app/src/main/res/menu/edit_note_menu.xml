@@ -1,27 +1,26 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/ADD_LINK"
         android:icon="@android:drawable/ic_menu_share"
         android:orderInCategory="0"
-        app:showAsAction="ifRoom|withText"
+        android:showAsAction="always|withText"
         android:title="@string/edit_note_link"/>
     <item
         android:id="@+id/ADD_AUDIO"
         android:orderInCategory="1"
-        app:showAsAction="ifRoom|withText"
+        android:showAsAction="always|withText"
         android:title="@string/note_audio"
         android:icon="@drawable/ic_audio_unselected"/>
     <item
         android:id="@+id/ADD_NEW_IMAGE"
         android:orderInCategory="2"
-        app:showAsAction="always|withText"
+        android:showAsAction="always|withText"
         android:title="@string/note_camera_image"
         android:icon="@android:drawable/ic_menu_camera"/>
     <item
         android:id="@+id/ADD_NEW_VIDEO"
         android:orderInCategory="3"
-        app:showAsAction="always|withText"
+        android:showAsAction="always|withText"
         android:title="@string/note_camera_video"
         android:icon="@android:drawable/presence_video_online"/>
 </menu>
