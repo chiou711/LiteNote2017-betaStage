@@ -278,6 +278,7 @@ public class AudioPlayer_note
         AudioManager.isRunnableOn_page = false;
         AudioManager.isRunnableOn_note = true;
         AudioManager.mMediaPlayer = null;
+        Async_audioUrlVerify.mIsOkUrl = false;
 
 		mAudioUrlVerifyTask = new Async_audioUrlVerify(act, mAudioManager.getAudioStringAt(mAudioPos));
 		mAudioUrlVerifyTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"Searching media ...");

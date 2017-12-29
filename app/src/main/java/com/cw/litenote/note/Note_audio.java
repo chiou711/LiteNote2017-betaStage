@@ -97,6 +97,7 @@ public class Note_audio
 
         mProgress = 0;
 
+        mAudioUriInDB = audioUriInDB;
         showAudioName(act);
 
         TextView audioTitle = (TextView) act.findViewById(R.id.pager_audio_title);
@@ -261,7 +262,8 @@ public class Note_audio
         if(AudioManager.getAudioPlayMode()  == AudioManager.PAGE_PLAY_MODE)
             AudioManager.stopAudioPlayer();
 
-        if(UtilAudio.hasAudioExtension(audioStr))
+        if(UtilAudio.hasAudioExtension(audioStr) ||
+           UtilAudio.hasAudioExtension(Util.getDisplayNameByUriString(audioStr, act)))
         {
             AudioPlayer_note.mAudioPos = NoteUi.getFocus_notePos();
 

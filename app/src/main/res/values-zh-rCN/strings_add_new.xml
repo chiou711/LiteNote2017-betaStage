@@ -15,8 +15,8 @@
     <string name="note_text">文字</string>
     <string name="note_camera_image">摄像机图像</string>
     <string name="note_camera_video">摄像机视频</string>
-    <string name="note_local_image">本地图像</string>
-    <string name="note_local_video">本地视频</string>
+    <string name="note_ready_image">现成图像</string>
+    <string name="note_ready_video">现成视频</string>
     <string name="note_audio">音讯</string>
     <string name="note_youtube_link">YouTube连结</string>
     <string name="note_web_link">网页连结</string>

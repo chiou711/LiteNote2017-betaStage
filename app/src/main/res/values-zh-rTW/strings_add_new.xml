@@ -15,8 +15,8 @@
     <string name="note_text">文字</string>
     <string name="note_camera_image">照相機圖片</string>
     <string name="note_camera_video">照相機影片</string>
-    <string name="note_local_image">本地圖片</string>
-    <string name="note_local_video">本地影片</string>
+    <string name="note_ready_image">現成圖片</string>
+    <string name="note_ready_video">現成影片</string>
     <string name="note_audio">音訊</string>    
     <string name="note_youtube_link">YouTube連結</string>
     <string name="note_web_link">網頁連結</string>

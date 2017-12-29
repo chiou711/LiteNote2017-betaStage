@@ -89,7 +89,7 @@ public class Add_note_option {
         // ready image
         addNoteList.add(new Add_note_option(ID_NEW_READY_IMAGE,
                 android.R.drawable.ic_menu_gallery,
-                R.string.note_local_image));
+                R.string.note_ready_image));
 
         // camera video
         if(packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA))
@@ -102,7 +102,7 @@ public class Add_note_option {
         // ready video
         addNoteList.add(new Add_note_option(ID_NEW_READY_VIDEO,
                 R.drawable.ic_ready_video,
-                R.string.note_local_video));
+                R.string.note_ready_video));
 
         // YouTube link
         addNoteList.add(new Add_note_option(ID_NEW_YOUTUBE_LINK,

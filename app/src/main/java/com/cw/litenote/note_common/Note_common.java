@@ -264,8 +264,8 @@ public class Note_common {
 //						act.startActivityForResult(intent, Util.ACTIVITY_SELECT_PICTURE);
 						
 						// select global
-						final String[] items = new String[]{act.getResources().getText(R.string.note_local_image).toString(),
-															act.getResources().getText(R.string.note_local_video).toString()};
+						final String[] items = new String[]{act.getResources().getText(R.string.note_ready_image).toString(),
+															act.getResources().getText(R.string.note_ready_video).toString()};
 					    AlertDialog.Builder builder = new AlertDialog.Builder(act);
 					   
 					    DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()

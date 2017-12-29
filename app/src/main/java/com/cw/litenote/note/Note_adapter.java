@@ -479,8 +479,10 @@ class Note_adapter extends FragmentStatePagerAdapter
 
             ViewGroup audioBlock = (ViewGroup) act.findViewById(R.id.audioGroup);
             audioBlock.setVisibility(View.VISIBLE);
+
 			// init audio block of pager
-			if(UtilAudio.hasAudioExtension(audioUri))
+			if(UtilAudio.hasAudioExtension(audioUri) ||
+               UtilAudio.hasAudioExtension(Util.getDisplayNameByUriString(audioUri, act)) )
 			{
 				Note_audio.initAudioProgress(act,audioUri,pager);
 
