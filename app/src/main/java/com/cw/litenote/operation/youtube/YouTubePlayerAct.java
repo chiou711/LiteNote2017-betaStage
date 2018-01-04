@@ -1,6 +1,7 @@
 package com.cw.litenote.operation.youtube;
 
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -153,6 +154,8 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
      */
     void prepare_play_YouTube(YouTubePlayer youTubePlayer)
     {
+        YouTubePlayerView youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
+        youTubeView.setVisibility(View.VISIBLE);
         // set interface, cf. .CHROMELESS: no interface, .MINIMAL: only play/pause button
         YouTubePlayer.PlayerStyle style = YouTubePlayer.PlayerStyle.DEFAULT;
         youTubePlayer.setPlayerStyle(style);
@@ -194,8 +197,11 @@ public class YouTubePlayerAct extends YouTubeFailureRecoveryActivity
             // auto start playing
             youTubePlayer.loadPlaylist(playListIdStr,0,0); // cf. _cuePlaylist for manual start
         }
-        else
-            Toast.makeText(act,R.string.toast_no_link_found,Toast.LENGTH_SHORT).show();
+        else {
+            youTubePlayer.pause();
+            youTubeView.setVisibility(View.INVISIBLE);
+            Toast.makeText(act, R.string.toast_no_link_found, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

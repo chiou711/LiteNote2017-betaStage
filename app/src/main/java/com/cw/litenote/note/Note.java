@@ -171,7 +171,8 @@ public class Note extends FragmentActivity
 			mAudioUriInDB = mDb_page.getNoteAudioUri_byId(mNoteId);
 		}
 
-        if(UtilAudio.hasAudioExtension(mAudioUriInDB)) {
+        if(UtilAudio.hasAudioExtension(mAudioUriInDB) ||
+		   UtilAudio.hasAudioExtension(Util.getDisplayNameByUriString(mAudioUriInDB, act))) {
             note_audio = new Note_audio(this, mAudioUriInDB);
             note_audio.init_audio_block();
         }

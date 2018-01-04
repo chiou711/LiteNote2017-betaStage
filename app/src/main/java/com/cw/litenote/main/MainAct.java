@@ -1030,9 +1030,20 @@ public class MainAct extends FragmentActivity implements OnBackStackChangedListe
                 return true;
 
             case MenuId.ADD_NEW_PAGE:
+
+                // get current Max page table Id
+                int currentMaxPageTableId = 0;
             	int pgCnt = FolderUi.getFolder_pagesCount(this,FolderUi.getFocus_folderPos());
-//				PageUi.addNewPage(mAct, TabsHost.mLastPos_pageTableId + 1);
-				PageUi.addNewPage(mAct, pgCnt + 1);
+                DB_folder db_folder = new DB_folder(this,DB_folder.getFocusFolder_tableId());
+
+                for(int i=0;i< pgCnt;i++)
+                {
+                    int id = db_folder.getPageTableId(i,true);
+                    if(id >currentMaxPageTableId)
+                        currentMaxPageTableId = id;
+                }
+
+				PageUi.addNewPage(mAct, currentMaxPageTableId + 1);
 
                 return true;
 
